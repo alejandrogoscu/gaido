@@ -1,0 +1,19 @@
+.logo {
+  display: block;
+  width: 3rem;
+  height: auto;
+}
+
+.symbol {
+  fill: #ffffff;
+}
+
+.cutout {
+  fill: var(--color-accent);
+}
+
+@media (min-width: 48rem) {
+  .logo {
+    width: 3.5rem;
+  }
+}

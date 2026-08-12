@@ -1,0 +1,43 @@
+.panel {
+  width: 100%;
+  max-width: 29rem;
+  margin: auto;
+  padding: 3rem 1.25rem;
+  border-top: 4px solid var(--color-accent);
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--color-accent-strong);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(2rem, 10vw, 3.25rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.email {
+  margin: 0.75rem 0 0;
+  color: var(--color-accent-strong);
+  font-weight: 500;
+}
+
+.description {
+  margin: 1rem 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+@media (min-width: 48rem) {
+  .panel {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}

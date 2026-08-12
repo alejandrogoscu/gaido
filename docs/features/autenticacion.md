@@ -39,6 +39,7 @@ Registro recibe `email`, `username` y `password`. Login recibe `email` y `passwo
 ## Interfaz web
 
 - Al cargar la aplicación se consulta la sesión actual antes de mostrar el formulario o el contenido autenticado.
+- El inicio de sesión y el registro tienen rutas públicas independientes: `/login` y `/register`.
 - El acceso solicita exclusivamente correo electrónico y contraseña.
 - El registro solicita nombre de usuario, correo electrónico y una contraseña de al menos 12 caracteres.
 - Registro e inicio de sesión actualizan inmediatamente la interfaz con el usuario devuelto por la API.
@@ -46,7 +47,8 @@ Registro recibe `email`, `username` y `password`. Login recibe `email` y `passwo
 - Los errores de validación o credenciales se muestran junto al formulario y los controles se desactivan durante cada envío.
 - Un error al consultar la sesión muestra una acción de reintento; una respuesta `401` muestra el acceso como estado normal.
 - El cierre de sesión solo devuelve a la pantalla de acceso cuando la API confirma que la sesión ha sido eliminada.
-- La pantalla mantiene una sola columna desde 320 px y añade una zona de marca lateral en pantallas mayores.
+- Las rutas públicas usan una cabecera con logo y claim; las rutas autenticadas sustituyen el claim por un menú con la identidad y el cierre de sesión.
+- La pantalla mantiene una sola columna desde 320 px bajo una cabecera horizontal.
 
 ## Seguridad
 
@@ -75,5 +77,5 @@ Registro recibe `email`, `username` y `password`. Login recibe `email` y `passwo
 
 - Los tests usan una base PostgreSQL temporal e independiente.
 - Se cubren registro, normalización, hash, conflictos, longitud de contraseña, login, errores genéricos, sesión automática, expiración y logout.
-- La interfaz cubre sesión inexistente, login, registro, credenciales incorrectas, restauración de sesión, logout y reintento tras un error de conexión.
+- La interfaz cubre sesión inexistente, navegación entre login y registro, autenticación, credenciales incorrectas, restauración de sesión, menú autenticado, logout y reintento tras un error de conexión.
 - Alembic crea las restricciones, claves foráneas e índices definidos por los modelos SQLAlchemy.

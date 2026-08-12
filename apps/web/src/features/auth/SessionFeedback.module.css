@@ -1,0 +1,42 @@
+.status {
+  display: grid;
+  width: 100%;
+  max-width: 29rem;
+  margin: auto;
+  padding: 3rem 1.25rem;
+  gap: 1rem;
+  justify-items: start;
+  color: var(--color-text-muted);
+}
+
+.status h1 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 2rem;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.status p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.loadingIndicator {
+  width: 2rem;
+  height: 0.35rem;
+  background: var(--color-accent);
+  animation: loading 1s steps(2, end) infinite;
+}
+
+@keyframes loading {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loadingIndicator {
+    animation: none;
+  }
+}

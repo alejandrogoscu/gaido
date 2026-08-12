@@ -1,0 +1,20 @@
+:root {
+  color: #f4fbfa;
+  background: #080b0b;
+  font-family:
+    'Space Grotesk Variable', 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  font-synthesis: none;
+  color-scheme: dark;
+  text-rendering: optimizeLegibility;
+  --color-text: #f4fbfa;
+  --color-text-muted: #a8b9b7;
+  --color-background: #080b0b;
+  --color-surface: #121918;
+  --color-line: #29413f;
+  --color-line-strong: #4f8b86;
+  --color-accent: #00a99d;
+  --color-accent-strong: #18bdb1;
+  --color-focus: #68e0d6;
+  --color-error: #ff9aa2;
+  --color-error-surface: #35171b;
+}

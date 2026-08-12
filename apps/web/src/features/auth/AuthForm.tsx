@@ -1,20 +1,24 @@
 import { useMutation } from '@tanstack/react-query'
-import { type FormEvent, useState } from 'react'
+import type { FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 
+import { Button } from '../../shared/ui/Button/Button'
 import { login, register } from './api'
+import styles from './AuthForm.module.css'
 import type {
   AuthUser,
   LoginCredentials,
   RegisterCredentials,
 } from './types'
 
-type AuthMode = 'login' | 'register'
+export type AuthMode = 'login' | 'register'
 
 type AuthAttempt =
   | { mode: 'login'; credentials: LoginCredentials }
   | { mode: 'register'; credentials: RegisterCredentials }
 
 type AuthFormProps = {
+  mode: AuthMode
   onAuthenticated: (user: AuthUser) => void
 }
 
@@ -22,8 +26,7 @@ function fieldValue(form: HTMLFormElement, name: string): string {
   return String(new FormData(form).get(name) ?? '')
 }
 
-export function AuthForm({ onAuthenticated }: AuthFormProps) {
-  const [mode, setMode] = useState<AuthMode>('login')
+export function AuthForm({ mode, onAuthenticated }: AuthFormProps) {
   const mutation = useMutation({
     mutationFn: (attempt: AuthAttempt) =>
       attempt.mode === 'login'
@@ -33,11 +36,6 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   })
 
   const isRegister = mode === 'register'
-
-  function changeMode(nextMode: AuthMode) {
-    mutation.reset()
-    setMode(nextMode)
-  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -61,27 +59,27 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
   }
 
   return (
-    <section className="auth-panel" aria-labelledby="auth-title">
-      <div className="auth-heading">
-        <p className="eyebrow">Tu biblioteca empieza aquí</p>
-        <h1 id="auth-title">
+    <section className={styles.panel} aria-labelledby="auth-title">
+      <div className={styles.heading}>
+        <h1 id="auth-title" className={styles.title}>
           {isRegister ? 'Crear una cuenta' : 'Iniciar sesión'}
         </h1>
-        <p>
-          {isRegister
-            ? 'Crea tu perfil para empezar a construir tu colección.'
-            : 'Accede para continuar organizando tus videojuegos.'}
-        </p>
+        {isRegister && (
+          <p className={styles.description}>
+            Crea tu perfil para empezar a construir tu colección.
+          </p>
+        )}
       </div>
 
-      <form className="auth-form" onSubmit={handleSubmit}>
+      <form className={styles.form} onSubmit={handleSubmit}>
         {isRegister && (
-          <div className="field">
-            <label htmlFor="username">Nombre de usuario</label>
+          <div className={styles.field}>
             <input
               id="username"
               name="username"
               type="text"
+              placeholder="Nombre de usuario"
+              aria-label="Nombre de usuario"
               autoComplete="username"
               minLength={3}
               maxLength={30}
@@ -89,18 +87,19 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
               required
               disabled={mutation.isPending}
             />
-            <span id="username-help" className="field-help">
+            <span id="username-help" className={styles.fieldHelp}>
               Entre 3 y 30 caracteres.
             </span>
           </div>
         )}
 
-        <div className="field">
-          <label htmlFor="email">Correo electrónico</label>
+        <div className={styles.field}>
           <input
             id="email"
             name="email"
             type="email"
+            placeholder="Correo electrónico"
+            aria-label="Correo electrónico"
             autoComplete="email"
             maxLength={254}
             required
@@ -108,12 +107,13 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
           />
         </div>
 
-        <div className="field">
-          <label htmlFor="password">Contraseña</label>
+        <div className={styles.field}>
           <input
             id="password"
             name="password"
             type="password"
+            placeholder="Contraseña"
+            aria-label="Contraseña"
             autoComplete={isRegister ? 'new-password' : 'current-password'}
             minLength={isRegister ? 12 : 1}
             maxLength={128}
@@ -122,37 +122,39 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
             disabled={mutation.isPending}
           />
           {isRegister && (
-            <span id="password-help" className="field-help">
+            <span id="password-help" className={styles.fieldHelp}>
               Mínimo 12 caracteres.
             </span>
           )}
         </div>
 
         {mutation.isError && (
-          <p className="form-message form-message-error" role="alert">
+          <p className={styles.error} role="alert">
             {mutation.error.message}
           </p>
         )}
 
-        <button className="primary-button" type="submit" disabled={mutation.isPending}>
+        <Button
+          className={styles.submit}
+          type="submit"
+          disabled={mutation.isPending}
+        >
           {mutation.isPending
             ? 'Enviando…'
             : isRegister
               ? 'Crear cuenta'
               : 'Entrar'}
-        </button>
+        </Button>
       </form>
 
-      <p className="auth-alternative">
+      <p className={styles.alternative}>
         {isRegister ? '¿Ya tienes una cuenta?' : '¿Todavía no tienes cuenta?'}{' '}
-        <button
-          className="text-button"
-          type="button"
-          onClick={() => changeMode(isRegister ? 'login' : 'register')}
-          disabled={mutation.isPending}
+        <Link
+          className={styles.alternativeLink}
+          to={isRegister ? '/login' : '/register'}
         >
           {isRegister ? 'Inicia sesión' : 'Crear una cuenta'}
-        </button>
+        </Link>
       </p>
     </section>
   )

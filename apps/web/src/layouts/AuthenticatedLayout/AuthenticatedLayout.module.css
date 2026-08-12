@@ -1,0 +1,120 @@
+.menuToggle {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  padding: 0.75rem;
+  place-items: center;
+  color: var(--color-background);
+  background: transparent;
+  border: 1px solid var(--color-background);
+  border-radius: 0;
+}
+
+.menuToggle:hover,
+.menuToggle:focus-visible {
+  color: var(--color-accent);
+  background: #ffffff;
+}
+
+.menuToggle:focus-visible {
+  outline: 3px solid rgb(255 255 255 / 60%);
+  outline-offset: 3px;
+}
+
+.menuIcon,
+.menuIcon::before,
+.menuIcon::after {
+  display: block;
+  width: 1.4rem;
+  height: 2px;
+  background: currentColor;
+}
+
+.menuIcon {
+  position: relative;
+}
+
+.menuIcon::before,
+.menuIcon::after {
+  position: absolute;
+  left: 0;
+  content: '';
+}
+
+.menuIcon::before {
+  top: -0.45rem;
+}
+
+.menuIcon::after {
+  top: 0.45rem;
+}
+
+.menu {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 0.75rem);
+  right: 0;
+  display: grid;
+  width: min(18rem, calc(100vw - 2.5rem));
+  padding: 1rem;
+  gap: 0.75rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line-strong);
+}
+
+.identity {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.displayName,
+.email {
+  display: block;
+}
+
+.displayName {
+  font-weight: 700;
+}
+
+.email {
+  margin-top: 0.15rem;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.menuLink,
+.logoutButton {
+  min-height: 2.75rem;
+  padding: 0.7rem 0.75rem;
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: left;
+  text-decoration: none;
+}
+
+.menuLink:hover,
+.logoutButton:hover,
+.menuLink:focus-visible,
+.logoutButton:focus-visible {
+  color: var(--color-accent-strong);
+  border-color: var(--color-line-strong);
+  outline: none;
+}
+
+.logoutButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.error {
+  margin: 0;
+  color: var(--color-error);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}

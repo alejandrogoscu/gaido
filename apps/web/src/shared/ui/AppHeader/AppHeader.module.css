@@ -1,0 +1,31 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 5rem;
+  padding: 1rem 1.25rem;
+  background: var(--color-accent);
+}
+
+.homeLink {
+  display: block;
+}
+
+.homeLink:focus-visible {
+  outline: 3px solid rgb(255 255 255 / 60%);
+  outline-offset: 3px;
+}
+
+.actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+@media (min-width: 48rem) {
+  .header {
+    min-height: 6rem;
+    padding: 1.25rem 2.5rem;
+  }
+}

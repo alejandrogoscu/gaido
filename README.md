@@ -34,6 +34,7 @@ utiliza el puerto habitual de Vite (`5173`). Puede cambiarse mediante `WEB_PORT`
 | pnpm | 11.20.0 |
 | React | 19.2.8 |
 | TanStack Query | 5.101.4 |
+| React Router | 7.18.2 |
 | Vite | 8.2.0 |
 | TypeScript | 7.0.2 |
 | Python | 3.14.6 |

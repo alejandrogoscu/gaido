@@ -1,0 +1,17 @@
+.claim {
+  max-width: 12rem;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+@media (min-width: 48rem) {
+  .claim {
+    max-width: none;
+  }
+}
