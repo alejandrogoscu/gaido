@@ -1,3 +1,9 @@
+.env
+.env.*
+.DS_Store
+*.log
 node_modules
 .pnpm-store
 dist
+coverage
+*.tsbuildinfo

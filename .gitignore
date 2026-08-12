@@ -1,21 +1,28 @@
+# Variables de entorno y secretos locales
 .env
 .env.*
 !.env.example
+
+# Sistema operativo, editores y registros
 .DS_Store
 .idea/
 .vscode/
 *.log
 
+# Python
 **/.venv/
 **/__pycache__/
 **/*.py[cod]
 **/.pytest_cache/
 **/.ruff_cache/
 .coverage
+.coverage.*
 coverage.xml
 htmlcov/
 
+# JavaScript y TypeScript
 **/node_modules/
 **/.pnpm-store/
 **/dist/
+**/coverage/
 **/*.tsbuildinfo

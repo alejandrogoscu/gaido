@@ -2,43 +2,26 @@
 
 Este documento describe el comportamiento funcional vigente de Gaido. Debe evolucionar junto con el producto y sus tests.
 
-## Conceptos principales
+## Cuenta de usuario
 
-### Videojuego
+- Una cuenta se identifica internamente mediante un identificador autoincrementable.
+- El correo electrónico es obligatorio, único, se almacena normalizado y es el único identificador permitido para iniciar sesión.
+- `username` es obligatorio, está normalizado y es único sin distinguir mayúsculas y minúsculas.
+- `display_name` conserva la escritura visible del nombre introducido al registrarse.
+- La contraseña nunca se almacena en texto plano; únicamente se conserva un hash adecuado para contraseñas.
+- La contraseña admite entre 12 y 128 caracteres.
+- Un registro correcto inicia automáticamente la sesión del nuevo usuario.
 
-Representa la información propia del juego y no contiene datos personales del usuario.
+## Sesión de usuario
 
-- El título es obligatorio.
-- La plataforma es opcional y se representa inicialmente como texto libre.
-- Un mismo título puede existir en plataformas diferentes.
-
-### Entrada de biblioteca
-
-Relaciona un videojuego con la biblioteca personal y contiene la información específica del usuario.
-
-- La propiedad y el estado de juego son conceptos independientes.
-- `owned` indica si el usuario posee el juego.
-- `play_status` indica su situación de juego actual.
-
-## Estados de juego
-
-| Valor | Significado |
-| --- | --- |
-| `pending` | El usuario lo tiene pendiente. |
-| `playing` | El usuario lo está jugando actualmente. |
-| `played` | El usuario lo ha jugado, sin implicar necesariamente que lo haya completado. |
-
-Los valores iniciales de una entrada son `owned = false` y `play_status = pending`.
-
-## Normalización y duplicados
-
-- Eliminar los espacios exteriores del título y la plataforma antes de comparar o guardar sus valores normalizados.
-- Comparar título y plataforma sin distinguir mayúsculas y minúsculas para detectar duplicados.
-- Rechazar una entrada con el mismo título y plataforma que otra ya existente.
-- Permitir entradas con el mismo título cuando la plataforma sea diferente.
+- Una cuenta puede mantener varias sesiones para permitir el acceso desde distintos dispositivos.
+- El cliente conserva el identificador de sesión en una cookie inaccesible desde JavaScript y la base de datos guarda únicamente su hash.
+- Cada sesión expira de forma absoluta a los siete días y no se renueva automáticamente con el uso.
+- El cierre de sesión elimina inmediatamente la sesión actual.
+- Las sesiones expiradas se rechazan y eliminan cuando se intentan utilizar.
 
 ## Alcance actual
 
-- La aplicación funciona para un solo usuario.
-- La autenticación y las bibliotecas de varios usuarios quedan fuera del alcance hasta que se implementen explícitamente.
-- Carátulas, valoraciones, notas, edición y eliminación no forman parte de la primera funcionalidad de añadir y listar juegos.
+- La autenticación mediante correo electrónico y contraseña será la primera funcionalidad de usuario.
+- La biblioteca de videojuegos se implementará de nuevo después de la autenticación y pertenecerá al usuario autenticado.
+- La verificación de correo, recuperación de contraseña y autenticación multifactor quedan fuera de la primera iteración.

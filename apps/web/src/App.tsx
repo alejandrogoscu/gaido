@@ -1,13 +1,12 @@
 import './styles.css'
 
+import { GaidoLogo } from './components/GaidoLogo'
+
 export function App() {
   return (
-    <main className="shell">
-      <section className="card">
-        <p className="eyebrow">Biblioteca de videojuegos</p>
-        <h1>Gaido</h1>
-        <p>El entorno de desarrollo está preparado.</p>
-      </section>
+    <main className="brand-shell">
+      <h1 className="visually-hidden">Gaido</h1>
+      <GaidoLogo />
     </main>
   )
 }

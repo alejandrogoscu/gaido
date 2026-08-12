@@ -1,3 +1,5 @@
+import '@fontsource-variable/space-grotesk'
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 

@@ -38,6 +38,7 @@ utiliza el puerto habitual de Vite (`5173`). Puede cambiarse mediante `WEB_PORT`
 | Python | 3.14.6 |
 | uv | 0.12.0 |
 | FastAPI | 0.138.2 |
+| argon2-cffi | 25.1.0 |
 | SQLAlchemy | 2.0.51 |
 | Alembic | 1.18.5 |
 | PostgreSQL | 18.4 |

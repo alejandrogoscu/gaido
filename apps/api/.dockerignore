@@ -1,4 +1,12 @@
+.env
+.env.*
+.DS_Store
+*.log
 .venv
 **/__pycache__
 .pytest_cache
 .ruff_cache
+.coverage
+.coverage.*
+coverage.xml
+htmlcov

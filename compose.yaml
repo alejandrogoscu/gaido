@@ -28,6 +28,9 @@ services:
     init: true
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-gaido}:${POSTGRES_PASSWORD:-gaido}@database:5432/${POSTGRES_DB:-gaido}
+      TEST_DATABASE_ADMIN_URL: postgresql+psycopg://${POSTGRES_USER:-gaido}:${POSTGRES_PASSWORD:-gaido}@database:5432/postgres
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      SESSION_DURATION_DAYS: ${SESSION_DURATION_DAYS:-7}
       WATCHFILES_FORCE_POLLING: "true"
     ports:
       - "${API_PORT:-8000}:8000"
