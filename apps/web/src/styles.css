@@ -14,6 +14,8 @@
   --accent: #00a99d;
   --accent-dark: #007b73;
   --focus: #006e68;
+  --error: #a62d35;
+  --error-surface: #fff4f4;
 }
 
 * {
@@ -28,28 +30,43 @@ body {
 }
 
 button,
-input,
-select {
+input {
   font: inherit;
 }
 
+button {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 button:focus-visible,
-input:focus-visible,
-select:focus-visible {
+input:focus-visible {
   outline: 3px solid rgb(0 110 104 / 30%);
   outline-offset: 2px;
 }
 
-.brand-shell {
+.app-shell {
   display: grid;
   min-height: 100vh;
-  place-items: center;
-  padding: 1rem;
+  grid-template-rows: auto 1fr;
+  padding: 1.25rem;
+}
+
+.brand-header {
+  display: flex;
+  align-items: center;
+  min-height: 4rem;
+  border-bottom: 1px solid var(--line);
 }
 
 .gaido-logo {
   display: block;
-  width: 4rem;
+  width: 3rem;
   height: auto;
 }
 
@@ -58,7 +75,179 @@ select:focus-visible {
 }
 
 .gaido-logo-cutout {
-  fill: #ffffff;
+  fill: var(--paper);
+}
+
+.auth-panel,
+.session-panel,
+.session-status {
+  width: 100%;
+  max-width: 29rem;
+  margin: auto;
+  padding: 3rem 0;
+}
+
+.auth-heading {
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--accent-dark);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(2rem, 10vw, 3.25rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.auth-heading > p:last-child,
+.session-description,
+.session-status > p {
+  margin: 1rem 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.auth-form {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.field label {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.field input {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.75rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+}
+
+.field input:hover:not(:disabled) {
+  border-color: var(--accent-dark);
+}
+
+.field input:focus {
+  border-color: var(--focus);
+}
+
+.field-help {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.primary-button,
+.secondary-button {
+  min-height: 3.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0;
+  font-weight: 700;
+}
+
+.primary-button {
+  color: var(--paper);
+  background: var(--accent-dark);
+  border: 1px solid var(--accent-dark);
+}
+
+.primary-button:hover:not(:disabled) {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.secondary-button {
+  color: var(--accent-dark);
+  background: var(--paper);
+  border: 1px solid var(--accent-dark);
+}
+
+.secondary-button:hover:not(:disabled) {
+  color: var(--paper);
+  background: var(--accent-dark);
+}
+
+.auth-alternative {
+  margin: 1.5rem 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.text-button {
+  padding: 0;
+  color: var(--accent-dark);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.form-message {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid currentColor;
+  line-height: 1.45;
+}
+
+.form-message-error {
+  color: var(--error);
+  background: var(--error-surface);
+}
+
+.session-panel {
+  border-top: 4px solid var(--accent);
+}
+
+.session-email {
+  margin: 0.75rem 0 0;
+  color: var(--accent-dark);
+  font-weight: 500;
+}
+
+.session-description {
+  margin-bottom: 2rem;
+}
+
+.session-panel .form-message {
+  margin-bottom: 1rem;
+}
+
+.session-status {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+  color: var(--muted);
+}
+
+.session-status h1 {
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.loading-indicator {
+  width: 2rem;
+  height: 0.35rem;
+  background: var(--accent);
+  animation: loading 1s steps(2, end) infinite;
 }
 
 .visually-hidden {
@@ -71,4 +260,43 @@ select:focus-visible {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+@keyframes loading {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-indicator {
+    animation: none;
+  }
+}
+
+@media (min-width: 48rem) {
+  .app-shell {
+    grid-template-columns: minmax(12rem, 0.65fr) minmax(29rem, 1fr);
+    grid-template-rows: 1fr;
+    padding: 0;
+  }
+
+  .brand-header {
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 2.5rem;
+    background: var(--surface);
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+  }
+
+  .gaido-logo {
+    width: 4rem;
+  }
+
+  .auth-panel,
+  .session-panel,
+  .session-status {
+    padding: 4rem;
+  }
 }

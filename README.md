@@ -33,6 +33,7 @@ utiliza el puerto habitual de Vite (`5173`). Puede cambiarse mediante `WEB_PORT`
 | Node.js LTS | 24.18.0 |
 | pnpm | 11.20.0 |
 | React | 19.2.8 |
+| TanStack Query | 5.101.4 |
 | Vite | 8.2.0 |
 | TypeScript | 7.0.2 |
 | Python | 3.14.6 |
@@ -50,5 +51,6 @@ docker compose exec api uv run pytest
 docker compose exec api uv run ruff check .
 docker compose exec web pnpm typecheck
 docker compose exec web pnpm build
+docker compose exec web pnpm test
 docker compose exec api uv run alembic upgrade head
 ```

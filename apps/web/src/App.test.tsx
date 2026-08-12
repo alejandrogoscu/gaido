@@ -1,13 +1,177 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { App } from './App'
 
-describe('aplicación', () => {
-  it('muestra la identidad de Gaido', () => {
-    render(<App />)
+const authenticatedUser = {
+  id: 1,
+  email: 'ada@example.com',
+  username: 'ada',
+  display_name: 'Ada',
+  created_at: '2026-08-12T12:00:00Z',
+}
 
-    expect(screen.getByRole('heading', { name: 'Gaido' })).toBeTruthy()
+function mockResponse(status: number, body?: unknown): Response {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    json: async () => body,
+  } as Response
+}
+
+function renderApp() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  })
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>,
+  )
+}
+
+describe('autenticación', () => {
+  const fetchMock = vi.fn<typeof fetch>()
+
+  beforeEach(() => {
+    vi.stubGlobal('fetch', fetchMock)
+  })
+
+  afterEach(() => {
+    fetchMock.mockReset()
+    vi.unstubAllGlobals()
+  })
+
+  it('muestra el acceso cuando no existe una sesión', async () => {
+    fetchMock.mockResolvedValueOnce(mockResponse(401, { detail: 'No autenticado' }))
+
+    renderApp()
+
+    expect(await screen.findByRole('heading', { name: 'Iniciar sesión' })).toBeTruthy()
     expect(screen.getByRole('img', { name: 'Gaido' })).toBeTruthy()
+    expect(screen.getByLabelText('Correo electrónico')).toBeTruthy()
+    expect(screen.getByLabelText('Contraseña')).toBeTruthy()
+  })
+
+  it('inicia sesión con correo y contraseña', async () => {
+    const user = userEvent.setup()
+    fetchMock
+      .mockResolvedValueOnce(mockResponse(401, { detail: 'No autenticado' }))
+      .mockResolvedValueOnce(mockResponse(200, authenticatedUser))
+
+    renderApp()
+    await screen.findByRole('heading', { name: 'Iniciar sesión' })
+
+    await user.type(screen.getByLabelText('Correo electrónico'), 'ada@example.com')
+    await user.type(screen.getByLabelText('Contraseña'), 'una-clave-segura')
+    await user.click(screen.getByRole('button', { name: 'Entrar' }))
+
+    expect(await screen.findByRole('heading', { name: 'Hola, Ada' })).toBeTruthy()
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      '/api/v1/auth/login',
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({
+          email: 'ada@example.com',
+          password: 'una-clave-segura',
+        }),
+      }),
+    )
+  })
+
+  it('crea una cuenta e inicia la sesión automáticamente', async () => {
+    const user = userEvent.setup()
+    fetchMock
+      .mockResolvedValueOnce(mockResponse(401, { detail: 'No autenticado' }))
+      .mockResolvedValueOnce(mockResponse(201, authenticatedUser))
+
+    renderApp()
+    await screen.findByRole('heading', { name: 'Iniciar sesión' })
+    await user.click(screen.getByRole('button', { name: 'Crear una cuenta' }))
+
+    await user.type(screen.getByLabelText('Nombre de usuario'), 'Ada')
+    await user.type(screen.getByLabelText('Correo electrónico'), 'ada@example.com')
+    await user.type(screen.getByLabelText('Contraseña'), 'una-clave-segura')
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    expect(await screen.findByRole('heading', { name: 'Hola, Ada' })).toBeTruthy()
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      '/api/v1/auth/register',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          email: 'ada@example.com',
+          username: 'Ada',
+          password: 'una-clave-segura',
+        }),
+      }),
+    )
+  })
+
+  it('muestra el error devuelto al rechazar el acceso', async () => {
+    const user = userEvent.setup()
+    fetchMock
+      .mockResolvedValueOnce(mockResponse(401, { detail: 'No autenticado' }))
+      .mockResolvedValueOnce(
+        mockResponse(401, { detail: 'Correo o contraseña incorrectos' }),
+      )
+
+    renderApp()
+    await screen.findByRole('heading', { name: 'Iniciar sesión' })
+
+    await user.type(screen.getByLabelText('Correo electrónico'), 'ada@example.com')
+    await user.type(screen.getByLabelText('Contraseña'), 'clave-incorrecta')
+    await user.click(screen.getByRole('button', { name: 'Entrar' }))
+
+    expect((await screen.findByRole('alert')).textContent).toBe(
+      'Correo o contraseña incorrectos',
+    )
+  })
+
+  it('recupera una sesión existente y permite cerrarla', async () => {
+    const user = userEvent.setup()
+    fetchMock
+      .mockResolvedValueOnce(mockResponse(200, authenticatedUser))
+      .mockResolvedValueOnce(mockResponse(204))
+
+    renderApp()
+
+    expect(await screen.findByRole('heading', { name: 'Hola, Ada' })).toBeTruthy()
+    await user.click(screen.getByRole('button', { name: 'Cerrar sesión' }))
+
+    expect(await screen.findByRole('heading', { name: 'Iniciar sesión' })).toBeTruthy()
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      '/api/v1/auth/logout',
+      expect.objectContaining({ method: 'POST', credentials: 'include' }),
+    )
+  })
+
+  it('permite reintentar cuando no puede consultar la sesión', async () => {
+    const user = userEvent.setup()
+    fetchMock
+      .mockRejectedValueOnce(new Error('API no disponible'))
+      .mockResolvedValueOnce(mockResponse(401, { detail: 'No autenticado' }))
+
+    renderApp()
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'No hemos podido comprobar tu sesión',
+      }),
+    ).toBeTruthy()
+
+    await user.click(screen.getByRole('button', { name: 'Reintentar' }))
+
+    expect(await screen.findByRole('heading', { name: 'Iniciar sesión' })).toBeTruthy()
   })
 })

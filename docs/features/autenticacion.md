@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Permitir la creación de cuentas y el acceso seguro mediante correo electrónico y contraseña. El backend está implementado en esta iteración y el flujo visual se añadirá a continuación.
+Permitir la creación de cuentas y el acceso seguro mediante correo electrónico y contraseña desde la API y la aplicación web.
 
 ## Comportamiento observable
 
@@ -36,6 +36,18 @@ Registro recibe `email`, `username` y `password`. Login recibe `email` y `passwo
 - Un nombre de usuario admite entre 3 y 30 caracteres: letras, números, puntos, guiones y guiones bajos.
 - Una contraseña admite entre 12 y 128 caracteres.
 
+## Interfaz web
+
+- Al cargar la aplicación se consulta la sesión actual antes de mostrar el formulario o el contenido autenticado.
+- El acceso solicita exclusivamente correo electrónico y contraseña.
+- El registro solicita nombre de usuario, correo electrónico y una contraseña de al menos 12 caracteres.
+- Registro e inicio de sesión actualizan inmediatamente la interfaz con el usuario devuelto por la API.
+- El cliente envía la cookie de sesión en todas las solicitudes de autenticación sin acceder a su contenido.
+- Los errores de validación o credenciales se muestran junto al formulario y los controles se desactivan durante cada envío.
+- Un error al consultar la sesión muestra una acción de reintento; una respuesta `401` muestra el acceso como estado normal.
+- El cierre de sesión solo devuelve a la pantalla de acceso cuando la API confirma que la sesión ha sido eliminada.
+- La pantalla mantiene una sola columna desde 320 px y añade una zona de marca lateral en pantallas mayores.
+
 ## Seguridad
 
 - Las contraseñas se protegen con Argon2id mediante `argon2-cffi`; el hash contiene su salt y parámetros.
@@ -54,7 +66,6 @@ Registro recibe `email`, `username` y `password`. Login recibe `email` y `passwo
 
 ## Fuera de alcance
 
-- Formulario web de registro y login.
 - Verificación de correo y recuperación de contraseña.
 - MFA, roles y permisos.
 - Renovación automática de sesiones y opción «recordarme».
@@ -64,4 +75,5 @@ Registro recibe `email`, `username` y `password`. Login recibe `email` y `passwo
 
 - Los tests usan una base PostgreSQL temporal e independiente.
 - Se cubren registro, normalización, hash, conflictos, longitud de contraseña, login, errores genéricos, sesión automática, expiración y logout.
+- La interfaz cubre sesión inexistente, login, registro, credenciales incorrectas, restauración de sesión, logout y reintento tras un error de conexión.
 - Alembic crea las restricciones, claves foráneas e índices definidos por los modelos SQLAlchemy.
