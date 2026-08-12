@@ -29,3 +29,6 @@ Este documento recoge las decisiones visuales compartidas de la aplicación.
 - Centralizar los colores semánticos en `styles/tokens.css` para permitir un futuro tema claro sin acoplar los componentes a colores concretos.
 - Mantener en `styles/global.css` únicamente el reset y los estilos realmente globales.
 - Ubicar los estilos específicos junto a su componente mediante CSS Modules para evitar dependencias y colisiones globales.
+- Usar el patrón compartido `PageHeading` para que el título y el subtítulo ocupen posiciones estables al navegar entre vistas.
+- Mantener en todas las vistas equivalentes la misma jerarquía, ancho y ritmo vertical del encabezado; el contenido puede cambiar sin provocar saltos en su posición.
+- Anclar las vistas equivalentes a una distancia fija desde la cabecera; no centrarlas verticalmente en función de la altura variable de su contenido.

@@ -62,6 +62,9 @@ describe('autenticación', () => {
     expect(await screen.findByRole('heading', { name: 'Iniciar sesión' })).toBeTruthy()
     expect(screen.getByRole('img', { name: 'Gaido' })).toBeTruthy()
     expect(screen.getByText('Colecciona sin límites')).toBeTruthy()
+    expect(
+      screen.getByText('Accede a tu cuenta para continuar con tu colección.'),
+    ).toBeTruthy()
     expect(screen.getByPlaceholderText('Correo electrónico')).toBeTruthy()
     expect(screen.getByPlaceholderText('Contraseña')).toBeTruthy()
   })
@@ -75,6 +78,12 @@ describe('autenticación', () => {
     await user.click(screen.getByRole('link', { name: 'Crear una cuenta' }))
 
     expect(await screen.findByRole('heading', { name: 'Crear una cuenta' })).toBeTruthy()
+    expect(
+      screen.getByText('Crea tu perfil para empezar a construir tu colección.'),
+    ).toBeTruthy()
+    expect(screen.getByLabelText('Repetir contraseña')).toBeTruthy()
+    expect(screen.queryByText('Entre 3 y 30 caracteres.')).toBeNull()
+    expect(screen.queryByText('Mínimo 12 caracteres.')).toBeNull()
     expect(router.state.location.pathname).toBe('/register')
   })
 
@@ -120,6 +129,10 @@ describe('autenticación', () => {
     await user.type(screen.getByLabelText('Nombre de usuario'), 'Ada')
     await user.type(screen.getByLabelText('Correo electrónico'), 'ada@example.com')
     await user.type(screen.getByLabelText('Contraseña'), 'una-clave-segura')
+    await user.type(
+      screen.getByLabelText('Repetir contraseña'),
+      'una-clave-segura',
+    )
     await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
 
     expect(await screen.findByRole('heading', { name: 'Hola, Ada' })).toBeTruthy()
@@ -135,6 +148,28 @@ describe('autenticación', () => {
         }),
       }),
     )
+  })
+
+  it('no envía el registro cuando las contraseñas no coinciden', async () => {
+    const user = userEvent.setup()
+    fetchMock.mockResolvedValueOnce(mockResponse(401, { detail: 'No autenticado' }))
+
+    renderApp('/register')
+    await screen.findByRole('heading', { name: 'Crear una cuenta' })
+
+    await user.type(screen.getByLabelText('Nombre de usuario'), 'Ada')
+    await user.type(screen.getByLabelText('Correo electrónico'), 'ada@example.com')
+    await user.type(screen.getByLabelText('Contraseña'), 'una-clave-segura')
+    await user.type(
+      screen.getByLabelText('Repetir contraseña'),
+      'otra-clave-segura',
+    )
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    expect((await screen.findByRole('alert')).textContent).toBe(
+      'Las contraseñas no coinciden',
+    )
+    expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
   it('muestra el error devuelto al rechazar el acceso', async () => {

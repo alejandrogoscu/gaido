@@ -1,0 +1,28 @@
+.heading {
+  display: grid;
+  grid-template-rows: minmax(2em, auto) minmax(3.1rem, auto);
+  margin-bottom: 2.75rem;
+  text-align: center;
+}
+
+.title {
+  align-self: start;
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(2rem, 10vw, 3.25rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.subtitle {
+  align-self: start;
+  margin: 1rem 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+@media (min-width: 48rem) {
+  .heading {
+    grid-template-rows: minmax(1em, auto) minmax(3.1rem, auto);
+  }
+}

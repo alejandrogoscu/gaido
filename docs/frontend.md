@@ -23,3 +23,10 @@ El frontend se organiza por responsabilidad y funcionalidad para permitir que Ga
 Cada nuevo tipo de colección debe incorporarse como una funcionalidad independiente, por ejemplo `features/video-games/` o `features/comics/`, con sus páginas de biblioteca, recomendaciones y detalle cuando se implementen.
 
 No se creará una abstracción común para colecciones hasta que existan al menos dos implementaciones con comportamiento compartido demostrado. Los elementos se moverán a `shared/` únicamente cuando sean realmente transversales.
+
+## Coherencia entre vistas
+
+- Las páginas equivalentes usan `PageHeading` para presentar título y subtítulo en una posición estable.
+- Los encabezados mantienen la misma jerarquía y ritmo vertical dentro de un layout, aunque cambie la longitud del contenido.
+- Los contenidos equivalentes se anclan desde el inicio del layout y no se centran verticalmente según su altura, evitando desplazamientos entre rutas cortas y largas.
+- Cada nueva área reutiliza este patrón antes de introducir una variante; una excepción debe responder a una diferencia real de experiencia, no solo al contenido mostrado.
