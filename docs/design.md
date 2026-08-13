@@ -21,6 +21,9 @@ Este documento recoge las decisiones visuales compartidas de la aplicación.
 
 ## Sistema visual
 
+- Usar Remix Icon como sistema común para los iconos de interfaz, priorizando sus variantes `Line` para conservar una apariencia geométrica y consistente.
+- Mantener la «G» como símbolo propio de marca; no sustituirla por un icono genérico de la librería.
+- Los iconos decorativos deben ocultarse a tecnologías de asistencia y los controles formados solo por un icono deben conservar un nombre accesible.
 - Usar de momento un fondo negro fijo y superficies oscuras para diferenciar áreas; los fondos claros quedarán para el futuro modo claro.
 - Priorizar bordes, contraste y jerarquía tipográfica frente a sombras y efectos decorativos.
 - Mantener esquinas rectas en paneles, controles, botones, etiquetas y tarjetas.
@@ -35,3 +38,5 @@ Este documento recoge las decisiones visuales compartidas de la aplicación.
 - Usar el patrón compartido `PageHeading` para que el título y el subtítulo ocupen posiciones estables al navegar entre vistas.
 - Mantener en todas las vistas equivalentes la misma jerarquía, ancho y ritmo vertical del encabezado; el contenido puede cambiar sin provocar saltos en su posición.
 - Anclar las vistas equivalentes a una distancia fija desde la cabecera; no centrarlas verticalmente en función de la altura variable de su contenido.
+- En la portada autenticada, mostrar los resúmenes de colección como recorridos horizontales en móvil y cuadrículas de tres columnas desde 768 px.
+- Usar portadas provisionales de color plano y monogramas mientras no existan imágenes reales, sin degradados ni efectos decorativos.

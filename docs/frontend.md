@@ -10,6 +10,7 @@ El frontend se organiza por responsabilidad y funcionalidad para permitir que Ga
 - `shared/api/` contiene el comportamiento HTTP común, como cookies y traducción de errores, sin conocer dominios concretos.
 - `shared/ui/` contiene componentes visuales con más de un uso real.
 - `styles/` contiene únicamente tokens y estilos globales. Los estilos específicos viven junto a cada componente mediante CSS Modules.
+- `@remixicon/react` proporciona los iconos de interfaz mediante imports individuales; no se copian SVG equivalentes dentro de cada funcionalidad.
 
 ## Rutas y acceso
 
@@ -23,6 +24,8 @@ El frontend se organiza por responsabilidad y funcionalidad para permitir que Ga
 Cada nuevo tipo de colección debe incorporarse como una funcionalidad independiente, por ejemplo `features/video-games/` o `features/comics/`, con sus páginas de biblioteca, recomendaciones y detalle cuando se implementen.
 
 No se creará una abstracción común para colecciones hasta que existan al menos dos implementaciones con comportamiento compartido demostrado. Los elementos se moverán a `shared/` únicamente cuando sean realmente transversales.
+
+La portada puede reutilizar una presentación común entre resúmenes porque Videojuegos y Cómics ya constituyen dos usos reales. Sus datos visuales de demostración permanecen aislados y serán sustituidos por cada fuente remota cuando exista el contrato correspondiente.
 
 ## Coherencia entre vistas
 

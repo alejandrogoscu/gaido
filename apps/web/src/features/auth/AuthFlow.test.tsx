@@ -223,7 +223,7 @@ describe('autenticación', () => {
     await user.type(screen.getByLabelText('Contraseña'), 'una-clave-segura')
     await user.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
 
-    expect(await screen.findByRole('heading', { name: 'Hola, Ada' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'Inicio' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Abrir menú' })).toBeTruthy()
     expect(screen.queryByText('Colecciona sin límites')).toBeNull()
     expect(fetchMock).toHaveBeenNthCalledWith(
@@ -258,7 +258,7 @@ describe('autenticación', () => {
     )
     await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
 
-    expect(await screen.findByRole('heading', { name: 'Hola, Ada' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'Inicio' })).toBeTruthy()
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
       '/api/v1/auth/register',
@@ -323,7 +323,7 @@ describe('autenticación', () => {
 
     renderApp('/')
 
-    expect(await screen.findByRole('heading', { name: 'Hola, Ada' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'Inicio' })).toBeTruthy()
     await user.click(screen.getByRole('button', { name: 'Abrir menú' }))
     expect(screen.getByRole('navigation', { name: 'Navegación principal' })).toBeTruthy()
     await user.click(screen.getByRole('button', { name: 'Cerrar sesión' }))
@@ -341,7 +341,7 @@ describe('autenticación', () => {
     fetchMock.mockResolvedValueOnce(mockResponse(200, authenticatedUser))
 
     renderApp('/')
-    await screen.findByRole('heading', { name: 'Hola, Ada' })
+    await screen.findByRole('heading', { name: 'Inicio' })
 
     await user.click(screen.getByRole('button', { name: 'Abrir menú' }))
 

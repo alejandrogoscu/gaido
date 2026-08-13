@@ -1,21 +1,38 @@
-import { useOutletContext } from 'react-router-dom'
+import { RiSearchLine } from '@remixicon/react'
 
-import type { AuthenticatedRouteContext } from '../auth/SessionGuards'
+import { CollectionPreview } from './CollectionPreview'
+import { CollectionShortcuts } from './CollectionShortcuts'
 import styles from './HomePage.module.css'
+import { collectionPreviews } from './previewData'
 
 export function HomePage() {
-  const { user } = useOutletContext<AuthenticatedRouteContext>()
-
   return (
-    <section className={styles.panel} aria-labelledby="home-title">
-      <p className={styles.eyebrow}>Sesión iniciada</p>
-      <h1 id="home-title" className={styles.title}>
-        Hola, {user.display_name}
+    <section className={styles.page} aria-labelledby="home-title">
+      <h1 id="home-title" className={styles.visuallyHidden}>
+        Inicio
       </h1>
-      <p className={styles.email}>{user.email}</p>
-      <p className={styles.description}>
-        Tu cuenta está lista. La biblioteca será el siguiente paso.
-      </p>
+
+      <div className={styles.search} role="search">
+        <RiSearchLine className={styles.searchIcon} aria-hidden="true" />
+        <input
+          type="search"
+          placeholder="Buscar en tu colección"
+          aria-label="Buscar en tu colección"
+          aria-describedby="search-availability"
+          disabled
+        />
+        <span id="search-availability" className={styles.visuallyHidden}>
+          La búsqueda estará disponible próximamente
+        </span>
+      </div>
+
+      <CollectionShortcuts />
+
+      <div className={styles.collections}>
+        {collectionPreviews.map((collection) => (
+          <CollectionPreview collection={collection} key={collection.id} />
+        ))}
+      </div>
     </section>
   )
 }

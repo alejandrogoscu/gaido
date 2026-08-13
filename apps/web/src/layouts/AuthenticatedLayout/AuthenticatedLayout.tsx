@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { RiCloseLargeLine, RiMenuLine } from '@remixicon/react'
 import { useEffect, useState } from 'react'
 import { Link, Outlet, useOutletContext } from 'react-router-dom'
 
@@ -48,7 +49,7 @@ export function AuthenticatedLayout() {
             aria-controls="main-menu"
             onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
           >
-            <span className={styles.menuIcon} aria-hidden="true" />
+            <RiMenuLine className={styles.menuIcon} aria-hidden="true" />
           </button>
 
           {isMenuOpen && (
@@ -75,7 +76,10 @@ export function AuthenticatedLayout() {
                     autoFocus
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <span className={styles.closeIcon} aria-hidden="true" />
+                    <RiCloseLargeLine
+                      className={styles.closeIcon}
+                      aria-hidden="true"
+                    />
                   </button>
                 </div>
 

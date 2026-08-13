@@ -21,32 +21,10 @@
   outline-offset: 3px;
 }
 
-.menuIcon,
-.menuIcon::before,
-.menuIcon::after {
-  display: block;
-  width: 1.75rem;
-  height: 3px;
-  background: currentColor;
-}
-
 .menuIcon {
-  position: relative;
-}
-
-.menuIcon::before,
-.menuIcon::after {
-  position: absolute;
-  left: 0;
-  content: '';
-}
-
-.menuIcon::before {
-  top: -0.5rem;
-}
-
-.menuIcon::after {
-  top: 0.5rem;
+  width: 1.9rem;
+  height: 1.9rem;
+  fill: currentcolor;
 }
 
 .backdrop {
@@ -135,24 +113,10 @@
   outline-offset: 2px;
 }
 
-.closeIcon,
-.closeIcon::after {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  display: block;
-  width: 1.75rem;
-  height: 3px;
-  background: currentColor;
-  content: '';
-}
-
 .closeIcon {
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.closeIcon::after {
-  transform: translate(-50%, -50%) rotate(90deg);
+  width: 1.75rem;
+  height: 1.75rem;
+  fill: currentcolor;
 }
 
 .menuNavigation {
