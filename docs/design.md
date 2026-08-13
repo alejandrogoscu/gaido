@@ -8,6 +8,8 @@ Este documento recoge las decisiones visuales compartidas de la aplicación.
 - El símbolo debe poder utilizarse de forma independiente como futuro icono de aplicación.
 - El turquesa es el color de marca predominante sobre fondos oscuros.
 - La cabecera principal usa un fondo turquesa con el símbolo invertido en blanco y el claim «Colecciona sin límites» alineado al extremo opuesto.
+- En la cabecera autenticada, el acceso al menú usa tres líneas blancas sin borde exterior, conserva un área táctil de 48 px y al interactuar combina un fondo blanco translúcido con líneas turquesas.
+- La navegación autenticada entra desde la derecha como un panel oscuro de altura completa, con fondo atenuado sobre el contenido y separadores gruesos con margen lateral entre identidad, navegación y sesión.
 - El claim evita referencias exclusivas a videojuegos para que la identidad pueda abarcar otras colecciones en el futuro.
 
 ## Tipografía

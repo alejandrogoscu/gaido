@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Outlet, useOutletContext } from 'react-router-dom'
 
 import { logout } from '../../features/auth/api'
@@ -18,6 +18,24 @@ export function AuthenticatedLayout() {
     onSuccess: () => queryClient.setQueryData(currentUserQueryKey, null),
   })
 
+  useEffect(() => {
+    if (!isMenuOpen) return
+
+    const previousOverflow = document.body.style.overflow
+
+    function closeWithEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') setIsMenuOpen(false)
+    }
+
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', closeWithEscape)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', closeWithEscape)
+    }
+  }, [isMenuOpen])
+
   return (
     <AppFrame
       header={
@@ -34,36 +52,62 @@ export function AuthenticatedLayout() {
           </button>
 
           {isMenuOpen && (
-            <nav
-              id="main-menu"
-              className={styles.menu}
-              aria-label="Navegación principal"
-            >
-              <div className={styles.identity}>
-                <span className={styles.displayName}>{user.display_name}</span>
-                <span className={styles.email}>{user.email}</span>
-              </div>
-              <Link
-                className={styles.menuLink}
-                to="/"
+            <>
+              <div
+                className={styles.backdrop}
+                aria-hidden="true"
                 onClick={() => setIsMenuOpen(false)}
+              />
+              <nav
+                id="main-menu"
+                className={styles.menu}
+                aria-label="Navegación principal"
               >
-                Inicio
-              </Link>
-              <button
-                className={styles.logoutButton}
-                type="button"
-                onClick={() => logoutMutation.mutate()}
-                disabled={logoutMutation.isPending}
-              >
-                {logoutMutation.isPending ? 'Cerrando sesión…' : 'Cerrar sesión'}
-              </button>
-              {logoutMutation.isError && (
-                <p className={styles.error} role="alert">
-                  {logoutMutation.error.message}
-                </p>
-              )}
-            </nav>
+                <div className={styles.menuHeader}>
+                  <div className={styles.identity}>
+                    <span className={styles.displayName}>{user.display_name}</span>
+                    <span className={styles.email}>{user.email}</span>
+                  </div>
+                  <button
+                    className={styles.closeButton}
+                    type="button"
+                    aria-label="Cerrar panel de navegación"
+                    autoFocus
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <span className={styles.closeIcon} aria-hidden="true" />
+                  </button>
+                </div>
+
+                <div className={styles.menuNavigation}>
+                  <Link
+                    className={styles.menuLink}
+                    to="/"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Inicio
+                  </Link>
+                </div>
+
+                <div className={styles.menuFooter}>
+                  <button
+                    className={styles.logoutButton}
+                    type="button"
+                    onClick={() => logoutMutation.mutate()}
+                    disabled={logoutMutation.isPending}
+                  >
+                    {logoutMutation.isPending
+                      ? 'Cerrando sesión…'
+                      : 'Cerrar sesión'}
+                  </button>
+                  {logoutMutation.isError && (
+                    <p className={styles.error} role="alert">
+                      {logoutMutation.error.message}
+                    </p>
+                  )}
+                </div>
+              </nav>
+            </>
           )}
         </AppHeader>
       }

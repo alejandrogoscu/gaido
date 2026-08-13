@@ -336,6 +336,38 @@ describe('autenticación', () => {
     )
   })
 
+  it('abre y cierra el panel de navegación autenticado', async () => {
+    const user = userEvent.setup()
+    fetchMock.mockResolvedValueOnce(mockResponse(200, authenticatedUser))
+
+    renderApp('/')
+    await screen.findByRole('heading', { name: 'Hola, Ada' })
+
+    await user.click(screen.getByRole('button', { name: 'Abrir menú' }))
+
+    const menu = screen.getByRole('navigation', { name: 'Navegación principal' })
+    expect(menu.textContent).toContain('Ada')
+    expect(menu.textContent).toContain('ada@example.com')
+    expect(screen.getByRole('link', { name: 'Inicio' })).toBeTruthy()
+    expect(document.body.style.overflow).toBe('hidden')
+
+    await user.click(
+      screen.getByRole('button', { name: 'Cerrar panel de navegación' }),
+    )
+
+    expect(
+      screen.queryByRole('navigation', { name: 'Navegación principal' }),
+    ).toBeNull()
+    expect(document.body.style.overflow).toBe('')
+
+    await user.click(screen.getByRole('button', { name: 'Abrir menú' }))
+    await user.keyboard('{Escape}')
+
+    expect(
+      screen.queryByRole('navigation', { name: 'Navegación principal' }),
+    ).toBeNull()
+  })
+
   it('permite reintentar cuando no puede consultar la sesión', async () => {
     const user = userEvent.setup()
     fetchMock
