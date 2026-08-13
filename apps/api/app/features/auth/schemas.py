@@ -4,7 +4,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
-USERNAME_PATTERN = re.compile(r"^[\w.-]+$", flags=re.UNICODE)
+USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
 
 
 class RegisterRequest(BaseModel):
@@ -16,13 +16,12 @@ class RegisterRequest(BaseModel):
     @classmethod
     def validate_username(cls, value: str) -> str:
         display_name = unicodedata.normalize("NFKC", value).strip()
-        normalized_username = display_name.casefold()
 
-        if not 3 <= len(normalized_username) <= 30:
-            raise ValueError("El nombre de usuario debe tener entre 3 y 30 caracteres")
-        if not USERNAME_PATTERN.fullmatch(normalized_username):
+        if not 3 <= len(display_name) <= 20:
+            raise ValueError("El nombre de usuario debe tener entre 3 y 20 caracteres")
+        if not USERNAME_PATTERN.fullmatch(display_name):
             raise ValueError(
-                "El nombre de usuario solo admite letras, números, puntos, guiones y guiones bajos"
+                "El nombre de usuario solo admite letras, números, guiones y guiones bajos"
             )
 
         return display_name

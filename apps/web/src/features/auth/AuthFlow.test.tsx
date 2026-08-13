@@ -67,6 +67,9 @@ describe('autenticación', () => {
     ).toBeTruthy()
     expect(screen.getByPlaceholderText('Correo electrónico')).toBeTruthy()
     expect(screen.getByPlaceholderText('Contraseña')).toBeTruthy()
+    expect(
+      screen.getByRole('button', { name: 'Mostrar la contraseña' }),
+    ).toBeTruthy()
   })
 
   it('navega entre acceso y registro mediante rutas públicas', async () => {
@@ -87,6 +90,72 @@ describe('autenticación', () => {
     expect(router.state.location.pathname).toBe('/register')
   })
 
+  it('permite mostrar y ocultar las contraseñas de forma independiente', async () => {
+    const user = userEvent.setup()
+    fetchMock.mockResolvedValueOnce(mockResponse(401, { detail: 'No autenticado' }))
+
+    renderApp('/register')
+    await screen.findByRole('heading', { name: 'Crear una cuenta' })
+
+    const password = screen.getByLabelText('Contraseña')
+    const passwordConfirmation = screen.getByLabelText('Repetir contraseña')
+
+    expect(password.getAttribute('type')).toBe('password')
+    expect(passwordConfirmation.getAttribute('type')).toBe('password')
+
+    await user.click(
+      screen.getByRole('button', { name: 'Mostrar la contraseña' }),
+    )
+
+    expect(password.getAttribute('type')).toBe('text')
+    expect(passwordConfirmation.getAttribute('type')).toBe('password')
+    expect(
+      screen.getByRole('button', { name: 'Ocultar la contraseña' }),
+    ).toBeTruthy()
+
+    await user.click(
+      screen.getByRole('button', { name: 'Mostrar la contraseña repetida' }),
+    )
+
+    expect(passwordConfirmation.getAttribute('type')).toBe('text')
+  })
+
+  it('confirma visualmente un nombre de usuario y un correo válidos', async () => {
+    const user = userEvent.setup()
+    fetchMock.mockResolvedValueOnce(mockResponse(401, { detail: 'No autenticado' }))
+
+    renderApp('/register')
+    await screen.findByRole('heading', { name: 'Crear una cuenta' })
+
+    const username = screen.getByLabelText('Nombre de usuario')
+    const email = screen.getByLabelText('Correo electrónico')
+
+    expect(username.getAttribute('maxlength')).toBe('20')
+    expect(screen.queryByRole('img', { name: 'Nombre de usuario válido' })).toBeNull()
+    expect(screen.queryByRole('img', { name: 'Correo electrónico válido' })).toBeNull()
+
+    await user.type(username, 'ab')
+    await user.type(email, 'correo-invalido')
+
+    expect(screen.queryByRole('img', { name: 'Nombre de usuario válido' })).toBeNull()
+    expect(screen.queryByRole('img', { name: 'Correo electrónico válido' })).toBeNull()
+
+    await user.type(username, 'c_12-test')
+    await user.clear(email)
+    await user.type(email, 'ada@example.com')
+
+    expect(
+      screen.getByRole('img', { name: 'Nombre de usuario válido' }),
+    ).toBeTruthy()
+    expect(
+      screen.getByRole('img', { name: 'Correo electrónico válido' }),
+    ).toBeTruthy()
+
+    await user.type(username, '.')
+
+    expect(screen.queryByRole('img', { name: 'Nombre de usuario válido' })).toBeNull()
+  })
+
   it('inicia sesión con correo y contraseña', async () => {
     const user = userEvent.setup()
     fetchMock
@@ -98,7 +167,7 @@ describe('autenticación', () => {
 
     await user.type(screen.getByLabelText('Correo electrónico'), 'ada@example.com')
     await user.type(screen.getByLabelText('Contraseña'), 'una-clave-segura')
-    await user.click(screen.getByRole('button', { name: 'Entrar' }))
+    await user.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
 
     expect(await screen.findByRole('heading', { name: 'Hola, Ada' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Abrir menú' })).toBeTruthy()
@@ -185,7 +254,7 @@ describe('autenticación', () => {
 
     await user.type(screen.getByLabelText('Correo electrónico'), 'ada@example.com')
     await user.type(screen.getByLabelText('Contraseña'), 'clave-incorrecta')
-    await user.click(screen.getByRole('button', { name: 'Entrar' }))
+    await user.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
 
     expect((await screen.findByRole('alert')).textContent).toBe(
       'Correo o contraseña incorrectos',

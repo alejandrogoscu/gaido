@@ -8,6 +8,7 @@ Este documento describe el comportamiento funcional vigente de Gaido. Debe evolu
 - El correo electrónico es obligatorio, único, se almacena normalizado y es el único identificador permitido para iniciar sesión.
 - `username` es obligatorio, está normalizado y es único sin distinguir mayúsculas y minúsculas.
 - `display_name` conserva la escritura visible del nombre introducido al registrarse.
+- El nombre de usuario admite entre 3 y 20 caracteres ASCII: letras, números, guion y guion bajo.
 - La contraseña nunca se almacena en texto plano; únicamente se conserva un hash adecuado para contraseñas.
 - La contraseña admite entre 12 y 128 caracteres.
 - Un registro correcto inicia automáticamente la sesión del nuevo usuario.

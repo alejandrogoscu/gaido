@@ -87,6 +87,40 @@ def test_register_rejects_short_password(client: TestClient) -> None:
     assert response.status_code == 422
 
 
+@pytest.mark.parametrize(
+    "username",
+    [
+        "ab",
+        "a" * 21,
+        "nombre.apellido",
+        "nombre apellido",
+        "Álvaro",
+    ],
+)
+def test_register_rejects_invalid_username(
+    client: TestClient,
+    username: str,
+) -> None:
+    response = client.post(
+        "/api/v1/auth/register",
+        json={**REGISTER_DATA, "username": username},
+    )
+
+    assert response.status_code == 422
+
+
+def test_register_accepts_username_with_hyphen_and_underscore(
+    client: TestClient,
+) -> None:
+    response = client.post(
+        "/api/v1/auth/register",
+        json={**REGISTER_DATA, "username": "Alejandro_12-test"},
+    )
+
+    assert response.status_code == 201
+    assert response.json()["username"] == "alejandro_12-test"
+
+
 def test_login_uses_email_and_creates_a_new_session(client: TestClient) -> None:
     register_response = client.post("/api/v1/auth/register", json=REGISTER_DATA)
     logout_response = client.post("/api/v1/auth/logout")
