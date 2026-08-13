@@ -118,6 +118,11 @@
   stroke-width: 1.75;
 }
 
+.passwordGroup {
+  display: grid;
+  gap: 0.65rem;
+}
+
 .submit {
   margin-top: 0.75rem;
 }

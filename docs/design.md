@@ -24,6 +24,7 @@ Este documento recoge las decisiones visuales compartidas de la aplicación.
 - Mantener esquinas rectas en paneles, controles, botones, etiquetas y tarjetas.
 - Evitar degradados, píldoras y redondeados decorativos.
 - Reservar colores ajenos al turquesa para comunicar estados semánticos, como los errores.
+- Representar la fortaleza de contraseña con cinco segmentos rectos y una escala semántica centralizada en los tokens de color.
 - Mantener foco visible, contraste legible y controles táctiles cómodos desde 320 px.
 - En formularios de autenticación, usar placeholders visibles y nombres accesibles en lugar de etiquetas visuales para mantener una composición más limpia.
 - Centralizar los colores semánticos en `styles/tokens.css` para permitir un futuro tema claro sin acoplar los componentes a colores concretos.

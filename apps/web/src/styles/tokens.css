@@ -17,4 +17,9 @@
   --color-focus: #68e0d6;
   --color-error: #ff9aa2;
   --color-error-surface: #35171b;
+  --color-strength-very-weak: #ff6b78;
+  --color-strength-weak: #ff9f43;
+  --color-strength-normal: #e7c94d;
+  --color-strength-strong: #4bd6aa;
+  --color-strength-very-strong: #18bdb1;
 }

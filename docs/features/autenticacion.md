@@ -46,6 +46,7 @@ Registro recibe `email`, `username` y `password`. Login recibe `email` y `passwo
 - La confirmación debe coincidir antes de enviar el formulario y no se transmite ni se persiste.
 - El registro muestra un check cuando el nombre de usuario cumple su formato y cuando el correo tiene un formato válido.
 - Cada campo de contraseña permite mostrar u ocultar su contenido de forma independiente y permanece oculto por defecto.
+- Mientras el campo principal de contraseña está activo, el registro muestra un medidor local de cinco barras sin texto visible que estima su fortaleza según la longitud y variedad de caracteres; es orientativo, accesible mediante semántica y no modifica los requisitos de registro.
 - Registro e inicio de sesión actualizan inmediatamente la interfaz con el usuario devuelto por la API.
 - El cliente envía la cookie de sesión en todas las solicitudes de autenticación sin acceder a su contenido.
 - Los errores de validación o credenciales se muestran junto al formulario y los controles se desactivan durante cada envío.
@@ -81,5 +82,5 @@ Registro recibe `email`, `username` y `password`. Login recibe `email` y `passwo
 
 - Los tests usan una base PostgreSQL temporal e independiente.
 - Se cubren registro, normalización y formato del nombre de usuario, hash, conflictos, longitud de contraseña, login, errores genéricos, sesión automática, expiración y logout.
-- La interfaz cubre sesión inexistente, navegación entre login y registro, visibilidad y confirmación de contraseña, autenticación, credenciales incorrectas, restauración de sesión, menú autenticado, logout y reintento tras un error de conexión.
+- La interfaz cubre sesión inexistente, navegación entre login y registro, visibilidad, fortaleza y confirmación de contraseña, autenticación, credenciales incorrectas, restauración de sesión, menú autenticado, logout y reintento tras un error de conexión.
 - Alembic crea las restricciones, claves foráneas e índices definidos por los modelos SQLAlchemy.

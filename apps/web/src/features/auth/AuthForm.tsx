@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import {
   type ChangeEvent,
   type ComponentProps,
+  type FocusEvent,
   type FormEvent,
   useState,
 } from 'react'
@@ -11,6 +12,7 @@ import { Button } from '../../shared/ui/Button/Button'
 import { PageHeading } from '../../shared/ui/PageHeading/PageHeading'
 import { login, register } from './api'
 import styles from './AuthForm.module.css'
+import { PasswordStrength } from './PasswordStrength'
 import type {
   AuthUser,
   LoginCredentials,
@@ -122,6 +124,8 @@ function PasswordField({
 
 export function AuthForm({ mode, onAuthenticated }: AuthFormProps) {
   const [validationError, setValidationError] = useState<string | null>(null)
+  const [password, setPassword] = useState('')
+  const [isPasswordActive, setIsPasswordActive] = useState(false)
   const mutation = useMutation({
     mutationFn: (attempt: AuthAttempt) =>
       attempt.mode === 'login'
@@ -140,6 +144,19 @@ export function AuthForm({ mode, onAuthenticated }: AuthFormProps) {
 
   function clearValidationError() {
     setValidationError(null)
+  }
+
+  function handlePasswordChange(event: ChangeEvent<HTMLInputElement>) {
+    clearValidationError()
+    setPassword(event.currentTarget.value)
+  }
+
+  function handlePasswordGroupBlur(event: FocusEvent<HTMLDivElement>) {
+    const nextTarget = event.relatedTarget as Node | null
+
+    if (!event.currentTarget.contains(nextTarget)) {
+      setIsPasswordActive(false)
+    }
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -227,19 +244,28 @@ export function AuthForm({ mode, onAuthenticated }: AuthFormProps) {
           </div>
         )}
 
-        <PasswordField
-          id="password"
-          name="password"
-          placeholder="Contraseña"
-          aria-label="Contraseña"
-          visibilityLabel="la contraseña"
-          autoComplete={isRegister ? 'new-password' : 'current-password'}
-          minLength={isRegister ? 12 : 1}
-          maxLength={128}
-          required
-          disabled={mutation.isPending}
-          onChange={clearValidationError}
-        />
+        <div
+          className={styles.passwordGroup}
+          onFocus={() => setIsPasswordActive(true)}
+          onBlur={handlePasswordGroupBlur}
+        >
+          <PasswordField
+            id="password"
+            name="password"
+            placeholder="Contraseña"
+            aria-label="Contraseña"
+            visibilityLabel="la contraseña"
+            autoComplete={isRegister ? 'new-password' : 'current-password'}
+            minLength={isRegister ? 12 : 1}
+            maxLength={128}
+            required
+            disabled={mutation.isPending}
+            onChange={handlePasswordChange}
+          />
+          {isRegister && isPasswordActive && (
+            <PasswordStrength password={password} />
+          )}
+        </div>
 
         {isRegister && (
           <PasswordField

@@ -70,6 +70,9 @@ describe('autenticación', () => {
     expect(
       screen.getByRole('button', { name: 'Mostrar la contraseña' }),
     ).toBeTruthy()
+    expect(
+      screen.queryByRole('meter', { name: 'Fortaleza de la contraseña' }),
+    ).toBeNull()
   })
 
   it('navega entre acceso y registro mediante rutas públicas', async () => {
@@ -154,6 +157,57 @@ describe('autenticación', () => {
     await user.type(username, '.')
 
     expect(screen.queryByRole('img', { name: 'Nombre de usuario válido' })).toBeNull()
+  })
+
+  it('estima la fortaleza de la contraseña del registro en cinco niveles', async () => {
+    const user = userEvent.setup()
+    fetchMock.mockResolvedValueOnce(mockResponse(401, { detail: 'No autenticado' }))
+
+    renderApp('/register')
+    await screen.findByRole('heading', { name: 'Crear una cuenta' })
+
+    const password = screen.getByLabelText('Contraseña')
+    const passwordConfirmation = screen.getByLabelText('Repetir contraseña')
+
+    expect(
+      screen.queryByRole('meter', { name: 'Fortaleza de la contraseña' }),
+    ).toBeNull()
+
+    await user.click(password)
+
+    const strength = screen.getByRole('meter', {
+      name: 'Fortaleza de la contraseña',
+    })
+
+    expect(strength.getAttribute('aria-valuetext')).toBe('Sin evaluar')
+    expect(strength.textContent).toBe('')
+
+    for (const [value, label] of [
+      ['abc', 'Muy débil'],
+      ['abcdefgh', 'Débil'],
+      ['Abcdefghij12', 'Normal'],
+      ['Abcdefghij1!', 'Fuerte'],
+      ['Abcdefghijklmn1!', 'Muy fuerte'],
+    ]) {
+      await user.clear(password)
+      await user.type(password, value)
+      expect(strength.getAttribute('aria-valuetext')).toBe(label)
+      expect(strength.textContent).toBe('')
+    }
+
+    await user.click(
+      screen.getByRole('button', { name: 'Mostrar la contraseña' }),
+    )
+
+    expect(
+      screen.getByRole('meter', { name: 'Fortaleza de la contraseña' }),
+    ).toBeTruthy()
+
+    await user.click(passwordConfirmation)
+
+    expect(
+      screen.queryByRole('meter', { name: 'Fortaleza de la contraseña' }),
+    ).toBeNull()
   })
 
   it('inicia sesión con correo y contraseña', async () => {
