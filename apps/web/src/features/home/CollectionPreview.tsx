@@ -6,9 +6,15 @@ import type { CollectionPreviewData } from './previewData'
 
 type CollectionPreviewProps = {
   collection: CollectionPreviewData
+  statusMessage?: string
+  onRetry?: () => void
 }
 
-export function CollectionPreview({ collection }: CollectionPreviewProps) {
+export function CollectionPreview({
+  collection,
+  statusMessage,
+  onRetry,
+}: CollectionPreviewProps) {
   return (
     <section
       className={styles.collection}
@@ -29,21 +35,36 @@ export function CollectionPreview({ collection }: CollectionPreviewProps) {
         </button>
       </header>
 
-      <ul className={styles.items}>
-        {collection.items.map((item) => (
-          <li className={styles.item} key={item.id}>
-            <div
-              className={styles.cover}
-              style={{ '--item-accent': item.accent } as CSSProperties}
-              aria-hidden="true"
-            >
-              <span>{item.monogram}</span>
-            </div>
-            <h3 className={styles.itemTitle}>{item.title}</h3>
-            <p className={styles.itemMeta}>{item.meta}</p>
-          </li>
-        ))}
-      </ul>
+      {statusMessage ? (
+        <div className={styles.status} role={onRetry ? 'alert' : 'status'}>
+          <p>{statusMessage}</p>
+          {onRetry && (
+            <button type="button" onClick={onRetry}>
+              Reintentar
+            </button>
+          )}
+        </div>
+      ) : (
+        <ul className={styles.items}>
+          {collection.items.map((item) => (
+            <li className={styles.item} key={item.id}>
+              {item.coverUrl ? (
+                <img className={styles.coverImage} src={item.coverUrl} alt="" />
+              ) : (
+                <div
+                  className={styles.cover}
+                  style={{ '--item-accent': item.accent } as CSSProperties}
+                  aria-hidden="true"
+                >
+                  <span>{item.monogram}</span>
+                </div>
+              )}
+              <h3 className={styles.itemTitle}>{item.title}</h3>
+              <p className={styles.itemMeta}>{item.meta}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   )
 }

@@ -2,39 +2,54 @@
 
 ## Objetivo
 
-Permitir que un usuario autenticado busque un videojuego en IGDB y, en las siguientes fases, seleccione una edición y la incorpore a su biblioteca.
+Permitir que un usuario autenticado busque un videojuego en IGDB, seleccione una plataforma y añada una edición estándar a su biblioteca personal.
 
-## Fase actual: búsqueda en IGDB
+## Comportamiento observable
 
-- La API consulta IGDB exclusivamente desde el backend y las credenciales nunca se entregan al cliente web.
-- `GET /api/v1/games/search?q=<texto>` requiere una sesión válida.
-- La búsqueda admite entre 2 y 100 caracteres después de eliminar sus espacios exteriores.
-- Cada consulta devuelve como máximo diez videojuegos principales y excluye versiones o ediciones de los resultados iniciales.
-- Cada resultado expone el identificador de IGDB, título, sinopsis, primera fecha de lanzamiento, portada y plataformas disponibles.
-- La búsqueda no crea ni modifica registros en PostgreSQL.
-- El token de acceso de Twitch se reutiliza hasta acercarse a su expiración.
-- La ausencia de credenciales devuelve `503` y un fallo de Twitch o IGDB devuelve `502`, sin filtrar la respuesta interna del proveedor.
+- El buscador de inicio admite entre 2 y 100 caracteres y solo consulta al enviar el formulario.
+- La búsqueda muestra como máximo diez videojuegos principales con título, año, portada y plataformas disponibles.
+- Cada resultado permite seleccionar una de sus plataformas y añadirla a la biblioteca.
+- El alta correcta se confirma en el resultado y actualiza inmediatamente el resumen de Videojuegos.
+- Una biblioteca vacía, la carga y los fallos de búsqueda, alta o listado tienen estados visibles.
+- Añadir de nuevo la misma edición devuelve un conflicto comprensible y no duplica datos.
+- Una edición guardada comienza con `owned = false` y `play_status = pending`.
 
-## Configuración
+## Contrato HTTP
 
-- `IGDB_CLIENT_ID` identifica la aplicación confidencial registrada en Twitch.
-- `IGDB_CLIENT_SECRET` contiene su secreto y nunca se guarda en Git.
+- `GET /api/v1/games/search?q=<texto>` busca en IGDB y no persiste resultados.
+- `GET /api/v1/library/games` devuelve únicamente la biblioteca del usuario autenticado.
+- `POST /api/v1/library/games` recibe `igdb_game_id` e `igdb_platform_id` y devuelve la entrada creada con estado `201`.
+- Las tres operaciones requieren una sesión válida.
+- Una configuración ausente devuelve `503`; un fallo de Twitch o IGDB devuelve `502` sin filtrar detalles del proveedor.
+- Un videojuego inexistente devuelve `404`, una plataforma ajena al videojuego devuelve `422` y una edición duplicada devuelve `409`.
 
-## Decisiones
+## Persistencia
 
-- HTTPX `0.28.1` es la dependencia HTTP directa estable utilizada por el adaptador.
-- La consulta de IGDB escapa el texto introducido, fija el límite de resultados y solicita únicamente los campos del contrato público.
-- La respuesta externa se valida antes de convertirse al contrato de Gaido.
-- La autenticación se centraliza como dependencia compartida para proteger esta ruta y las siguientes operaciones de biblioteca.
+- El backend vuelve a consultar IGDB por identificador al guardar y no confía en los metadatos enviados por el cliente.
+- El videojuego se identifica de forma única por `igdb_id` y conserva las fechas de sincronización y actualización del proveedor.
+- El texto inglés de IGDB se guarda en `game_localizations` con configuración regional `en`.
+- La plataforma se identifica de forma única por su identificador de IGDB.
+- El alta crea o reutiliza una edición `standard`, de región `unknown`, para la plataforma y localización seleccionadas.
+- La portada general conserva el identificador de imagen de IGDB; su URL se construye al responder.
+- `library_games` impide que un usuario añada dos veces la misma edición y permanece separada del catálogo compartido.
+- La migración `20260814_0003` crea las tablas y restricciones de esta fase.
 
-## Fuera de esta fase
+## Decisiones relevantes
 
-- Persistencia de videojuegos o resultados de búsqueda.
-- Selección y almacenamiento de plataformas, localizaciones o ediciones.
-- Alta de la edición en la biblioteca del usuario.
-- Conexión del buscador de la aplicación web.
+- IGDB se consulta exclusivamente desde el backend mediante HTTPX y sus credenciales nunca llegan al cliente web.
+- El token de Twitch se reutiliza hasta acercarse a su expiración.
+- TanStack Query gestiona búsqueda, alta, listado e invalidación de la biblioteca en el frontend.
+- Esta fase no inventa región, traducción ni una edición externa que IGDB no haya proporcionado.
+
+## Fuera de alcance
+
+- Ediciones regionales, de coleccionista o deluxe identificadas de forma independiente.
+- Portadas específicas de edición, géneros, clasificaciones por edad e idiomas soportados.
+- Traducciones, actualización programada del catálogo y combinación de búsqueda local con IGDB.
+- Modificación de propiedad o estado de juego, eliminación y página completa de biblioteca.
 
 ## Verificación
 
-- Los tests cubren autenticación obligatoria, transformación correcta de resultados, reutilización del token, validación de la consulta, configuración ausente, fallos del proveedor y respuestas externas inválidas.
-- Las respuestas de prueba de Twitch e IGDB se simulan y no consumen peticiones ni requieren secretos reales.
+- El backend cubre autenticación, búsqueda, transformación del proveedor, alta, listado, valores iniciales, duplicados, plataformas inválidas y fallos externos.
+- El frontend cubre biblioteca vacía, búsqueda, selección de plataforma, alta, actualización del resumen y errores remotos.
+- Twitch e IGDB se simulan en los tests y la persistencia utiliza PostgreSQL efímero y aislado.

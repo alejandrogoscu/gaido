@@ -35,26 +35,27 @@ class _TokenResponse(BaseModel):
     expires_in: int
 
 
-class _CoverData(BaseModel):
+class IgdbCoverData(BaseModel):
     image_id: str
 
 
-class _PlatformData(BaseModel):
+class IgdbPlatformData(BaseModel):
     id: int
     name: str
     abbreviation: str | None = None
 
 
-class _GameData(BaseModel):
+class IgdbGameData(BaseModel):
     id: int
     name: str
     summary: str | None = None
     first_release_date: int | None = None
-    cover: _CoverData | None = None
-    platforms: list[_PlatformData] = Field(default_factory=list)
+    updated_at: int | None = None
+    cover: IgdbCoverData | None = None
+    platforms: list[IgdbPlatformData] = Field(default_factory=list)
 
 
-game_list_adapter = TypeAdapter(list[_GameData])
+game_list_adapter = TypeAdapter(list[IgdbGameData])
 
 
 class IgdbClient:
@@ -72,6 +73,14 @@ class IgdbClient:
         self._token_lock = threading.Lock()
 
     def search_games(self, query: str) -> list[GameSearchResult]:
+        games = self._request_games(_build_search_query(query))
+        return [_to_search_result(game) for game in games]
+
+    def get_game(self, igdb_id: int) -> IgdbGameData | None:
+        games = self._request_games(_build_game_query(igdb_id))
+        return games[0] if games else None
+
+    def _request_games(self, query: str) -> list[IgdbGameData]:
         self._ensure_configured()
 
         try:
@@ -88,15 +97,14 @@ class IgdbClient:
                         "Client-ID": self._client_id or "",
                         "Content-Type": "text/plain",
                     },
-                    content=_build_search_query(query),
+                    content=query,
                 )
                 response.raise_for_status()
         except httpx.HTTPError as error:
             raise IgdbUnavailableError from error
 
         try:
-            games = game_list_adapter.validate_python(response.json())
-            return [_to_search_result(game) for game in games]
+            return game_list_adapter.validate_python(response.json())
         except (OSError, OverflowError, ValueError, ValidationError) as error:
             raise IgdbUnavailableError from error
 
@@ -136,7 +144,7 @@ def _build_search_query(query: str) -> str:
     escaped_query = json.dumps(query, ensure_ascii=False)
     return "\n".join(
         (
-            "fields id,name,summary,first_release_date,cover.image_id,"
+            "fields id,name,summary,first_release_date,updated_at,cover.image_id,"
             "platforms.id,platforms.name,platforms.abbreviation;",
             f"search {escaped_query};",
             "where version_parent = null;",
@@ -145,14 +153,29 @@ def _build_search_query(query: str) -> str:
     )
 
 
-def _to_search_result(game: _GameData) -> GameSearchResult:
+def _build_game_query(igdb_id: int) -> str:
+    return "\n".join(
+        (
+            "fields id,name,summary,first_release_date,updated_at,cover.image_id,"
+            "platforms.id,platforms.name,platforms.abbreviation;",
+            f"where id = {igdb_id};",
+            "limit 1;",
+        )
+    )
+
+
+def build_cover_url(image_id: str) -> str:
+    return COVER_URL_TEMPLATE.format(image_id=image_id)
+
+
+def _to_search_result(game: IgdbGameData) -> GameSearchResult:
     release_date = (
         datetime.fromtimestamp(game.first_release_date, tz=UTC).date()
         if game.first_release_date is not None
         else None
     )
     cover_url = (
-        COVER_URL_TEMPLATE.format(image_id=game.cover.image_id) if game.cover else None
+        build_cover_url(game.cover.image_id) if game.cover else None
     )
 
     return GameSearchResult(

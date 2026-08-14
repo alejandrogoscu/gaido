@@ -89,11 +89,15 @@ Este documento describe el comportamiento funcional vigente de Gaido. Debe evolu
 - `played` significa que se ha jugado, no necesariamente que se haya completado.
 - La propiedad de la edición y su estado de juego son conceptos independientes.
 - La gestión de varias copias idénticas de una misma edición queda fuera del alcance inicial.
+- En la primera alta desde IGDB, el usuario elige una de las plataformas devueltas por el proveedor.
+- Mientras no se importen versiones regionales específicas, el alta crea o reutiliza una edición estándar de región desconocida y localización inglesa.
+- Los datos recibidos del navegador no se consideran fuente del catálogo: el backend vuelve a consultar el videojuego por su identificador de IGDB antes de persistirlo.
 
 ## Alcance actual
 
 - La autenticación mediante correo electrónico y contraseña constituye la base de acceso a las funcionalidades personales.
-- La siguiente funcionalidad incorporará la búsqueda en IGDB y el alta de una edición en la biblioteca del usuario autenticado.
-- El catálogo de videojuegos se limitará inicialmente a los datos necesarios para juegos, localizaciones, plataformas, ediciones, portadas, géneros, clasificaciones por edad e idiomas soportados.
+- La búsqueda en IGDB y el alta de una edición estándar en la biblioteca están disponibles para el usuario autenticado.
+- La persistencia actual incluye videojuegos, localizaciones inglesas, plataformas, ediciones estándar, portadas generales y entradas de biblioteca.
+- Los géneros, clasificaciones por edad, idiomas soportados, ediciones regionales y portadas específicas se incorporarán cuando sus respectivos flujos los necesiten.
 - Otras fuentes externas, traducción automática, varias copias de una edición y otros tipos de colección quedan fuera de esta iteración.
 - La verificación de correo, recuperación de contraseña y autenticación multifactor siguen fuera del alcance actual.

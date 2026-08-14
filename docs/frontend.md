@@ -25,7 +25,7 @@ Cada nuevo tipo de colección debe incorporarse como una funcionalidad independi
 
 No se creará una abstracción común para colecciones hasta que existan al menos dos implementaciones con comportamiento compartido demostrado. Los elementos se moverán a `shared/` únicamente cuando sean realmente transversales.
 
-La portada puede reutilizar una presentación común entre resúmenes porque Videojuegos y Cómics ya constituyen dos usos reales. Sus datos visuales de demostración permanecen aislados y serán sustituidos por cada fuente remota cuando exista el contrato correspondiente.
+La portada reutiliza una presentación común entre resúmenes porque Videojuegos y Cómics ya constituyen dos usos reales. Videojuegos obtiene sus datos mediante su funcionalidad remota y Cómics mantiene datos visuales aislados hasta disponer de contrato propio.
 
 ## Coherencia entre vistas
 

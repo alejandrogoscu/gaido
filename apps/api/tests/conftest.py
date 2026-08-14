@@ -55,4 +55,10 @@ def client(test_database_engine: Engine) -> Generator[TestClient]:
     finally:
         app.dependency_overrides.clear()
         with test_database_engine.begin() as connection:
-            connection.execute(text("TRUNCATE TABLE user_sessions, users RESTART IDENTITY CASCADE"))
+            connection.execute(
+                text(
+                    "TRUNCATE TABLE library_games, game_covers, game_editions, "
+                    "game_localizations, platforms, games, user_sessions, users "
+                    "RESTART IDENTITY CASCADE"
+                )
+            )

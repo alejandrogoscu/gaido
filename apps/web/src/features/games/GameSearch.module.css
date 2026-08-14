@@ -1,0 +1,173 @@
+.searchArea {
+  width: 100%;
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+.search {
+  position: relative;
+  width: 100%;
+}
+
+.search input {
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.85rem 3.5rem 0.85rem 1rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line-strong);
+  border-radius: 0;
+}
+
+.search input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+.search button,
+.addButton {
+  display: grid;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  place-items: center;
+  color: var(--color-background);
+  background: var(--color-accent-strong);
+  border: 0;
+  border-radius: 0;
+}
+
+.search button {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
+}
+
+.search button:focus-visible,
+.addButton:focus-visible,
+.result select:focus-visible,
+.search input:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.search svg,
+.addButton svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: currentcolor;
+}
+
+.feedback {
+  min-height: 1.5rem;
+  padding-top: 0.4rem;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.results {
+  max-height: 28rem;
+  margin-top: 0.5rem;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+}
+
+.results ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  padding: 0.75rem;
+  grid-template-columns: 3.5rem minmax(0, 1fr) 2.75rem;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.result:last-child {
+  border-bottom: 0;
+}
+
+.cover,
+.coverFallback {
+  width: 3.5rem;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+
+.coverFallback {
+  display: grid;
+  place-items: center;
+  color: var(--color-background);
+  background: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.resultContent {
+  min-width: 0;
+}
+
+.resultContent h2,
+.resultContent p {
+  margin: 0;
+}
+
+.resultContent h2 {
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resultContent p {
+  margin-top: 0.15rem;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.result select {
+  width: 100%;
+  min-height: 2rem;
+  margin-top: 0.45rem;
+  padding-inline: 0.4rem;
+  color: var(--color-text);
+  background: var(--color-background);
+  border: 1px solid var(--color-line-strong);
+  border-radius: 0;
+}
+
+.addButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.resultFeedback {
+  min-height: 1rem;
+  grid-column: 2 / -1;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.empty {
+  margin: 0;
+  padding: 1rem;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 48rem) {
+  .result {
+    grid-template-columns: 4rem minmax(0, 1fr) 2.75rem;
+  }
+
+  .cover,
+  .coverFallback {
+    width: 4rem;
+  }
+}

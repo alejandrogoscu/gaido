@@ -1,9 +1,9 @@
-import { RiSearchLine } from '@remixicon/react'
-
+import { GameSearch } from '../games/GameSearch'
 import { CollectionPreview } from './CollectionPreview'
 import { CollectionShortcuts } from './CollectionShortcuts'
 import styles from './HomePage.module.css'
-import { collectionPreviews } from './previewData'
+import { comicsPreview } from './previewData'
+import { VideoGameCollection } from './VideoGameCollection'
 
 export function HomePage() {
   return (
@@ -12,26 +12,13 @@ export function HomePage() {
         Inicio
       </h1>
 
-      <div className={styles.search} role="search">
-        <RiSearchLine className={styles.searchIcon} aria-hidden="true" />
-        <input
-          type="search"
-          placeholder="Buscar en tu colección"
-          aria-label="Buscar en tu colección"
-          aria-describedby="search-availability"
-          disabled
-        />
-        <span id="search-availability" className={styles.visuallyHidden}>
-          La búsqueda estará disponible próximamente
-        </span>
-      </div>
+      <GameSearch />
 
       <CollectionShortcuts />
 
       <div className={styles.collections}>
-        {collectionPreviews.map((collection) => (
-          <CollectionPreview collection={collection} key={collection.id} />
-        ))}
+        <VideoGameCollection />
+        <CollectionPreview collection={comicsPreview} />
       </div>
     </section>
   )

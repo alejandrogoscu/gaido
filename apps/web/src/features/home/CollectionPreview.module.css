@@ -67,13 +67,24 @@
   scroll-snap-align: start;
 }
 
+.cover,
+.coverImage {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+}
+
 .cover {
   display: grid;
-  aspect-ratio: 4 / 5;
   place-items: end start;
   padding: 1rem;
   color: var(--color-background);
   background: var(--item-accent);
+  border-bottom: 5px solid var(--color-accent-strong);
+}
+
+.coverImage {
+  display: block;
+  object-fit: cover;
   border-bottom: 5px solid var(--color-accent-strong);
 }
 
@@ -96,6 +107,34 @@
   color: var(--color-text-muted);
   font-size: 0.78rem;
   line-height: 1.4;
+}
+
+.status {
+  min-height: 8rem;
+  margin-top: 0.75rem;
+  padding: 1rem;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+}
+
+.status p {
+  margin: 0;
+}
+
+.status button {
+  min-height: 2.75rem;
+  margin-top: 1rem;
+  padding-inline: 1rem;
+  color: var(--color-background);
+  background: var(--color-accent-strong);
+  border: 0;
+  border-radius: 0;
+}
+
+.status button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 @media (min-width: 48rem) {

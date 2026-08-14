@@ -215,6 +215,7 @@ describe('autenticación', () => {
     fetchMock
       .mockResolvedValueOnce(mockResponse(401, { detail: 'No autenticado' }))
       .mockResolvedValueOnce(mockResponse(200, authenticatedUser))
+      .mockResolvedValueOnce(mockResponse(200, []))
 
     renderApp()
     await screen.findByRole('heading', { name: 'Iniciar sesión' })
@@ -245,6 +246,7 @@ describe('autenticación', () => {
     fetchMock
       .mockResolvedValueOnce(mockResponse(401, { detail: 'No autenticado' }))
       .mockResolvedValueOnce(mockResponse(201, authenticatedUser))
+      .mockResolvedValueOnce(mockResponse(200, []))
 
     renderApp('/register')
     await screen.findByRole('heading', { name: 'Crear una cuenta' })
@@ -319,6 +321,7 @@ describe('autenticación', () => {
     const user = userEvent.setup()
     fetchMock
       .mockResolvedValueOnce(mockResponse(200, authenticatedUser))
+      .mockResolvedValueOnce(mockResponse(200, []))
       .mockResolvedValueOnce(mockResponse(204))
 
     renderApp('/')
@@ -330,7 +333,7 @@ describe('autenticación', () => {
 
     expect(await screen.findByRole('heading', { name: 'Iniciar sesión' })).toBeTruthy()
     expect(fetchMock).toHaveBeenNthCalledWith(
-      2,
+      3,
       '/api/v1/auth/logout',
       expect.objectContaining({ method: 'POST', credentials: 'include' }),
     )
@@ -338,7 +341,9 @@ describe('autenticación', () => {
 
   it('abre y cierra el panel de navegación autenticado', async () => {
     const user = userEvent.setup()
-    fetchMock.mockResolvedValueOnce(mockResponse(200, authenticatedUser))
+    fetchMock
+      .mockResolvedValueOnce(mockResponse(200, authenticatedUser))
+      .mockResolvedValueOnce(mockResponse(200, []))
 
     renderApp('/')
     await screen.findByRole('heading', { name: 'Inicio' })
