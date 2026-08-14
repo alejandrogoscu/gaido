@@ -49,7 +49,7 @@ export function VideoGameCollection() {
     )
   }
 
-  return <CollectionPreview collection={collection} />
+  return <CollectionPreview collection={collection} coverOnly />
 }
 
 function monogram(title: string): string {

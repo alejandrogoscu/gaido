@@ -62,6 +62,10 @@
   display: none;
 }
 
+.compactItems {
+  grid-auto-columns: minmax(7.5rem, 42%);
+}
+
 .item {
   min-width: 0;
   scroll-snap-align: start;
@@ -84,8 +88,9 @@
 
 .coverImage {
   display: block;
-  object-fit: cover;
+  background: var(--color-surface);
   border-bottom: 5px solid var(--color-accent-strong);
+  object-fit: contain;
 }
 
 .cover span {
@@ -144,5 +149,9 @@
     grid-auto-flow: row;
     gap: 1.5rem;
     overflow: visible;
+  }
+
+  .compactItems {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

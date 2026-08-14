@@ -8,11 +8,15 @@ Ofrecer una portada autenticada que permita buscar elementos y resumir las disti
 
 - La primera zona visible contiene un buscador que consulta actualmente el catálogo de videojuegos.
 - El buscador permanece centrado horizontalmente en cualquier tamaño de pantalla.
-- La búsqueda se ejecuta al enviar el formulario y muestra sus resultados sin abandonar Inicio.
+- La búsqueda se ejecuta con Intro al enviar el formulario y muestra sus resultados sin abandonar Inicio, sin duplicar una lupa dentro de la cabecera activa.
+- Al activar el buscador se abre una vista de altura completa que entra desde la derecha, bloquea el desplazamiento de Inicio y enfoca el campo automáticamente.
+- Al cerrar la vista, se limpia la consulta y el foco vuelve al botón que abre la búsqueda sin activarla de nuevo.
+- Tras enviar la consulta, la cabecera muestra el término buscado y permite volver a editarlo; los resultados se presentan como una lista vertical compacta.
 - Entre el buscador y los resúmenes aparecen accesos visuales centrados para Videojuegos y Cómics, con fondo turquesa, símbolos blancos y nombres accesibles sin texto visible; permanecen deshabilitados hasta que existan sus bibliotecas.
 - Los accesos y demás acciones de la portada utilizan Remix Icon para compartir el mismo lenguaje visual que el resto de la aplicación.
 - Inicio muestra resúmenes independientes de Videojuegos y Cómics.
 - Videojuegos carga hasta las tres entradas más recientes de la biblioteca real y trata los estados de carga, vacío y error.
+- El resumen de Videojuegos prioriza portadas compactas sin repetir título ni plataforma; cada portada conserva el nombre accesible del juego.
 - Cómics mantiene tres elementos de demostración hasta que exista su funcionalidad vertical.
 - Cada resumen se identifica mediante un único título compacto, sin subtítulos redundantes.
 - Cada resumen prepara una acción «Ver todos» representada por una flecha visible y con nombre accesible, deshabilitada hasta que exista la ruta de biblioteca correspondiente.

@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -81,11 +87,18 @@ describe('inicio de colecciones', () => {
     const user = userEvent.setup()
     renderHome()
 
-    await user.type(
+    await user.click(
       screen.getByRole('searchbox', { name: 'Buscar videojuegos' }),
-      'Donkey Kong Bananza',
     )
-    await user.click(screen.getByRole('button', { name: 'Buscar' }))
+    const searchDialog = await screen.findByRole('dialog', {
+      name: 'Buscar videojuegos',
+    })
+    await user.type(
+      within(searchDialog).getByRole('searchbox', {
+        name: 'Buscar videojuegos',
+      }),
+      'Donkey Kong Bananza{Enter}',
+    )
 
     expect(await screen.findByText('2025')).toBeTruthy()
     expect(
@@ -108,7 +121,10 @@ describe('inicio de colecciones', () => {
       },
       expect.anything(),
     )
-    expect(await screen.findAllByText('Switch 2')).toHaveLength(2)
+    expect(
+      await screen.findByRole('img', { name: 'Donkey Kong Bananza' }),
+    ).toBeTruthy()
+    expect(screen.getAllByText('Switch 2')).toHaveLength(1)
   })
 
   it('muestra los errores de búsqueda del backend', async () => {
@@ -118,11 +134,18 @@ describe('inicio de colecciones', () => {
     const user = userEvent.setup()
     renderHome()
 
-    await user.type(
+    await user.click(
       screen.getByRole('searchbox', { name: 'Buscar videojuegos' }),
-      'Hades',
     )
-    await user.click(screen.getByRole('button', { name: 'Buscar' }))
+    const searchDialog = await screen.findByRole('dialog', {
+      name: 'Buscar videojuegos',
+    })
+    await user.type(
+      within(searchDialog).getByRole('searchbox', {
+        name: 'Buscar videojuegos',
+      }),
+      'Hades{Enter}',
+    )
 
     expect(
       await screen.findByText(
@@ -143,6 +166,57 @@ describe('inicio de colecciones', () => {
     expect(viewAllActions.every((action) => action.hasAttribute('disabled'))).toBe(
       true,
     )
+  })
+
+  it('cierra la búsqueda sin volver a abrirla al restaurar el foco', async () => {
+    const user = userEvent.setup()
+    renderHome()
+
+    await user.click(
+      screen.getByRole('searchbox', { name: 'Buscar videojuegos' }),
+    )
+
+    expect(
+      await screen.findByRole('dialog', { name: 'Buscar videojuegos' }),
+    ).toBeTruthy()
+    expect(document.body.style.overflow).toBe('hidden')
+    await user.type(
+      within(screen.getByRole('dialog', { name: 'Buscar videojuegos' })).getByRole(
+        'searchbox',
+        { name: 'Buscar videojuegos' },
+      ),
+      'Hades',
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Cerrar búsqueda' }))
+
+    expect(
+      screen.queryByRole('dialog', { name: 'Buscar videojuegos' }),
+    ).toBeNull()
+    await waitFor(() => {
+      expect(document.activeElement).toBe(
+        screen.getByRole('button', { name: 'Abrir búsqueda' }),
+      )
+    })
+    expect(
+      (
+        screen.getByRole('searchbox', {
+          name: 'Buscar videojuegos',
+        }) as HTMLInputElement
+      ).value,
+    ).toBe('')
+
+    await user.click(screen.getByRole('button', { name: 'Abrir búsqueda' }))
+    expect(
+      await screen.findByRole('dialog', { name: 'Buscar videojuegos' }),
+    ).toBeTruthy()
+
+    fireEvent.keyDown(document, { key: 'Escape' })
+
+    expect(
+      screen.queryByRole('dialog', { name: 'Buscar videojuegos' }),
+    ).toBeNull()
+    expect(document.body.style.overflow).toBe('')
   })
 })
 

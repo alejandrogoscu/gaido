@@ -1,6 +1,10 @@
-import { RiAddLine, RiSearchLine } from '@remixicon/react'
+import {
+  RiAddLine,
+  RiArrowLeftLine,
+  RiSearchLine,
+} from '@remixicon/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { ApiError } from '../../shared/api/client'
 import { addLibraryGame, searchGames } from './api'
@@ -9,6 +13,9 @@ import { gameLibraryQueryKey } from './queries'
 import type { GameSearchResult } from './types'
 
 export function GameSearch() {
+  const launcherButtonRef = useRef<HTMLButtonElement>(null)
+  const [isOpen, setIsOpen] = useState(false)
+  const [isEditing, setIsEditing] = useState(true)
   const [inputValue, setInputValue] = useState('')
   const [query, setQuery] = useState('')
   const [validationMessage, setValidationMessage] = useState('')
@@ -18,6 +25,37 @@ export function GameSearch() {
     enabled: query.length >= 2,
     retry: false,
   })
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    const previousOverflow = document.body.style.overflow
+
+    function closeWithEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') closeSearch()
+    }
+
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', closeWithEscape)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', closeWithEscape)
+    }
+  }, [isOpen])
+
+  function openSearch() {
+    setIsEditing(true)
+    setIsOpen(true)
+  }
+
+  function closeSearch() {
+    setIsOpen(false)
+    setInputValue('')
+    setQuery('')
+    setValidationMessage('')
+    window.requestAnimationFrame(() => launcherButtonRef.current?.focus())
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -31,42 +69,115 @@ export function GameSearch() {
 
     setValidationMessage('')
     setQuery(normalizedQuery)
+    setIsEditing(false)
   }
 
   return (
     <div className={styles.searchArea}>
-      <form className={styles.search} role="search" onSubmit={handleSubmit}>
+      <div
+        className={styles.launcher}
+        role="search"
+        aria-hidden={isOpen ? 'true' : undefined}
+      >
         <input
           type="search"
           value={inputValue}
-          onChange={(event) => setInputValue(event.target.value)}
           placeholder="Buscar videojuegos"
           aria-label="Buscar videojuegos"
-          aria-describedby="game-search-feedback"
+          readOnly
+          tabIndex={isOpen ? -1 : 0}
+          onFocus={openSearch}
         />
-        <button type="submit" aria-label="Buscar">
+        <button
+          ref={launcherButtonRef}
+          type="button"
+          aria-label="Abrir búsqueda"
+          tabIndex={isOpen ? -1 : 0}
+          onClick={openSearch}
+        >
           <RiSearchLine aria-hidden="true" />
         </button>
-      </form>
-
-      <div id="game-search-feedback" className={styles.feedback} aria-live="polite">
-        {validationMessage}
-        {searchQuery.isFetching && 'Buscando videojuegos…'}
-        {searchQuery.isError && errorMessage(searchQuery.error)}
       </div>
 
-      {searchQuery.isSuccess && query && (
-        <div className={styles.results} aria-label="Resultados de búsqueda">
-          {searchQuery.data.length === 0 ? (
-            <p className={styles.empty}>No se han encontrado videojuegos.</p>
-          ) : (
-            <ul>
-              {searchQuery.data.map((game) => (
-                <GameResult game={game} key={game.igdb_id} />
-              ))}
-            </ul>
-          )}
-        </div>
+      {isOpen && (
+        <section
+          className={styles.overlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Buscar videojuegos"
+        >
+          <header className={styles.overlayHeader}>
+            <button
+              type="button"
+              className={styles.navigationButton}
+              aria-label="Cerrar búsqueda"
+              onClick={closeSearch}
+            >
+              <RiArrowLeftLine aria-hidden="true" />
+            </button>
+
+            {isEditing ? (
+              <form className={styles.overlayForm} onSubmit={handleSubmit}>
+                <input
+                  type="search"
+                  value={inputValue}
+                  onChange={(event) => {
+                    setInputValue(event.target.value)
+                    setValidationMessage('')
+                  }}
+                  placeholder="Buscar…"
+                  aria-label="Buscar videojuegos"
+                  aria-describedby="game-search-feedback"
+                  autoFocus
+                />
+              </form>
+            ) : (
+              <>
+                <h2 className={styles.queryTitle}>{query}</h2>
+                <button
+                  type="button"
+                  className={styles.navigationButton}
+                  aria-label="Editar búsqueda"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <RiSearchLine aria-hidden="true" />
+                </button>
+              </>
+            )}
+          </header>
+
+          <div className={styles.overlayContent}>
+            <div
+              id="game-search-feedback"
+              className={styles.feedback}
+              aria-live="polite"
+            >
+              {validationMessage}
+              {searchQuery.isFetching && 'Buscando videojuegos…'}
+              {searchQuery.isError && errorMessage(searchQuery.error)}
+            </div>
+
+            {isEditing && !validationMessage && (
+              <p className={styles.guidance}>
+                Busca un videojuego para añadirlo a tu biblioteca.
+              </p>
+            )}
+
+            {!isEditing && searchQuery.isSuccess && query && (
+              <div className={styles.results} aria-label="Resultados de búsqueda">
+                {searchQuery.data.length === 0 ? (
+                  <p className={styles.empty}>No se han encontrado videojuegos.</p>
+                ) : (
+                  <ul>
+                    {searchQuery.data.map((game) => (
+                      <GameResult game={game} key={game.igdb_id} />
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
       )}
     </div>
   )

@@ -8,12 +8,14 @@ type CollectionPreviewProps = {
   collection: CollectionPreviewData
   statusMessage?: string
   onRetry?: () => void
+  coverOnly?: boolean
 }
 
 export function CollectionPreview({
   collection,
   statusMessage,
   onRetry,
+  coverOnly = false,
 }: CollectionPreviewProps) {
   return (
     <section
@@ -45,22 +47,34 @@ export function CollectionPreview({
           )}
         </div>
       ) : (
-        <ul className={styles.items}>
+        <ul
+          className={`${styles.items} ${coverOnly ? styles.compactItems : ''}`}
+        >
           {collection.items.map((item) => (
             <li className={styles.item} key={item.id}>
               {item.coverUrl ? (
-                <img className={styles.coverImage} src={item.coverUrl} alt="" />
+                <img
+                  className={styles.coverImage}
+                  src={item.coverUrl}
+                  alt={coverOnly ? item.title : ''}
+                />
               ) : (
                 <div
                   className={styles.cover}
                   style={{ '--item-accent': item.accent } as CSSProperties}
-                  aria-hidden="true"
+                  aria-label={coverOnly ? item.title : undefined}
+                  aria-hidden={coverOnly ? undefined : 'true'}
+                  role={coverOnly ? 'img' : undefined}
                 >
                   <span>{item.monogram}</span>
                 </div>
               )}
-              <h3 className={styles.itemTitle}>{item.title}</h3>
-              <p className={styles.itemMeta}>{item.meta}</p>
+              {!coverOnly && (
+                <>
+                  <h3 className={styles.itemTitle}>{item.title}</h3>
+                  <p className={styles.itemMeta}>{item.meta}</p>
+                </>
+              )}
             </li>
           ))}
         </ul>
