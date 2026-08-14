@@ -14,6 +14,9 @@ de contenedores.
 
 1. Opcionalmente, copia `.env.example` a `.env` para personalizar los puertos o
    las credenciales locales.
+   La búsqueda de videojuegos requiere registrar una aplicación confidencial en
+   Twitch y completar `IGDB_CLIENT_ID` e `IGDB_CLIENT_SECRET`; estos valores no
+   deben añadirse al repositorio.
 2. Construye y levanta el entorno:
 
    ```sh
@@ -40,6 +43,7 @@ utiliza el puerto habitual de Vite (`5173`). Puede cambiarse mediante `WEB_PORT`
 | Python | 3.14.6 |
 | uv | 0.12.0 |
 | FastAPI | 0.138.2 |
+| HTTPX | 0.28.1 |
 | argon2-cffi | 25.1.0 |
 | SQLAlchemy | 2.0.51 |
 | Alembic | 1.18.5 |

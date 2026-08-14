@@ -21,8 +21,79 @@ Este documento describe el comportamiento funcional vigente de Gaido. Debe evolu
 - El cierre de sesión elimina inmediatamente la sesión actual.
 - Las sesiones expiradas se rechazan y eliminan cuando se intentan utilizar.
 
+## Catálogo de videojuegos
+
+- Un videojuego representa la obra general y permanece separado de sus plataformas, regiones, ediciones y datos personales de biblioteca.
+- IGDB es la única fuente externa inicial del catálogo y siempre se consulta desde el backend.
+- El identificador de IGDB identifica de forma única el videojuego importado y permite actualizar sus datos sin duplicarlo.
+- El catálogo local conserva únicamente los videojuegos seleccionados por algún usuario; los resultados de búsqueda no se importan de forma masiva.
+- Una búsqueda puede combinar resultados locales con resultados de IGDB y debe identificar como un único resultado aquellos que compartan identificador de IGDB.
+- Antes de consultar IGDB se aprovechan los datos locales disponibles, sin impedir que un videojuego guardado se actualice para descubrir cambios posteriores como nuevas plataformas o ediciones.
+- Cada videojuego conserva la información necesaria para determinar cuándo se sincronizó y si IGDB dispone de una versión más reciente.
+
+## Localización del catálogo
+
+- El título y la sinopsis se almacenan por videojuego y configuración regional mediante códigos como `es-ES`, `en-GB` o `it-IT`.
+- Una localización pertenece a un único videojuego y la combinación de videojuego y configuración regional es única.
+- El título es obligatorio en cada localización y la sinopsis puede estar ausente.
+- No se crean columnas específicas por idioma como `title_es` o `summary_en`.
+- La región comercial de una edición y el idioma de sus metadatos son conceptos diferentes y no se deducen entre sí.
+- Una edición referencia explícitamente una localización existente del mismo videojuego.
+- Cuando un texto no exista en la localización exacta se aplica la cadena de respaldo: configuración regional solicitada, idioma base e inglés.
+- IGDB no garantiza sinopsis traducidas para todas las localizaciones; el modelo debe admitir que una futura fuente de traducción complete esos datos sin alterar el catálogo principal.
+
+## Plataformas y ediciones
+
+- Una edición representa la variante concreta de un videojuego que puede añadirse a una biblioteca.
+- Cada edición pertenece a un videojuego y una plataforma e identifica su tipo, nombre, región comercial, localización visible y fecha de lanzamiento cuando se conozca.
+- La edición estándar, las ediciones coleccionista o deluxe y sus variantes por plataforma o región son entradas diferentes.
+- Una versión identificada por IGDB conserva también el identificador del registro de IGDB que la originó.
+- Se permite el mismo videojuego en varias plataformas, regiones y ediciones.
+- La región puede ser específica, regional, mundial o desconocida; no obliga por sí sola a utilizar un idioma concreto.
+- Los tipos de edición y las regiones se mantienen inicialmente como valores normalizados, sin catálogos persistentes independientes.
+
+## Portadas
+
+- Un videojuego puede tener una portada general y cada edición puede tener sus propias portadas.
+- Solo puede existir una portada principal general por videojuego y una portada principal por edición.
+- Para mostrar una edición se utiliza primero su portada principal, después la portada general del videojuego y finalmente el recurso provisional de Gaido.
+- Se conserva el identificador de imagen de IGDB necesario para construir la URL de la portada, sin guardar una respuesta opaca completa del proveedor.
+- El modelo admite futuras portadas de otras regiones o ediciones, incluidas las ediciones coleccionista.
+
+## Géneros
+
+- Un videojuego puede tener varios géneros y un género puede pertenecer a varios videojuegos.
+- Cada género procedente de IGDB se identifica de forma única mediante su identificador externo.
+- El nombre de un género se almacena por configuración regional para poder mostrarlo en distintos idiomas sin duplicar el género.
+
+## Clasificaciones por edad
+
+- Una edición puede tener una o varias clasificaciones por edad emitidas por organizaciones como PEGI, ESRB o CERO.
+- Las clasificaciones se normalizan y se relacionan con las ediciones, evitando repetir su definición en cada videojuego.
+- En la primera iteración se conserva la organización y la categoría de edad; los descriptores de contenido quedan fuera de alcance.
+
+## Idiomas soportados
+
+- Los idiomas soportados por un videojuego no determinan el idioma visible de su título o sinopsis.
+- Una edición puede relacionarse con varios idiomas soportados.
+- Para cada idioma se distingue si está disponible como audio, subtítulos o interfaz.
+- La combinación de edición, idioma y tipo de soporte es única.
+
+## Biblioteca de videojuegos
+
+- La biblioteca pertenece siempre al usuario autenticado.
+- Una entrada de biblioteca referencia una edición concreta y obtiene de ella el videojuego, la plataforma, la región, la localización y la portada aplicables.
+- Un usuario no puede añadir dos veces la misma edición a su biblioteca.
+- `owned` indica si el usuario posee la edición y su valor inicial es `false`.
+- `play_status` admite inicialmente `pending`, `playing` y `played`, con `pending` como valor inicial.
+- `played` significa que se ha jugado, no necesariamente que se haya completado.
+- La propiedad de la edición y su estado de juego son conceptos independientes.
+- La gestión de varias copias idénticas de una misma edición queda fuera del alcance inicial.
+
 ## Alcance actual
 
-- La autenticación mediante correo electrónico y contraseña será la primera funcionalidad de usuario.
-- La biblioteca de videojuegos se implementará de nuevo después de la autenticación y pertenecerá al usuario autenticado.
-- La verificación de correo, recuperación de contraseña y autenticación multifactor quedan fuera de la primera iteración.
+- La autenticación mediante correo electrónico y contraseña constituye la base de acceso a las funcionalidades personales.
+- La siguiente funcionalidad incorporará la búsqueda en IGDB y el alta de una edición en la biblioteca del usuario autenticado.
+- El catálogo de videojuegos se limitará inicialmente a los datos necesarios para juegos, localizaciones, plataformas, ediciones, portadas, géneros, clasificaciones por edad e idiomas soportados.
+- Otras fuentes externas, traducción automática, varias copias de una edición y otros tipos de colección quedan fuera de esta iteración.
+- La verificación de correo, recuperación de contraseña y autenticación multifactor siguen fuera del alcance actual.

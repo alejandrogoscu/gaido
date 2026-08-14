@@ -1,0 +1,8 @@
+{
+  "include": ["apps/api"],
+  "extraPaths": ["apps/api"],
+  "pythonVersion": "3.14",
+  "pythonPlatform": "Linux",
+  "reportMissingImports": "none",
+  "reportMissingModuleSource": "none"
+}

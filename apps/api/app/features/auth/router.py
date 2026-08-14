@@ -1,27 +1,21 @@
-from typing import Annotated
+from fastapi import APIRouter, HTTPException, Response, status
 
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
-from sqlalchemy.orm import Session
-
-from app.core.config import settings
-from app.db.session import get_session
+from app.features.auth.dependencies import (
+    CurrentUserDependency,
+    SessionDependency,
+    SessionToken,
+)
 from app.features.auth.schemas import LoginRequest, RegisterRequest, UserResponse
 from app.features.auth.security import clear_session_cookie, set_session_cookie
 from app.features.auth.service import (
     InvalidCredentialsError,
     RegistrationConflictError,
-    get_user_from_session,
     login_user,
     logout_user,
     register_user,
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-type SessionDependency = Annotated[Session, Depends(get_session)]
-type SessionToken = Annotated[
-    str | None,
-    Cookie(alias=settings.session_cookie_name),
-]
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -67,17 +61,8 @@ def login(
 @router.get("/me", response_model=UserResponse)
 def current_user(
     response: Response,
-    session: SessionDependency,
-    session_token: SessionToken = None,
+    user: CurrentUserDependency,
 ) -> UserResponse:
-    if session_token is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No autenticado")
-
-    user = get_user_from_session(session, session_token)
-    if user is None:
-        clear_session_cookie(response)
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No autenticado")
-
     response.headers["Cache-Control"] = "no-store"
     return user
 
