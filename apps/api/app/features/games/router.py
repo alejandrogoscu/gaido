@@ -21,6 +21,7 @@ from app.features.games.service import (
     PlatformNotFoundError,
     add_game_to_library,
     list_library_games,
+    search_catalog_games,
 )
 
 router = APIRouter(prefix="/games", tags=["games"])
@@ -32,7 +33,8 @@ type SearchQuery = Annotated[str, Query(alias="q", min_length=2, max_length=100)
 @router.get("/search", response_model=list[GameSearchResult])
 def search_games(
     query: SearchQuery,
-    _current_user: CurrentUserDependency,
+    session: SessionDependency,
+    current_user: CurrentUserDependency,
     igdb_client: IgdbClientDependency,
 ) -> list[GameSearchResult]:
     normalized_query = query.strip()
@@ -43,7 +45,12 @@ def search_games(
         )
 
     try:
-        return igdb_client.search_games(normalized_query)
+        return search_catalog_games(
+            session,
+            current_user.id,
+            normalized_query,
+            igdb_client,
+        )
     except IgdbError as error:
         _raise_igdb_http_error(error)
 

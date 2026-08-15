@@ -64,7 +64,6 @@ def upgrade() -> None:
         sa.Column("game_id", sa.Integer(), nullable=False),
         sa.Column("platform_id", sa.Integer(), nullable=False),
         sa.Column("localization_id", sa.Integer(), nullable=False),
-        sa.Column("igdb_id", sa.BigInteger(), nullable=True),
         sa.Column("edition_type", sa.String(length=30), nullable=False),
         sa.Column("name", sa.String(length=200), nullable=True),
         sa.Column("region", sa.String(length=20), nullable=False),
@@ -90,7 +89,6 @@ def upgrade() -> None:
             "localization_id",
             name="uq_game_editions_identity",
         ),
-        sa.UniqueConstraint("igdb_id", name="uq_game_editions_igdb_id"),
     )
     op.create_table(
         "game_covers",
@@ -137,6 +135,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("edition_id", sa.Integer(), nullable=False),
+        sa.Column("media_format", sa.String(length=10), nullable=False),
         sa.Column(
             "owned",
             sa.Boolean(),
@@ -158,6 +157,10 @@ def upgrade() -> None:
         sa.CheckConstraint(
             "play_status IN ('pending', 'playing', 'played')",
             name="ck_library_games_play_status",
+        ),
+        sa.CheckConstraint(
+            "media_format IN ('physical', 'digital')",
+            name="ck_library_games_media_format",
         ),
         sa.ForeignKeyConstraint(
             ["edition_id"],

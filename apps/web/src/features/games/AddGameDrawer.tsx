@@ -11,7 +11,7 @@ import { SidePanel } from '../../shared/ui/SidePanel/SidePanel'
 import { addLibraryGame } from './api'
 import styles from './AddGameDrawer.module.css'
 import { PlatformLogo } from './PlatformLogo'
-import { gameLibraryQueryKey } from './queries'
+import { gameLibraryQueryKey, gameSearchQueryKey } from './queries'
 import type {
   GameSearchResult,
   MediaFormat,
@@ -26,7 +26,7 @@ type AddGameDrawerProps = {
 }
 
 const mediaFormats: Array<{
-  value: Exclude<MediaFormat, 'unknown'>
+  value: MediaFormat
   label: string
 }> = [
   { value: 'physical', label: 'Físico' },
@@ -49,13 +49,13 @@ export function AddGameDrawer({
   const queryClient = useQueryClient()
   const [platformId, setPlatformId] = useState('')
   const [owned, setOwned] = useState(false)
-  const [mediaFormat, setMediaFormat] =
-    useState<Exclude<MediaFormat, 'unknown'>>('physical')
+  const [mediaFormat, setMediaFormat] = useState<MediaFormat>('physical')
   const [playStatus, setPlayStatus] = useState<PlayStatus>('pending')
   const addMutation = useMutation({
     mutationFn: addLibraryGame,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: gameLibraryQueryKey })
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: gameLibraryQueryKey })
+      void queryClient.invalidateQueries({ queryKey: gameSearchQueryKey })
       onClose()
     },
   })
@@ -118,11 +118,13 @@ export function AddGameDrawer({
                       name="platform"
                       value={platform.igdb_id}
                       checked={platformId === platform.igdb_id.toString()}
+                      disabled={platform.in_library}
                       onChange={(event) => setPlatformId(event.target.value)}
                     />
                     <span className={styles.platformControl}>
                       <PlatformLogo platform={platform} />
                       <span>{platform.abbreviation ?? platform.name}</span>
+                      {platform.in_library && <small>Añadido</small>}
                     </span>
                   </label>
                 ))}

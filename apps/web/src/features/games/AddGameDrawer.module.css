@@ -138,6 +138,18 @@
   fill: currentcolor;
 }
 
+.platformControl small {
+  margin-left: auto;
+  color: var(--color-accent-strong);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.platformChoice input:disabled + .platformControl {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .platformChoice input:checked + .platformControl,
 .choice input:checked + span {
   color: var(--color-background);

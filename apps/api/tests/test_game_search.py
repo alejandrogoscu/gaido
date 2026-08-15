@@ -68,6 +68,7 @@ def test_game_search_returns_mapped_igdb_results(client: TestClient) -> None:
     assert first_response.status_code == 200
     assert first_response.json() == [
         {
+            "game_id": None,
             "igdb_id": 113112,
             "title": "Hades",
             "summary": "Battle out of hell.",
@@ -78,8 +79,10 @@ def test_game_search_returns_mapped_igdb_results(client: TestClient) -> None:
                     "igdb_id": 6,
                     "name": "PC (Microsoft Windows)",
                     "abbreviation": "PC",
+                    "in_library": False,
                 }
             ],
+            "in_library": False,
         }
     ]
     assert second_response.status_code == 200

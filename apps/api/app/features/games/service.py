@@ -14,6 +14,7 @@ from app.features.games.models import (
     Platform,
 )
 from app.features.games.schemas import (
+    GameSearchResult,
     LibraryGameCreate,
     LibraryGameResponse,
     PlatformSearchResult,
@@ -34,6 +35,60 @@ class PlatformNotFoundError(Exception):
 
 class LibraryGameConflictError(Exception):
     pass
+
+
+def search_catalog_games(
+    session: Session,
+    user_id: int,
+    query: str,
+    igdb_client: IgdbClient,
+) -> list[GameSearchResult]:
+    results = igdb_client.search_games(query)
+    if not results:
+        return []
+
+    igdb_game_ids = [result.igdb_id for result in results]
+    local_game_ids = dict(
+        session.execute(
+            select(Game.igdb_id, Game.id).where(Game.igdb_id.in_(igdb_game_ids))
+        ).all()
+    )
+    library_platforms = set(
+        session.execute(
+            select(Game.igdb_id, Platform.igdb_id)
+            .select_from(LibraryGame)
+            .join(GameEdition, LibraryGame.edition_id == GameEdition.id)
+            .join(Game, GameEdition.game_id == Game.id)
+            .join(Platform, GameEdition.platform_id == Platform.id)
+            .where(
+                LibraryGame.user_id == user_id,
+                Game.igdb_id.in_(igdb_game_ids),
+            )
+        ).all()
+    )
+    library_game_ids = {igdb_game_id for igdb_game_id, _ in library_platforms}
+
+    return [
+        result.model_copy(
+            update={
+                "game_id": local_game_ids.get(result.igdb_id),
+                "in_library": result.igdb_id in library_game_ids,
+                "platforms": [
+                    platform.model_copy(
+                        update={
+                            "in_library": (
+                                result.igdb_id,
+                                platform.igdb_id,
+                            )
+                            in library_platforms
+                        }
+                    )
+                    for platform in result.platforms
+                ],
+            }
+        )
+        for result in results
+    ]
 
 
 def add_game_to_library(
@@ -107,7 +162,6 @@ def add_game_to_library(
             GameEdition.game_id == game.id,
             GameEdition.platform_id == platform.id,
             GameEdition.edition_type == DEFAULT_EDITION_TYPE,
-            GameEdition.media_format == data.media_format,
             GameEdition.region == UNKNOWN_REGION,
             GameEdition.localization_id == localization.id,
         )
@@ -118,7 +172,6 @@ def add_game_to_library(
             platform=platform,
             localization=localization,
             edition_type=DEFAULT_EDITION_TYPE,
-            media_format=data.media_format,
             region=UNKNOWN_REGION,
             synced_at=synced_at,
         )
@@ -139,6 +192,7 @@ def add_game_to_library(
     entry = LibraryGame(
         user_id=user_id,
         edition=edition,
+        media_format=data.media_format,
         owned=data.owned,
         play_status=data.play_status,
     )
@@ -190,6 +244,7 @@ def _to_response(entry: LibraryGame) -> LibraryGameResponse:
 
     return LibraryGameResponse(
         id=entry.id,
+        game_id=edition.game.id,
         igdb_game_id=edition.game.igdb_id,
         title=edition.localization.title,
         cover_url=(
@@ -199,8 +254,9 @@ def _to_response(entry: LibraryGame) -> LibraryGameResponse:
             igdb_id=edition.platform.igdb_id,
             name=edition.platform.name,
             abbreviation=edition.platform.abbreviation,
+            in_library=True,
         ),
-        media_format=edition.media_format,
+        media_format=entry.media_format,
         owned=entry.owned,
         play_status=entry.play_status,
     )

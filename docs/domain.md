@@ -25,10 +25,12 @@ Este documento describe el comportamiento funcional vigente de Gaido. Debe evolu
 
 - Un videojuego representa la obra general y permanece separado de sus plataformas, regiones, ediciones y datos personales de biblioteca.
 - IGDB es la única fuente externa inicial del catálogo y siempre se consulta desde el backend.
-- El identificador de IGDB identifica de forma única el videojuego importado y permite actualizar sus datos sin duplicarlo.
+- El identificador autoincrementable de Gaido es la identidad interna principal del videojuego.
+- El identificador de IGDB es una referencia externa única que permite importar y actualizar sus datos sin duplicarlo, pero no sustituye a la identidad interna.
 - El catálogo local conserva únicamente los videojuegos seleccionados por algún usuario; los resultados de búsqueda no se importan de forma masiva.
-- Una búsqueda puede combinar resultados locales con resultados de IGDB y debe identificar como un único resultado aquellos que compartan identificador de IGDB.
-- Antes de consultar IGDB se aprovechan los datos locales disponibles, sin impedir que un videojuego guardado se actualice para descubrir cambios posteriores como nuevas plataformas o ediciones.
+- Una búsqueda cruza los resultados de IGDB con el catálogo local mediante el identificador externo y devuelve el identificador interno cuando el videojuego ya está importado.
+- La búsqueda identifica si el videojuego y cada una de sus plataformas ya forman parte de la biblioteca del usuario autenticado.
+- Consultar IGDB incluso para un videojuego ya importado permite descubrir cambios posteriores como nuevas plataformas; una futura política de caché podrá evitar llamadas recientes sin cambiar el contrato.
 - Cada videojuego conserva la información necesaria para determinar cuándo se sincronizó y si IGDB dispone de una versión más reciente.
 
 ## Localización del catálogo
@@ -45,10 +47,10 @@ Este documento describe el comportamiento funcional vigente de Gaido. Debe evolu
 ## Plataformas y ediciones
 
 - Una edición representa la variante concreta de un videojuego que puede añadirse a una biblioteca.
-- Cada edición pertenece a un videojuego y una plataforma e identifica su tipo, formato, nombre, región comercial, localización visible y fecha de lanzamiento cuando se conozca.
+- Cada edición pertenece a un videojuego y una plataforma e identifica su tipo, nombre, región comercial, localización visible y fecha de lanzamiento cuando se conozca.
 - La edición estándar, las ediciones coleccionista o deluxe y sus variantes por plataforma o región son entradas diferentes.
-- El formato de una edición admite `physical`, `digital` y `unknown`; las nuevas altas del usuario requieren elegir físico o digital y `unknown` queda reservado para datos anteriores o sin clasificar.
-- Una versión identificada por IGDB conserva también el identificador del registro de IGDB que la originó.
+- La combinación de videojuego, plataforma, tipo, región y localización identifica de forma única una edición.
+- Una edición no utiliza un identificador externo mientras IGDB no proporcione un registro que represente de forma fiable esa edición concreta.
 - Se permite el mismo videojuego en varias plataformas, regiones y ediciones.
 - La región puede ser específica, regional, mundial o desconocida; no obliga por sí sola a utilizar un idioma concreto.
 - Los tipos de edición y las regiones se mantienen inicialmente como valores normalizados, sin catálogos persistentes independientes.
@@ -85,13 +87,15 @@ Este documento describe el comportamiento funcional vigente de Gaido. Debe evolu
 - La biblioteca pertenece siempre al usuario autenticado.
 - Una entrada de biblioteca referencia una edición concreta y obtiene de ella el videojuego, la plataforma, la región, la localización y la portada aplicables.
 - Un usuario no puede añadir dos veces la misma edición a su biblioteca.
+- `media_format` pertenece a la entrada personal y requiere elegir `physical` o `digital`.
+- El mismo videojuego puede guardarse en plataformas diferentes y cada entrada puede tener su propio formato; cambiar únicamente el formato no permite duplicar una misma edición.
 - `owned` indica si el usuario posee la edición y su valor inicial es `false`.
 - `play_status` admite `pending`, `playing`, `played` y `completed`, con `pending` como valor inicial.
 - `played` significa que se ha jugado, no necesariamente que se haya completado.
 - `completed` significa que el usuario considera completado el videojuego.
 - La propiedad de la edición y su estado de juego son conceptos independientes.
 - La gestión de varias copias idénticas de una misma edición queda fuera del alcance inicial.
-- En la primera alta desde IGDB, el usuario elige una de las plataformas devueltas por el proveedor, el formato de la edición, su propiedad y su estado de juego.
+- En la primera alta desde IGDB, el usuario elige una de las plataformas devueltas por el proveedor, el formato de su entrada, su propiedad y su estado de juego.
 - Mientras no se importen versiones regionales específicas, el alta crea o reutiliza una edición estándar de región desconocida y localización inglesa.
 - Los datos recibidos del navegador no se consideran fuente del catálogo: el backend vuelve a consultar el videojuego por su identificador de IGDB antes de persistirlo.
 

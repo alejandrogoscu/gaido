@@ -53,6 +53,7 @@ def test_adds_selected_game_edition_and_lists_it(client: TestClient) -> None:
     assert create_response.status_code == 201
     assert create_response.json() == {
         "id": 1,
+        "game_id": 1,
         "igdb_game_id": 338106,
         "title": "Donkey Kong Bananza",
         "cover_url": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobd1q.jpg",
@@ -60,6 +61,7 @@ def test_adds_selected_game_edition_and_lists_it(client: TestClient) -> None:
             "igdb_id": 508,
             "name": "Nintendo Switch 2",
             "abbreviation": "Switch 2",
+            "in_library": True,
         },
         "media_format": "physical",
         "owned": True,
@@ -115,7 +117,7 @@ def test_reports_game_missing_from_igdb(client: TestClient) -> None:
     assert response.json() == {"detail": "El videojuego no existe en IGDB"}
 
 
-def test_allows_physical_and_digital_editions(client: TestClient) -> None:
+def test_rejects_same_edition_with_a_different_format(client: TestClient) -> None:
     app.dependency_overrides[get_igdb_client] = lambda: _igdb_client(GAME_DATA)
     _authenticate(client)
 
@@ -129,9 +131,57 @@ def test_allows_physical_and_digital_editions(client: TestClient) -> None:
     )
 
     assert physical_response.status_code == 201
-    assert digital_response.status_code == 201
-    assert digital_response.json()["media_format"] == "digital"
+    assert digital_response.status_code == 409
+    assert len(client.get("/api/v1/library/games").json()) == 1
+
+
+def test_allows_different_formats_on_different_platforms(client: TestClient) -> None:
+    app.dependency_overrides[get_igdb_client] = lambda: _igdb_client(GAME_DATA)
+    _authenticate(client)
+
+    switch_2_response = client.post(
+        "/api/v1/library/games",
+        json=LIBRARY_DATA,
+    )
+    switch_response = client.post(
+        "/api/v1/library/games",
+        json={
+            **LIBRARY_DATA,
+            "igdb_platform_id": 130,
+            "media_format": "digital",
+        },
+    )
+
+    assert switch_2_response.status_code == 201
+    assert switch_response.status_code == 201
+    assert switch_response.json()["platform"]["igdb_id"] == 130
+    assert switch_response.json()["media_format"] == "digital"
     assert len(client.get("/api/v1/library/games").json()) == 2
+
+
+def test_search_marks_the_platform_already_in_the_library(client: TestClient) -> None:
+    app.dependency_overrides[get_igdb_client] = lambda: _igdb_client(GAME_DATA)
+    _authenticate(client)
+    create_response = client.post(
+        "/api/v1/library/games",
+        json=LIBRARY_DATA,
+    )
+
+    search_response = client.get(
+        "/api/v1/games/search",
+        params={"q": "Donkey Kong Bananza"},
+    )
+
+    assert create_response.status_code == 201
+    assert search_response.status_code == 200
+    result = search_response.json()[0]
+    assert result["game_id"] == create_response.json()["game_id"]
+    assert result["in_library"] is True
+    platforms = {
+        platform["igdb_id"]: platform["in_library"]
+        for platform in result["platforms"]
+    }
+    assert platforms == {508: True, 130: False}
 
 
 def test_rejects_invalid_library_configuration(client: TestClient) -> None:
@@ -157,7 +207,11 @@ def _igdb_client(game: dict[str, object] | None) -> IgdbClient:
             return httpx.Response(200, json={"access_token": "token", "expires_in": 3600})
 
         assert str(request.url) == GAMES_URL
-        assert "where id = 338106;" in request.content.decode()
+        request_body = request.content.decode()
+        assert (
+            "where id = 338106;" in request_body
+            or 'search "Donkey Kong Bananza";' in request_body
+        )
         return httpx.Response(200, json=[] if game is None else [game])
 
     return IgdbClient(

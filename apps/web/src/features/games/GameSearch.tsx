@@ -1,4 +1,9 @@
-import { RiAddLine, RiArrowLeftLine, RiSearchLine } from '@remixicon/react'
+import {
+  RiAddLine,
+  RiArrowLeftLine,
+  RiCheckLine,
+  RiSearchLine,
+} from '@remixicon/react'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 
@@ -7,6 +12,7 @@ import { AddGameDrawer } from './AddGameDrawer'
 import { searchGames } from './api'
 import styles from './GameSearch.module.css'
 import { PlatformLogo } from './PlatformLogo'
+import { gameSearchQueryKey } from './queries'
 import type { GameSearchResult } from './types'
 
 export function GameSearch() {
@@ -19,7 +25,7 @@ export function GameSearch() {
   const [validationMessage, setValidationMessage] = useState('')
   const [selectedGame, setSelectedGame] = useState<GameSearchResult | null>(null)
   const searchQuery = useQuery({
-    queryKey: ['games', 'search', query],
+    queryKey: [...gameSearchQueryKey, query],
     queryFn: () => searchGames(query),
     enabled: query.length >= 2,
     retry: false,
@@ -209,6 +215,7 @@ type GameResultProps = {
 
 function GameResult({ game, onAdd }: GameResultProps) {
   const hasPlatforms = game.platforms.length > 0
+  const canAddPlatform = game.platforms.some((platform) => !platform.in_library)
 
   return (
     <li className={styles.result}>
@@ -223,6 +230,9 @@ function GameResult({ game, onAdd }: GameResultProps) {
       <div className={styles.resultContent}>
         <h2>{game.title}</h2>
         {game.first_release_date && <p>{game.first_release_date.slice(0, 4)}</p>}
+        {game.in_library && (
+          <p className={styles.libraryStatus}>En tu biblioteca</p>
+        )}
 
         {hasPlatforms ? (
           <div
@@ -234,10 +244,16 @@ function GameResult({ game, onAdd }: GameResultProps) {
           >
             {game.platforms.map((platform) => (
               <span
-                className={styles.platformIcon}
+                className={`${styles.platformIcon} ${
+                  platform.in_library ? styles.platformIconAdded : ''
+                }`}
                 role="img"
-                aria-label={platform.name}
-                title={platform.name}
+                aria-label={`${platform.name}${
+                  platform.in_library ? ', en tu biblioteca' : ''
+                }`}
+                title={`${platform.name}${
+                  platform.in_library ? ' · En tu biblioteca' : ''
+                }`}
                 key={platform.igdb_id}
               >
                 <PlatformLogo platform={platform} />
@@ -253,10 +269,18 @@ function GameResult({ game, onAdd }: GameResultProps) {
         type="button"
         className={styles.addButton}
         onClick={(event) => onAdd(game, event.currentTarget)}
-        disabled={!hasPlatforms}
-        aria-label={`Añadir ${game.title} a la biblioteca`}
+        disabled={!canAddPlatform}
+        aria-label={
+          hasPlatforms && !canAddPlatform
+            ? `${game.title} ya está en tu biblioteca`
+            : `Añadir ${game.title} a la biblioteca`
+        }
       >
-        <RiAddLine aria-hidden="true" />
+        {hasPlatforms && !canAddPlatform ? (
+          <RiCheckLine aria-hidden="true" />
+        ) : (
+          <RiAddLine aria-hidden="true" />
+        )}
       </button>
     </li>
   )

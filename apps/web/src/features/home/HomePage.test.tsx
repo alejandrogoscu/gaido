@@ -27,6 +27,7 @@ const mockedSearchGames = vi.mocked(searchGames)
 
 const donkeyKong: LibraryGame = {
   id: 1,
+  game_id: 1,
   igdb_game_id: 338106,
   title: 'Donkey Kong Bananza',
   cover_url: 'https://images.igdb.com/igdb/image/upload/t_cover_big/cobd1q.jpg',
@@ -34,18 +35,21 @@ const donkeyKong: LibraryGame = {
     igdb_id: 508,
     name: 'Nintendo Switch 2',
     abbreviation: 'Switch 2',
+    in_library: true,
   },
   media_format: 'digital',
   owned: true,
   play_status: 'completed',
 }
 const donkeyKongSearchResult: GameSearchResult = {
+  game_id: null,
   igdb_id: 338106,
   title: 'Donkey Kong Bananza',
   summary: 'Explore a vast underground world.',
   first_release_date: '2025-07-17',
   cover_url: donkeyKong.cover_url,
-  platforms: [donkeyKong.platform],
+  platforms: [{ ...donkeyKong.platform, in_library: false }],
+  in_library: false,
 }
 
 describe('inicio de colecciones', () => {
@@ -233,6 +237,93 @@ describe('inicio de colecciones', () => {
       'Esta edición ya está en tu biblioteca',
     )
     expect(configuration.isConnected).toBe(true)
+  })
+
+  it('identifica las plataformas que ya están en la biblioteca', async () => {
+    mockedSearchGames.mockResolvedValue([
+      {
+        ...donkeyKongSearchResult,
+        game_id: donkeyKong.game_id,
+        in_library: true,
+        platforms: [donkeyKong.platform],
+      },
+    ])
+    const user = userEvent.setup()
+    renderHome()
+
+    await user.click(
+      screen.getByRole('searchbox', { name: 'Buscar videojuegos' }),
+    )
+    await user.type(
+      within(
+        await screen.findByRole('dialog', { name: 'Buscar videojuegos' }),
+      ).getByRole('searchbox', { name: 'Buscar videojuegos' }),
+      'Donkey Kong Bananza{Enter}',
+    )
+
+    expect(await screen.findByText('En tu biblioteca')).toBeTruthy()
+    expect(
+      screen.getByRole('img', {
+        name: 'Nintendo Switch 2, en tu biblioteca',
+      }),
+    ).toBeTruthy()
+    expect(
+      screen
+        .getByRole('button', {
+          name: 'Donkey Kong Bananza ya está en tu biblioteca',
+        })
+        .hasAttribute('disabled'),
+    ).toBe(true)
+  })
+
+  it('permite añadir el mismo juego en otra plataforma', async () => {
+    mockedSearchGames.mockResolvedValue([
+      {
+        ...donkeyKongSearchResult,
+        game_id: donkeyKong.game_id,
+        in_library: true,
+        platforms: [
+          donkeyKong.platform,
+          {
+            igdb_id: 6,
+            name: 'PC',
+            abbreviation: 'PC',
+            in_library: false,
+          },
+        ],
+      },
+    ])
+    const user = userEvent.setup()
+    renderHome()
+
+    await user.click(
+      screen.getByRole('searchbox', { name: 'Buscar videojuegos' }),
+    )
+    await user.type(
+      within(
+        await screen.findByRole('dialog', { name: 'Buscar videojuegos' }),
+      ).getByRole('searchbox', { name: 'Buscar videojuegos' }),
+      'Donkey Kong Bananza{Enter}',
+    )
+    await user.click(
+      await screen.findByRole('button', {
+        name: 'Añadir Donkey Kong Bananza a la biblioteca',
+      }),
+    )
+
+    const configuration = await screen.findByRole('dialog', {
+      name: 'Configurar Donkey Kong Bananza',
+    })
+    expect(
+      within(configuration)
+        .getByRole('radio', { name: /Switch 2/ })
+        .hasAttribute('disabled'),
+    ).toBe(true)
+    expect(
+      within(configuration)
+        .getByRole('radio', { name: 'PC' })
+        .hasAttribute('disabled'),
+    ).toBe(false)
   })
 
   it('muestra los errores de búsqueda del backend', async () => {

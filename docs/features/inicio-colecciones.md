@@ -13,6 +13,7 @@ Ofrecer una portada autenticada que permita buscar elementos y resumir las disti
 - Al cerrar la vista, se limpia la consulta y el foco vuelve al botón que abre la búsqueda sin activarla de nuevo.
 - Tras enviar la consulta, la cabecera muestra el término buscado y permite volver a editarlo; los resultados se presentan como una lista vertical compacta.
 - Cada resultado muestra las familias de plataformas disponibles mediante iconos informativos turquesas, sin bordes ni estado de selección, y conserva el nombre completo de cada plataforma de forma accesible.
+- Los resultados distinguen el videojuego y las plataformas que ya pertenecen a la biblioteca; solo las plataformas todavía ausentes pueden abrirse para configurar el alta.
 - Entre el buscador y los resúmenes aparecen accesos visuales centrados para Videojuegos y Cómics, con fondo turquesa, símbolos blancos y nombres accesibles sin texto visible; permanecen deshabilitados hasta que existan sus bibliotecas.
 - Los accesos y demás acciones de la portada utilizan Remix Icon para compartir el mismo lenguaje visual que el resto de la aplicación.
 - Inicio muestra resúmenes independientes de Videojuegos y Cómics.

@@ -87,16 +87,10 @@ class GameEdition(Base):
             "game_id",
             "platform_id",
             "edition_type",
-            "media_format",
             "region",
             "localization_id",
             name="uq_game_editions_identity",
         ),
-        CheckConstraint(
-            "media_format IN ('unknown', 'physical', 'digital')",
-            name="ck_game_editions_media_format",
-        ),
-        UniqueConstraint("igdb_id", name="uq_game_editions_igdb_id"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -107,13 +101,7 @@ class GameEdition(Base):
     localization_id: Mapped[int] = mapped_column(
         ForeignKey("game_localizations.id", ondelete="RESTRICT")
     )
-    igdb_id: Mapped[int | None] = mapped_column(BigInteger)
     edition_type: Mapped[str] = mapped_column(String(30), default="standard")
-    media_format: Mapped[str] = mapped_column(
-        String(10),
-        default="unknown",
-        server_default="unknown",
-    )
     name: Mapped[str | None] = mapped_column(String(200))
     region: Mapped[str] = mapped_column(String(20), default="unknown")
     first_release_date: Mapped[date | None] = mapped_column(Date)
@@ -175,6 +163,10 @@ class LibraryGame(Base):
             "play_status IN ('pending', 'playing', 'played', 'completed')",
             name="ck_library_games_play_status",
         ),
+        CheckConstraint(
+            "media_format IN ('physical', 'digital')",
+            name="ck_library_games_media_format",
+        ),
         Index("ix_library_games_user_id", "user_id"),
     )
 
@@ -183,6 +175,7 @@ class LibraryGame(Base):
     edition_id: Mapped[int] = mapped_column(
         ForeignKey("game_editions.id", ondelete="CASCADE")
     )
+    media_format: Mapped[str] = mapped_column(String(10))
     owned: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     play_status: Mapped[str] = mapped_column(
         String(10),

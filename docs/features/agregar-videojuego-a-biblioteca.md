@@ -14,11 +14,14 @@ Permitir que un usuario autenticado configure y añada una edición de un videoj
 - El alta correcta cierra únicamente el panel, mantiene abierta la búsqueda y actualiza inmediatamente el resumen de Videojuegos.
 - Una biblioteca vacía, la carga y los fallos de búsqueda, alta o listado tienen estados visibles.
 - Añadir de nuevo la misma edición devuelve un conflicto comprensible y no duplica datos.
+- Los resultados indican si el videojuego está en la biblioteca y qué plataformas concretas ya se han añadido.
+- Una plataforma ya añadida queda deshabilitada, pero el mismo videojuego puede configurarse para cualquiera de sus otras plataformas.
 - El panel comienza con `owned = false`, formato físico y `play_status = pending`; la plataforma debe elegirse expresamente.
 
 ## Contrato HTTP
 
-- `GET /api/v1/games/search?q=<texto>` busca en IGDB y no persiste resultados.
+- `GET /api/v1/games/search?q=<texto>` busca en IGDB, cruza el resultado con la biblioteca y no persiste nuevos resultados.
+- Cada resultado de búsqueda devuelve `game_id` cuando ya existe en Gaido, además de indicadores `in_library` para el videojuego y sus plataformas.
 - `GET /api/v1/library/games` devuelve únicamente la biblioteca del usuario autenticado.
 - `POST /api/v1/library/games` recibe `igdb_game_id`, `igdb_platform_id`, `media_format`, `owned` y `play_status`, y devuelve la entrada creada con estado `201`.
 - Las tres operaciones requieren una sesión válida.
@@ -28,23 +31,23 @@ Permitir que un usuario autenticado configure y añada una edición de un videoj
 ## Persistencia
 
 - El backend vuelve a consultar IGDB por identificador al guardar y no confía en los metadatos enviados por el cliente.
-- El videojuego se identifica de forma única por `igdb_id` y conserva las fechas de sincronización y actualización del proveedor.
+- El videojuego utiliza un identificador propio de Gaido; `igdb_id` es una referencia externa única para sincronizar el proveedor sin duplicados.
 - El texto inglés de IGDB se guarda en `game_localizations` con configuración regional `en`.
 - La plataforma se identifica de forma única por su identificador de IGDB.
-- El alta crea o reutiliza una edición `standard`, de región `unknown`, para la plataforma, formato y localización seleccionados.
-- `media_format` pertenece a la edición y admite `physical`, `digital` y el valor interno `unknown` para datos anteriores; las altas nuevas solo aceptan físico o digital.
-- `owned` y `play_status` pertenecen a la entrada personal; `completed` se diferencia de `played`.
+- El alta crea o reutiliza una edición `standard`, de región `unknown`, para la plataforma y localización seleccionadas.
+- Una edición se identifica por videojuego, plataforma, tipo, región y localización; no conserva un identificador de edición de IGDB mientras el proveedor no ofrezca esa identidad de forma fiable.
+- `media_format`, `owned` y `play_status` pertenecen a la entrada personal; el formato admite físico o digital y `completed` se diferencia de `played`.
 - La portada general conserva el identificador de imagen de IGDB; su URL se construye al responder.
 - `library_games` impide que un usuario añada dos veces la misma edición y permanece separada del catálogo compartido.
-- La migración `20260814_0003` crea las tablas y restricciones de esta fase.
-- La migración `20260815_0004` incorpora el formato de edición y el estado completado sin borrar las entradas existentes.
+- La migración `20260814_0003` crea las tablas y restricciones de esta fase, incluido el formato en `library_games`.
+- La migración `20260815_0004` incorpora el estado completado.
 
 ## Decisiones relevantes
 
 - IGDB se consulta exclusivamente desde el backend mediante HTTPX y sus credenciales nunca llegan al cliente web.
 - El token de Twitch se reutiliza hasta acercarse a su expiración.
 - TanStack Query gestiona búsqueda, alta, listado e invalidación de la biblioteca en el frontend.
-- Esta fase no inventa región, traducción ni una edición externa que IGDB no haya proporcionado.
+- Esta fase no inventa región, traducción ni una identidad externa de edición que IGDB no haya proporcionado.
 
 ## Fuera de alcance
 
@@ -55,6 +58,6 @@ Permitir que un usuario autenticado configure y añada una edición de un videoj
 
 ## Verificación
 
-- El backend cubre autenticación, búsqueda, transformación del proveedor, configuración del alta, formatos independientes, listado, duplicados, plataformas inválidas y fallos externos.
-- El frontend cubre biblioteca vacía, búsqueda, apertura y cierre del panel, configuración completa, alta, permanencia de la búsqueda y actualización del resumen.
+- El backend cubre autenticación, búsqueda enriquecida con la biblioteca, transformación del proveedor, configuración del alta, formatos por entrada, listado, duplicados, plataformas distintas, plataformas inválidas y fallos externos.
+- El frontend cubre biblioteca vacía, búsqueda, identificación de plataformas añadidas, apertura y cierre del panel, configuración completa, alta, permanencia de la búsqueda y actualización del resumen.
 - Twitch e IGDB se simulan en los tests y la persistencia utiliza PostgreSQL efímero y aislado.

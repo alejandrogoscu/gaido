@@ -221,6 +221,11 @@
   margin: 0;
 }
 
+.resultContent .libraryStatus {
+  color: var(--color-accent-strong);
+  font-weight: 700;
+}
+
 .resultContent h2 {
   overflow: hidden;
   color: var(--color-text);
@@ -255,6 +260,10 @@
   width: 1.3rem;
   height: 1.3rem;
   fill: currentcolor;
+}
+
+.platformIconAdded {
+  color: var(--color-text-muted);
 }
 
 .addButton:disabled {

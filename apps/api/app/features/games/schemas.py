@@ -8,15 +8,18 @@ class PlatformSearchResult(BaseModel):
     igdb_id: int
     name: str
     abbreviation: str | None
+    in_library: bool = False
 
 
 class GameSearchResult(BaseModel):
+    game_id: int | None = None
     igdb_id: int
     title: str
     summary: str | None
     first_release_date: date | None
     cover_url: str | None
     platforms: list[PlatformSearchResult]
+    in_library: bool = False
 
 
 class LibraryGameCreate(BaseModel):
@@ -29,10 +32,11 @@ class LibraryGameCreate(BaseModel):
 
 class LibraryGameResponse(BaseModel):
     id: int
+    game_id: int
     igdb_game_id: int
     title: str
     cover_url: str | None
     platform: PlatformSearchResult
-    media_format: Literal["unknown", "physical", "digital"]
+    media_format: Literal["physical", "digital"]
     owned: bool
     play_status: Literal["pending", "playing", "played", "completed"]
