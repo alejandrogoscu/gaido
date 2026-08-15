@@ -1,5 +1,5 @@
 import { RiArrowRightLine } from '@remixicon/react'
-import type { CSSProperties } from 'react'
+import { useEffect, useRef, type CSSProperties } from 'react'
 
 import styles from './CollectionPreview.module.css'
 import type { CollectionPreviewData } from './previewData'
@@ -17,6 +17,15 @@ export function CollectionPreview({
   onRetry,
   coverOnly = false,
 }: CollectionPreviewProps) {
+  const itemsRef = useRef<HTMLUListElement>(null)
+  const itemsKey = collection.items.map((item) => item.id).join(',')
+
+  useEffect(() => {
+    if (itemsRef.current) {
+      itemsRef.current.scrollLeft = 0
+    }
+  }, [itemsKey])
+
   return (
     <section
       className={styles.collection}
@@ -48,6 +57,7 @@ export function CollectionPreview({
         </div>
       ) : (
         <ul
+          ref={itemsRef}
           className={`${styles.items} ${coverOnly ? styles.compactItems : ''}`}
         >
           {collection.items.map((item) => (
