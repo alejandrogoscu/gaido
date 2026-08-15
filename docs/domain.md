@@ -45,8 +45,9 @@ Este documento describe el comportamiento funcional vigente de Gaido. Debe evolu
 ## Plataformas y ediciones
 
 - Una edición representa la variante concreta de un videojuego que puede añadirse a una biblioteca.
-- Cada edición pertenece a un videojuego y una plataforma e identifica su tipo, nombre, región comercial, localización visible y fecha de lanzamiento cuando se conozca.
+- Cada edición pertenece a un videojuego y una plataforma e identifica su tipo, formato, nombre, región comercial, localización visible y fecha de lanzamiento cuando se conozca.
 - La edición estándar, las ediciones coleccionista o deluxe y sus variantes por plataforma o región son entradas diferentes.
+- El formato de una edición admite `physical`, `digital` y `unknown`; las nuevas altas del usuario requieren elegir físico o digital y `unknown` queda reservado para datos anteriores o sin clasificar.
 - Una versión identificada por IGDB conserva también el identificador del registro de IGDB que la originó.
 - Se permite el mismo videojuego en varias plataformas, regiones y ediciones.
 - La región puede ser específica, regional, mundial o desconocida; no obliga por sí sola a utilizar un idioma concreto.
@@ -85,11 +86,12 @@ Este documento describe el comportamiento funcional vigente de Gaido. Debe evolu
 - Una entrada de biblioteca referencia una edición concreta y obtiene de ella el videojuego, la plataforma, la región, la localización y la portada aplicables.
 - Un usuario no puede añadir dos veces la misma edición a su biblioteca.
 - `owned` indica si el usuario posee la edición y su valor inicial es `false`.
-- `play_status` admite inicialmente `pending`, `playing` y `played`, con `pending` como valor inicial.
+- `play_status` admite `pending`, `playing`, `played` y `completed`, con `pending` como valor inicial.
 - `played` significa que se ha jugado, no necesariamente que se haya completado.
+- `completed` significa que el usuario considera completado el videojuego.
 - La propiedad de la edición y su estado de juego son conceptos independientes.
 - La gestión de varias copias idénticas de una misma edición queda fuera del alcance inicial.
-- En la primera alta desde IGDB, el usuario elige una de las plataformas devueltas por el proveedor.
+- En la primera alta desde IGDB, el usuario elige una de las plataformas devueltas por el proveedor, el formato de la edición, su propiedad y su estado de juego.
 - Mientras no se importen versiones regionales específicas, el alta crea o reutiliza una edición estándar de región desconocida y localización inglesa.
 - Los datos recibidos del navegador no se consideran fuente del catálogo: el backend vuelve a consultar el videojuego por su identificador de IGDB antes de persistirlo.
 

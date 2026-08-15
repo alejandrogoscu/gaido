@@ -1,0 +1,179 @@
+.header {
+  position: relative;
+  display: flex;
+  min-height: 7rem;
+  padding: 1.5rem 1.25rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header::after {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 0;
+  left: 1.25rem;
+  height: 2px;
+  background: var(--color-line);
+  content: '';
+}
+
+.header p,
+.header h2 {
+  margin: 0;
+}
+
+.header p {
+  color: var(--color-accent-strong);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.header h2 {
+  margin-top: 0.35rem;
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+
+.closeButton {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  flex: 0 0 3rem;
+  padding: 0;
+  place-items: center;
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.closeButton:hover,
+.closeButton:focus-visible {
+  color: var(--color-accent-strong);
+  border-color: var(--color-line-strong);
+}
+
+.closeButton:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.closeButton svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  fill: currentcolor;
+}
+
+.form {
+  display: flex;
+  min-height: 0;
+  padding: 1.25rem;
+  flex: 1;
+  flex-direction: column;
+  gap: 1.25rem;
+  overflow-y: auto;
+}
+
+.form fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.form legend {
+  margin-bottom: 0.6rem;
+  font-weight: 700;
+}
+
+.platformChoices,
+.choiceGrid,
+.statusGrid {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.choiceGrid,
+.statusGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.platformChoice,
+.choice {
+  position: relative;
+  cursor: pointer;
+}
+
+.platformChoice input,
+.choice input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.platformControl,
+.choice > span {
+  display: flex;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.75rem;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--color-text-muted);
+  background: var(--color-background);
+  border: 1px solid var(--color-line);
+}
+
+.choice > span {
+  justify-content: center;
+  text-align: center;
+}
+
+.platformControl svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: 0 0 1.35rem;
+  fill: currentcolor;
+}
+
+.platformChoice input:checked + .platformControl,
+.choice input:checked + span {
+  color: var(--color-background);
+  background: var(--color-accent-strong);
+  border-color: var(--color-accent-strong);
+}
+
+.platformChoice input:focus-visible + .platformControl,
+.choice input:focus-visible + span {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.error {
+  margin: 0;
+  color: var(--color-error);
+  font-size: 0.85rem;
+}
+
+.submitButton {
+  width: 100%;
+  min-height: 3rem;
+  margin-top: auto;
+  padding: 0.75rem 1rem;
+  color: var(--color-background);
+  background: var(--color-accent-strong);
+  border: 0;
+  font-weight: 700;
+}
+
+.submitButton:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.submitButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}

@@ -1,24 +1,23 @@
-import {
-  RiAddLine,
-  RiArrowLeftLine,
-  RiSearchLine,
-} from '@remixicon/react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { RiAddLine, RiArrowLeftLine, RiSearchLine } from '@remixicon/react'
+import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { ApiError } from '../../shared/api/client'
-import { addLibraryGame, searchGames } from './api'
+import { AddGameDrawer } from './AddGameDrawer'
+import { searchGames } from './api'
 import styles from './GameSearch.module.css'
-import { gameLibraryQueryKey } from './queries'
+import { PlatformLogo } from './PlatformLogo'
 import type { GameSearchResult } from './types'
 
 export function GameSearch() {
   const launcherButtonRef = useRef<HTMLButtonElement>(null)
+  const addButtonRef = useRef<HTMLElement>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(true)
   const [inputValue, setInputValue] = useState('')
   const [query, setQuery] = useState('')
   const [validationMessage, setValidationMessage] = useState('')
+  const [selectedGame, setSelectedGame] = useState<GameSearchResult | null>(null)
   const searchQuery = useQuery({
     queryKey: ['games', 'search', query],
     queryFn: () => searchGames(query),
@@ -50,11 +49,20 @@ export function GameSearch() {
   }
 
   function closeSearch() {
+    setSelectedGame(null)
     setIsOpen(false)
     setInputValue('')
     setQuery('')
     setValidationMessage('')
     window.requestAnimationFrame(() => launcherButtonRef.current?.focus())
+  }
+
+  function openGameConfiguration(
+    game: GameSearchResult,
+    trigger: HTMLButtonElement,
+  ) {
+    addButtonRef.current = trigger
+    setSelectedGame(game)
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -170,13 +178,24 @@ export function GameSearch() {
                 ) : (
                   <ul>
                     {searchQuery.data.map((game) => (
-                      <GameResult game={game} key={game.igdb_id} />
+                      <GameResult
+                        game={game}
+                        onAdd={openGameConfiguration}
+                        key={game.igdb_id}
+                      />
                     ))}
                   </ul>
                 )}
               </div>
             )}
           </div>
+
+          <AddGameDrawer
+            game={selectedGame}
+            isOpen={selectedGame !== null}
+            onClose={() => setSelectedGame(null)}
+            returnFocusRef={addButtonRef}
+          />
         </section>
       )}
     </div>
@@ -185,28 +204,11 @@ export function GameSearch() {
 
 type GameResultProps = {
   game: GameSearchResult
+  onAdd: (game: GameSearchResult, trigger: HTMLButtonElement) => void
 }
 
-function GameResult({ game }: GameResultProps) {
-  const queryClient = useQueryClient()
-  const [platformId, setPlatformId] = useState(
-    game.platforms[0]?.igdb_id.toString() ?? '',
-  )
-  const addMutation = useMutation({
-    mutationFn: addLibraryGame,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: gameLibraryQueryKey })
-    },
-  })
+function GameResult({ game, onAdd }: GameResultProps) {
   const hasPlatforms = game.platforms.length > 0
-
-  function handleAdd() {
-    if (!platformId) return
-    addMutation.mutate({
-      igdb_game_id: game.igdb_id,
-      igdb_platform_id: Number(platformId),
-    })
-  }
 
   return (
     <li className={styles.result}>
@@ -223,17 +225,25 @@ function GameResult({ game }: GameResultProps) {
         {game.first_release_date && <p>{game.first_release_date.slice(0, 4)}</p>}
 
         {hasPlatforms ? (
-          <select
-            value={platformId}
-            onChange={(event) => setPlatformId(event.target.value)}
-            aria-label={`Plataforma de ${game.title}`}
+          <div
+            className={styles.platforms}
+            role="group"
+            aria-label={`Disponible en: ${game.platforms
+              .map((platform) => platform.name)
+              .join(', ')}`}
           >
             {game.platforms.map((platform) => (
-              <option value={platform.igdb_id} key={platform.igdb_id}>
-                {platform.abbreviation ?? platform.name}
-              </option>
+              <span
+                className={styles.platformIcon}
+                role="img"
+                aria-label={platform.name}
+                title={platform.name}
+                key={platform.igdb_id}
+              >
+                <PlatformLogo platform={platform} />
+              </span>
             ))}
-          </select>
+          </div>
         ) : (
           <p>Sin plataformas disponibles</p>
         )}
@@ -242,18 +252,12 @@ function GameResult({ game }: GameResultProps) {
       <button
         type="button"
         className={styles.addButton}
-        onClick={handleAdd}
-        disabled={!hasPlatforms || addMutation.isPending || addMutation.isSuccess}
+        onClick={(event) => onAdd(game, event.currentTarget)}
+        disabled={!hasPlatforms}
         aria-label={`Añadir ${game.title} a la biblioteca`}
       >
         <RiAddLine aria-hidden="true" />
       </button>
-
-      <div className={styles.resultFeedback} aria-live="polite">
-        {addMutation.isPending && 'Añadiendo…'}
-        {addMutation.isSuccess && 'Añadido a tu biblioteca'}
-        {addMutation.isError && errorMessage(addMutation.error)}
-      </div>
     </li>
   )
 }

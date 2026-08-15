@@ -4,6 +4,9 @@ export type GamePlatform = {
   abbreviation: string | null
 }
 
+export type MediaFormat = 'unknown' | 'physical' | 'digital'
+export type PlayStatus = 'pending' | 'playing' | 'played' | 'completed'
+
 export type GameSearchResult = {
   igdb_id: number
   title: string
@@ -19,11 +22,15 @@ export type LibraryGame = {
   title: string
   cover_url: string | null
   platform: GamePlatform
+  media_format: MediaFormat
   owned: boolean
-  play_status: 'pending' | 'playing' | 'played'
+  play_status: PlayStatus
 }
 
 export type AddLibraryGameData = {
   igdb_game_id: number
   igdb_platform_id: number
+  media_format: Exclude<MediaFormat, 'unknown'>
+  owned: boolean
+  play_status: PlayStatus
 }

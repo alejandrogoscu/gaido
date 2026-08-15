@@ -21,13 +21,20 @@ GAME_DATA = {
         {"id": 130, "name": "Nintendo Switch", "abbreviation": "Switch"},
     ],
 }
+LIBRARY_DATA = {
+    "igdb_game_id": 338106,
+    "igdb_platform_id": 508,
+    "media_format": "physical",
+    "owned": True,
+    "play_status": "completed",
+}
 
 
 def test_library_requires_authentication(client: TestClient) -> None:
     list_response = client.get("/api/v1/library/games")
     create_response = client.post(
         "/api/v1/library/games",
-        json={"igdb_game_id": 338106, "igdb_platform_id": 508},
+        json=LIBRARY_DATA,
     )
 
     assert list_response.status_code == 401
@@ -40,7 +47,7 @@ def test_adds_selected_game_edition_and_lists_it(client: TestClient) -> None:
 
     create_response = client.post(
         "/api/v1/library/games",
-        json={"igdb_game_id": 338106, "igdb_platform_id": 508},
+        json=LIBRARY_DATA,
     )
 
     assert create_response.status_code == 201
@@ -54,8 +61,9 @@ def test_adds_selected_game_edition_and_lists_it(client: TestClient) -> None:
             "name": "Nintendo Switch 2",
             "abbreviation": "Switch 2",
         },
-        "owned": False,
-        "play_status": "pending",
+        "media_format": "physical",
+        "owned": True,
+        "play_status": "completed",
     }
 
     list_response = client.get("/api/v1/library/games")
@@ -67,7 +75,7 @@ def test_adds_selected_game_edition_and_lists_it(client: TestClient) -> None:
 def test_rejects_duplicate_edition(client: TestClient) -> None:
     app.dependency_overrides[get_igdb_client] = lambda: _igdb_client(GAME_DATA)
     _authenticate(client)
-    payload = {"igdb_game_id": 338106, "igdb_platform_id": 508}
+    payload = LIBRARY_DATA
 
     first_response = client.post("/api/v1/library/games", json=payload)
     duplicate_response = client.post("/api/v1/library/games", json=payload)
@@ -86,7 +94,7 @@ def test_rejects_platform_not_available_for_game(client: TestClient) -> None:
 
     response = client.post(
         "/api/v1/library/games",
-        json={"igdb_game_id": 338106, "igdb_platform_id": 999},
+        json={**LIBRARY_DATA, "igdb_platform_id": 999},
     )
 
     assert response.status_code == 422
@@ -100,11 +108,47 @@ def test_reports_game_missing_from_igdb(client: TestClient) -> None:
 
     response = client.post(
         "/api/v1/library/games",
-        json={"igdb_game_id": 338106, "igdb_platform_id": 508},
+        json=LIBRARY_DATA,
     )
 
     assert response.status_code == 404
     assert response.json() == {"detail": "El videojuego no existe en IGDB"}
+
+
+def test_allows_physical_and_digital_editions(client: TestClient) -> None:
+    app.dependency_overrides[get_igdb_client] = lambda: _igdb_client(GAME_DATA)
+    _authenticate(client)
+
+    physical_response = client.post(
+        "/api/v1/library/games",
+        json=LIBRARY_DATA,
+    )
+    digital_response = client.post(
+        "/api/v1/library/games",
+        json={**LIBRARY_DATA, "media_format": "digital"},
+    )
+
+    assert physical_response.status_code == 201
+    assert digital_response.status_code == 201
+    assert digital_response.json()["media_format"] == "digital"
+    assert len(client.get("/api/v1/library/games").json()) == 2
+
+
+def test_rejects_invalid_library_configuration(client: TestClient) -> None:
+    app.dependency_overrides[get_igdb_client] = lambda: _igdb_client(GAME_DATA)
+    _authenticate(client)
+
+    invalid_format = client.post(
+        "/api/v1/library/games",
+        json={**LIBRARY_DATA, "media_format": "cartridge"},
+    )
+    invalid_status = client.post(
+        "/api/v1/library/games",
+        json={**LIBRARY_DATA, "play_status": "abandoned"},
+    )
+
+    assert invalid_format.status_code == 422
+    assert invalid_status.status_code == 422
 
 
 def _igdb_client(game: dict[str, object] | None) -> IgdbClient:

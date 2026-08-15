@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -21,6 +22,9 @@ class GameSearchResult(BaseModel):
 class LibraryGameCreate(BaseModel):
     igdb_game_id: int = Field(gt=0)
     igdb_platform_id: int = Field(gt=0)
+    media_format: Literal["physical", "digital"]
+    owned: bool = False
+    play_status: Literal["pending", "playing", "played", "completed"] = "pending"
 
 
 class LibraryGameResponse(BaseModel):
@@ -29,5 +33,6 @@ class LibraryGameResponse(BaseModel):
     title: str
     cover_url: str | None
     platform: PlatformSearchResult
+    media_format: Literal["unknown", "physical", "digital"]
     owned: bool
-    play_status: str
+    play_status: Literal["pending", "playing", "played", "completed"]

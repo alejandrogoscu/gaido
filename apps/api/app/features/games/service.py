@@ -107,6 +107,7 @@ def add_game_to_library(
             GameEdition.game_id == game.id,
             GameEdition.platform_id == platform.id,
             GameEdition.edition_type == DEFAULT_EDITION_TYPE,
+            GameEdition.media_format == data.media_format,
             GameEdition.region == UNKNOWN_REGION,
             GameEdition.localization_id == localization.id,
         )
@@ -117,6 +118,7 @@ def add_game_to_library(
             platform=platform,
             localization=localization,
             edition_type=DEFAULT_EDITION_TYPE,
+            media_format=data.media_format,
             region=UNKNOWN_REGION,
             synced_at=synced_at,
         )
@@ -134,7 +136,12 @@ def add_game_to_library(
         session.rollback()
         raise LibraryGameConflictError
 
-    entry = LibraryGame(user_id=user_id, edition=edition)
+    entry = LibraryGame(
+        user_id=user_id,
+        edition=edition,
+        owned=data.owned,
+        play_status=data.play_status,
+    )
     session.add(entry)
 
     try:
@@ -193,6 +200,7 @@ def _to_response(entry: LibraryGame) -> LibraryGameResponse:
             name=edition.platform.name,
             abbreviation=edition.platform.abbreviation,
         ),
+        media_format=edition.media_format,
         owned=entry.owned,
         play_status=entry.play_status,
     )

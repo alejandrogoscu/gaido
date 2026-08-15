@@ -87,9 +87,14 @@ class GameEdition(Base):
             "game_id",
             "platform_id",
             "edition_type",
+            "media_format",
             "region",
             "localization_id",
             name="uq_game_editions_identity",
+        ),
+        CheckConstraint(
+            "media_format IN ('unknown', 'physical', 'digital')",
+            name="ck_game_editions_media_format",
         ),
         UniqueConstraint("igdb_id", name="uq_game_editions_igdb_id"),
     )
@@ -104,6 +109,11 @@ class GameEdition(Base):
     )
     igdb_id: Mapped[int | None] = mapped_column(BigInteger)
     edition_type: Mapped[str] = mapped_column(String(30), default="standard")
+    media_format: Mapped[str] = mapped_column(
+        String(10),
+        default="unknown",
+        server_default="unknown",
+    )
     name: Mapped[str | None] = mapped_column(String(200))
     region: Mapped[str] = mapped_column(String(20), default="unknown")
     first_release_date: Mapped[date | None] = mapped_column(Date)
@@ -162,7 +172,7 @@ class LibraryGame(Base):
     __table_args__ = (
         UniqueConstraint("user_id", "edition_id", name="uq_library_games_user_edition"),
         CheckConstraint(
-            "play_status IN ('pending', 'playing', 'played')",
+            "play_status IN ('pending', 'playing', 'played', 'completed')",
             name="ck_library_games_play_status",
         ),
         Index("ix_library_games_user_id", "user_id"),
