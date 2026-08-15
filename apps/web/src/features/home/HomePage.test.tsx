@@ -105,11 +105,7 @@ describe('inicio de colecciones', () => {
     )
 
     expect(await screen.findByText('2025')).toBeTruthy()
-    expect(
-      screen.getByRole('img', {
-        name: 'Nintendo Switch 2',
-      }),
-    ).toBeTruthy()
+    expect(screen.getByText('Switch 2')).toBeTruthy()
 
     await user.click(
       screen.getByRole('button', {
@@ -261,11 +257,9 @@ describe('inicio de colecciones', () => {
       'Donkey Kong Bananza{Enter}',
     )
 
-    expect(await screen.findByText('En tu biblioteca')).toBeTruthy()
+    expect(await screen.findByText('Lo tengo')).toBeTruthy()
     expect(
-      screen.getByRole('img', {
-        name: 'Nintendo Switch 2, en tu biblioteca',
-      }),
+      screen.getByText('Nintendo Switch 2, en tu biblioteca'),
     ).toBeTruthy()
     expect(
       screen
