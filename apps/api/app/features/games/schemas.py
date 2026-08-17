@@ -16,6 +16,7 @@ class GameSearchResult(BaseModel):
     igdb_id: int
     title: str
     summary: str | None
+    category: str | None
     first_release_date: date | None
     cover_url: str | None
     platforms: list[PlatformSearchResult]

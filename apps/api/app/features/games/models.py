@@ -29,6 +29,7 @@ class Game(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     igdb_id: Mapped[int] = mapped_column(BigInteger)
+    category: Mapped[str | None] = mapped_column(String(30))
     first_release_date: Mapped[date | None] = mapped_column(Date)
     igdb_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     synced_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

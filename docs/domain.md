@@ -32,6 +32,8 @@ Este documento describe el comportamiento funcional vigente de Gaido. Debe evolu
 - La búsqueda identifica si el videojuego y cada una de sus plataformas ya forman parte de la biblioteca del usuario autenticado.
 - Consultar IGDB incluso para un videojuego ya importado permite descubrir cambios posteriores como nuevas plataformas; una futura política de caché podrá evitar llamadas recientes sin cambiar el contrato.
 - Cada videojuego conserva la información necesaria para determinar cuándo se sincronizó y si IGDB dispone de una versión más reciente.
+- Cada videojuego conserva la categoría normalizada que expone IGDB (juego principal, remake, remaster, port, DLC, bundle...) para poder distinguir variantes equivalentes de una misma obra.
+- Los resultados de una búsqueda se ordenan por prioridad: primero los juegos principales y sus remakes (año de lanzamiento más reciente primero), después los DLC y por último el resto de categorías, también por año de lanzamiento descendente.
 
 ## Localización del catálogo
 

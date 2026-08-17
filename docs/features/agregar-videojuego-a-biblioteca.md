@@ -7,7 +7,8 @@ Permitir que un usuario autenticado configure y añada una edición de un videoj
 ## Comportamiento observable
 
 - El buscador de inicio admite entre 2 y 100 caracteres y solo consulta al enviar el formulario.
-- La búsqueda muestra como máximo diez videojuegos principales con título, año, portada y plataformas disponibles.
+- La búsqueda muestra como máximo diez videojuegos con título, año, portada y plataformas disponibles.
+- Los resultados se ordenan priorizando el juego principal y sus remakes por año más reciente, después los DLC y por último el resto de categorías, también por año más reciente.
 - Cada resultado abre mediante `+` un panel lateral que entra desde la derecha y mantiene visible la búsqueda bajo un fondo atenuado.
 - El panel permite elegir plataforma, propiedad, formato físico o digital y estado pendiente, jugando, jugado o completado.
 - Los nombres acompañan a los logos dentro del panel para distinguir plataformas de una misma familia.
@@ -22,6 +23,7 @@ Permitir que un usuario autenticado configure y añada una edición de un videoj
 
 - `GET /api/v1/games/search?q=<texto>` busca en IGDB, cruza el resultado con la biblioteca y no persiste nuevos resultados.
 - Cada resultado de búsqueda devuelve `game_id` cuando ya existe en Gaido, además de indicadores `in_library` para el videojuego y sus plataformas.
+- Cada resultado de búsqueda incluye `category` con la categoría normalizada de IGDB (`main_game`, `remake`, `dlc_addon`...), usada para ordenar la respuesta; puede ser `null` si IGDB no la proporciona.
 - `GET /api/v1/library/games` devuelve únicamente la biblioteca del usuario autenticado.
 - `POST /api/v1/library/games` recibe `igdb_game_id`, `igdb_platform_id`, `media_format`, `owned` y `play_status`, y devuelve la entrada creada con estado `201`.
 - Las tres operaciones requieren una sesión válida.
@@ -32,6 +34,7 @@ Permitir que un usuario autenticado configure y añada una edición de un videoj
 
 - El backend vuelve a consultar IGDB por identificador al guardar y no confía en los metadatos enviados por el cliente.
 - El videojuego utiliza un identificador propio de Gaido; `igdb_id` es una referencia externa única para sincronizar el proveedor sin duplicados.
+- `games.category` guarda la categoría normalizada de IGDB (juego principal, remake, remaster, port, DLC, bundle...); es `NULL` cuando IGDB no la expone.
 - El texto inglés de IGDB se guarda en `game_localizations` con configuración regional `en`.
 - La plataforma se identifica de forma única por su identificador de IGDB.
 - El alta crea o reutiliza una edición `standard`, de región `unknown`, para la plataforma y localización seleccionadas.
@@ -41,6 +44,7 @@ Permitir que un usuario autenticado configure y añada una edición de un videoj
 - `library_games` impide que un usuario añada dos veces la misma edición y permanece separada del catálogo compartido.
 - La migración `20260814_0003` crea las tablas y restricciones de esta fase, incluido el formato en `library_games`.
 - La migración `20260815_0004` incorpora el estado completado.
+- La migración `20260817_0005` añade `games.category`.
 
 ## Decisiones relevantes
 
@@ -58,6 +62,6 @@ Permitir que un usuario autenticado configure y añada una edición de un videoj
 
 ## Verificación
 
-- El backend cubre autenticación, búsqueda enriquecida con la biblioteca, transformación del proveedor, configuración del alta, formatos por entrada, listado, duplicados, plataformas distintas, plataformas inválidas y fallos externos.
+- El backend cubre autenticación, búsqueda enriquecida con la biblioteca, transformación del proveedor, ordenación de resultados por categoría y fecha, configuración del alta, formatos por entrada, listado, duplicados, plataformas distintas, plataformas inválidas y fallos externos.
 - El frontend cubre biblioteca vacía, búsqueda, identificación de plataformas añadidas, apertura y cierre del panel, configuración completa, alta, permanencia de la búsqueda y actualización del resumen.
 - Twitch e IGDB se simulan en los tests y la persistencia utiliza PostgreSQL efímero y aislado.

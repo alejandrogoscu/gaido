@@ -13,6 +13,7 @@ export type GameSearchResult = {
   igdb_id: number
   title: string
   summary: string | null
+  category: string | null
   first_release_date: string | null
   cover_url: string | null
   platforms: GamePlatform[]

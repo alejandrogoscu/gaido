@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
-from app.features.games.igdb import IgdbClient, build_cover_url
+from app.features.games.igdb import IgdbClient, build_cover_url, category_label
 from app.features.games.models import (
     Game,
     GameCover,
@@ -23,6 +23,16 @@ from app.features.games.schemas import (
 SOURCE_LOCALE = "en"
 DEFAULT_EDITION_TYPE = "standard"
 UNKNOWN_REGION = "unknown"
+SEARCH_RESULT_LIMIT = 10
+
+# El grupo 2 (DLC) solo cubre "dlc_addon"; el resto de categorías de IGDB
+# (incluida la ausencia de categoría) cae en el grupo 3 por defecto.
+SEARCH_CATEGORY_PRIORITY: dict[str, int] = {
+    "main_game": 0,
+    "remake": 0,
+    "dlc_addon": 1,
+}
+DEFAULT_SEARCH_CATEGORY_PRIORITY = 2
 
 
 class GameNotFoundError(Exception):
@@ -68,7 +78,7 @@ def search_catalog_games(
     )
     library_game_ids = {igdb_game_id for igdb_game_id, _ in library_platforms}
 
-    return [
+    enriched_results = [
         result.model_copy(
             update={
                 "game_id": local_game_ids.get(result.igdb_id),
@@ -89,6 +99,15 @@ def search_catalog_games(
         )
         for result in results
     ]
+    return sorted(enriched_results, key=_search_result_sort_key)[:SEARCH_RESULT_LIMIT]
+
+
+def _search_result_sort_key(result: GameSearchResult) -> tuple[int, int]:
+    priority = SEARCH_CATEGORY_PRIORITY.get(result.category, DEFAULT_SEARCH_CATEGORY_PRIORITY)
+    release_ordinal = (
+        result.first_release_date.toordinal() if result.first_release_date else 0
+    )
+    return (priority, -release_ordinal)
 
 
 def add_game_to_library(
@@ -118,6 +137,7 @@ def add_game_to_library(
         game = Game(igdb_id=source_game.id, synced_at=synced_at)
         session.add(game)
 
+    game.category = category_label(source_game.game_type)
     game.first_release_date = _source_date(source_game.first_release_date)
     game.igdb_updated_at = _source_datetime(source_game.updated_at)
     game.synced_at = synced_at

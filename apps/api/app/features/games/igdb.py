@@ -15,7 +15,35 @@ GAMES_URL = "https://api.igdb.com/v4/games"
 COVER_URL_TEMPLATE = "https://images.igdb.com/igdb/image/upload/t_cover_big/{image_id}.jpg"
 REQUEST_TIMEOUT_SECONDS = 8.0
 TOKEN_EXPIRATION_MARGIN_SECONDS = 60
-SEARCH_RESULT_LIMIT = 10
+
+# Se piden más candidatos de los que se muestran (ver SEARCH_RESULT_LIMIT en
+# service.py) porque la relevancia de IGDB puede dejar el juego principal o
+# su remake fuera de los primeros puestos cuando hay muchas ediciones o DLC
+# con un título casi idéntico; un pool más amplio permite que nuestra propia
+# ordenación por categoría los siga encontrando.
+SEARCH_CANDIDATE_LIMIT = 40
+
+IGDB_CATEGORY_LABELS: dict[int, str] = {
+    0: "main_game",
+    1: "dlc_addon",
+    2: "expansion",
+    3: "bundle",
+    4: "standalone_expansion",
+    5: "mod",
+    6: "episode",
+    7: "season",
+    8: "remake",
+    9: "remaster",
+    10: "expanded_game",
+    11: "port",
+    12: "fork",
+    13: "pack",
+    14: "update",
+}
+
+
+def category_label(category: int | None) -> str | None:
+    return IGDB_CATEGORY_LABELS.get(category) if category is not None else None
 
 
 class IgdbError(Exception):
@@ -49,6 +77,7 @@ class IgdbGameData(BaseModel):
     id: int
     name: str
     summary: str | None = None
+    game_type: int | None = None
     first_release_date: int | None = None
     updated_at: int | None = None
     cover: IgdbCoverData | None = None
@@ -144,11 +173,11 @@ def _build_search_query(query: str) -> str:
     escaped_query = json.dumps(query, ensure_ascii=False)
     return "\n".join(
         (
-            "fields id,name,summary,first_release_date,updated_at,cover.image_id,"
+            "fields id,name,summary,game_type,first_release_date,updated_at,cover.image_id,"
             "platforms.id,platforms.name,platforms.abbreviation;",
             f"search {escaped_query};",
             "where version_parent = null;",
-            f"limit {SEARCH_RESULT_LIMIT};",
+            f"limit {SEARCH_CANDIDATE_LIMIT};",
         )
     )
 
@@ -156,7 +185,7 @@ def _build_search_query(query: str) -> str:
 def _build_game_query(igdb_id: int) -> str:
     return "\n".join(
         (
-            "fields id,name,summary,first_release_date,updated_at,cover.image_id,"
+            "fields id,name,summary,game_type,first_release_date,updated_at,cover.image_id,"
             "platforms.id,platforms.name,platforms.abbreviation;",
             f"where id = {igdb_id};",
             "limit 1;",
@@ -182,6 +211,7 @@ def _to_search_result(game: IgdbGameData) -> GameSearchResult:
         igdb_id=game.id,
         title=game.name,
         summary=game.summary,
+        category=category_label(game.game_type),
         first_release_date=release_date,
         cover_url=cover_url,
         platforms=[

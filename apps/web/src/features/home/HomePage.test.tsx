@@ -46,6 +46,7 @@ const donkeyKongSearchResult: GameSearchResult = {
   igdb_id: 338106,
   title: 'Donkey Kong Bananza',
   summary: 'Explore a vast underground world.',
+  category: 'main_game',
   first_release_date: '2025-07-17',
   cover_url: donkeyKong.cover_url,
   platforms: [{ ...donkeyKong.platform, in_library: false }],

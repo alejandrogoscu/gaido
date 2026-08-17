@@ -35,9 +35,11 @@ def test_game_search_returns_mapped_igdb_results(client: TestClient) -> None:
         search_requests += 1
         assert request.headers["Client-ID"] == "client-id"
         assert request.headers["Authorization"] == "Bearer token"
+        assert "fields" in request.content.decode()
+        assert "game_type" in request.content.decode()
         assert 'search "Hades";' in request.content.decode()
         assert "where version_parent = null;" in request.content.decode()
-        assert "limit 10;" in request.content.decode()
+        assert "limit 40;" in request.content.decode()
         return httpx.Response(
             200,
             json=[
@@ -72,6 +74,7 @@ def test_game_search_returns_mapped_igdb_results(client: TestClient) -> None:
             "igdb_id": 113112,
             "title": "Hades",
             "summary": "Battle out of hell.",
+            "category": None,
             "first_release_date": "2020-09-17",
             "cover_url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co39vc.jpg",
             "platforms": [
@@ -88,6 +91,108 @@ def test_game_search_returns_mapped_igdb_results(client: TestClient) -> None:
     assert second_response.status_code == 200
     assert token_requests == 1
     assert search_requests == 2
+
+
+def test_game_search_orders_results_by_category_priority_and_release_date(
+    client: TestClient,
+) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if str(request.url).startswith(TOKEN_URL):
+            return httpx.Response(200, json={"access_token": "token", "expires_in": 3600})
+        return httpx.Response(
+            200,
+            json=[
+                {
+                    "id": 1,
+                    "name": "Port Edition",
+                    "game_type": 11,
+                    "first_release_date": 1600000000,
+                },
+                {
+                    "id": 2,
+                    "name": "Old Main Game",
+                    "game_type": 0,
+                    "first_release_date": 900000000,
+                },
+                {
+                    "id": 3,
+                    "name": "DLC Pack",
+                    "game_type": 1,
+                    "first_release_date": 1500000000,
+                },
+                {
+                    "id": 4,
+                    "name": "New Remake",
+                    "game_type": 8,
+                    "first_release_date": 1650000000,
+                },
+                {"id": 5, "name": "No Date Bundle", "game_type": 3},
+            ],
+        )
+
+    app.dependency_overrides[get_igdb_client] = lambda: IgdbClient(
+        "client-id",
+        "client-secret",
+        transport=httpx.MockTransport(handler),
+    )
+    _authenticate(client)
+
+    response = client.get("/api/v1/games/search", params={"q": "Hades"})
+
+    assert response.status_code == 200
+    assert [game["title"] for game in response.json()] == [
+        "New Remake",
+        "Old Main Game",
+        "DLC Pack",
+        "Port Edition",
+        "No Date Bundle",
+    ]
+
+
+def test_game_search_rescues_main_game_buried_behind_many_similar_editions(
+    client: TestClient,
+) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if str(request.url).startswith(TOKEN_URL):
+            return httpx.Response(200, json={"access_token": "token", "expires_in": 3600})
+
+        assert "limit 40;" in request.content.decode()
+        filler_editions = [
+            {
+                "id": index,
+                "name": f"Persona 3 Reload: Filler Edition {index}",
+                "game_type": 1,
+                "first_release_date": 1700000000,
+            }
+            for index in range(1, 15)
+        ]
+        return httpx.Response(
+            200,
+            json=[
+                *filler_editions,
+                {
+                    "id": 99,
+                    "name": "Persona 3 Reload",
+                    "game_type": 8,
+                    "first_release_date": 1706832000,
+                },
+            ],
+        )
+
+    app.dependency_overrides[get_igdb_client] = lambda: IgdbClient(
+        "client-id",
+        "client-secret",
+        transport=httpx.MockTransport(handler),
+    )
+    _authenticate(client)
+
+    response = client.get("/api/v1/games/search", params={"q": "Persona 3 Reload"})
+
+    assert response.status_code == 200
+    results = response.json()
+    assert len(results) == 10
+    assert results[0]["title"] == "Persona 3 Reload"
+    assert results[0]["category"] == "remake"
 
 
 def test_game_search_rejects_blank_query(client: TestClient) -> None:
