@@ -8,6 +8,7 @@ import {
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
+import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiError } from '../../shared/api/client'
@@ -74,11 +75,13 @@ describe('inicio de colecciones', () => {
     expect(screen.getByText('Saga')).toBeTruthy()
     expect(screen.getAllByRole('listitem')).toHaveLength(3)
 
-    const videoGamesShortcut = screen.getByRole('button', {
+    const videoGamesShortcut = screen.getByRole('link', {
       name: 'Videojuegos',
     })
     const comicsShortcut = screen.getByRole('button', { name: 'Cómics' })
-    expect(videoGamesShortcut.hasAttribute('disabled')).toBe(true)
+    expect(videoGamesShortcut.getAttribute('href')).toBe(
+      '/biblioteca/videojuegos',
+    )
     expect(comicsShortcut.hasAttribute('disabled')).toBe(true)
   })
 
@@ -355,18 +358,20 @@ describe('inicio de colecciones', () => {
     ).toBeTruthy()
   })
 
-  it('mantiene deshabilitadas las rutas de colección todavía no disponibles', async () => {
+  it('habilita la biblioteca de videojuegos y mantiene deshabilitados los cómics', async () => {
     renderHome()
     await screen.findByText('Aún no has añadido ningún videojuego.')
 
-    const viewAllActions = screen.getAllByRole('button', {
-      name: /^Ver todos:/,
-    })
-
-    expect(viewAllActions).toHaveLength(2)
-    expect(viewAllActions.every((action) => action.hasAttribute('disabled'))).toBe(
-      true,
-    )
+    expect(
+      screen
+        .getByRole('link', { name: 'Ver todos: Videojuegos' })
+        .getAttribute('href'),
+    ).toBe('/biblioteca/videojuegos')
+    expect(
+      screen
+        .getByRole('button', { name: 'Ver todos: Cómics' })
+        .hasAttribute('disabled'),
+    ).toBe(true)
   })
 
   it('cierra la búsqueda sin volver a abrirla al restaurar el foco', async () => {
@@ -456,7 +461,9 @@ function renderHome() {
 
   function Wrapper({ children }: { children: ReactNode }) {
     return (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <MemoryRouter>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      </MemoryRouter>
     )
   }
 

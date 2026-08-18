@@ -75,6 +75,13 @@ export function AuthenticatedLayout() {
                 >
                   Inicio
                 </Link>
+                <Link
+                  className={styles.menuLink}
+                  to="/biblioteca/videojuegos"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Mis videojuegos
+                </Link>
               </div>
 
               <div className={styles.menuFooter}>

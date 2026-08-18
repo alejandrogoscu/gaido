@@ -354,6 +354,9 @@ describe('autenticación', () => {
     expect(menu.textContent).toContain('Ada')
     expect(menu.textContent).toContain('ada@example.com')
     expect(screen.getByRole('link', { name: 'Inicio' })).toBeTruthy()
+    expect(
+      screen.getByRole('link', { name: 'Mis videojuegos' }),
+    ).toBeTruthy()
     expect(document.body.style.overflow).toBe('hidden')
 
     const closeButton = screen.getByRole('button', {

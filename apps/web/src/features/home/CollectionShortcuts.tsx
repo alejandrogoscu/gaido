@@ -1,19 +1,18 @@
 import { RiChat1Line, RiGamepadLine } from '@remixicon/react'
+import { Link } from 'react-router-dom'
 
 import styles from './CollectionShortcuts.module.css'
 
 export function CollectionShortcuts() {
   return (
     <nav className={styles.shortcuts} aria-label="Tipos de colección">
-      <button
+      <Link
         className={styles.shortcut}
-        type="button"
+        to="/biblioteca/videojuegos"
         aria-label="Videojuegos"
-        title="Disponible próximamente"
-        disabled
       >
         <RiGamepadLine aria-hidden="true" />
-      </button>
+      </Link>
 
       <button
         className={styles.shortcut}

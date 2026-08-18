@@ -16,14 +16,14 @@ Ofrecer una portada autenticada que permita buscar elementos y resumir las disti
 - Cada resultado muestra la abreviatura oficial de cada plataforma disponible, en turquesa y mayúsculas, sin bordes ni estado de selección, y conserva el nombre completo de cada plataforma de forma accesible.
 - Los resultados distinguen el videojuego y las plataformas que ya pertenecen a la biblioteca; solo las plataformas todavía ausentes pueden abrirse para configurar el alta.
 - Los resultados identifican de forma compacta la presencia en la biblioteca con un doble check y la propiedad con una bolsa de compra adicional, manteniendo ambos conceptos separados y accesibles por texto alternativo.
-- Entre el buscador y los resúmenes aparecen accesos visuales centrados para Videojuegos y Cómics, con fondo turquesa, símbolos blancos y nombres accesibles sin texto visible; permanecen deshabilitados hasta que existan sus bibliotecas.
+- Entre el buscador y los resúmenes aparecen accesos visuales centrados para Videojuegos y Cómics, con fondo turquesa, símbolos blancos y nombres accesibles sin texto visible; Videojuegos abre su biblioteca y Cómics permanece deshabilitado.
 - Los accesos y demás acciones de la portada utilizan Remix Icon para compartir el mismo lenguaje visual que el resto de la aplicación.
 - Inicio muestra resúmenes independientes de Videojuegos y Cómics.
 - Videojuegos carga hasta las tres entradas más recientes de la biblioteca real y trata los estados de carga, vacío y error.
 - El resumen de Videojuegos prioriza portadas compactas sin repetir título ni plataforma; cada portada conserva el nombre accesible del juego.
 - Cómics mantiene tres elementos de demostración hasta que exista su funcionalidad vertical.
 - Cada resumen se identifica mediante un único título compacto, sin subtítulos redundantes.
-- Cada resumen prepara una acción «Ver todos» representada por una flecha visible y con nombre accesible, deshabilitada hasta que exista la ruta de biblioteca correspondiente.
+- Cada resumen prepara una acción «Ver todos» representada por una flecha visible y con nombre accesible; la de Videojuegos abre `/biblioteca/videojuegos` y la de Cómics permanece deshabilitada.
 - En móvil, los elementos se recorren horizontalmente con controles táctiles y sin depender de hover.
 - La barra nativa permanece oculta para integrar el carrusel en el diseño sin impedir su desplazamiento.
 - El desplazamiento horizontal queda contenido dentro de cada colección y no aumenta el ancho de la página ni de la cabecera.
@@ -34,7 +34,7 @@ Ofrecer una portada autenticada que permita buscar elementos y resumir las disti
 ## Alcance
 
 - Videojuegos está conectado al backend para búsqueda, alta y resumen de biblioteca.
-- No incluye todavía páginas completas de biblioteca, detalles ni persistencia de Cómics.
+- Incluye el acceso a la página completa de la biblioteca de videojuegos; las vistas de detalle y la persistencia de Cómics siguen fuera de alcance.
 
 ## Verificación
 

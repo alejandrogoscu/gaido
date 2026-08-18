@@ -6,6 +6,7 @@ import { CollectionPreview } from './CollectionPreview'
 import type { CollectionPreviewData } from './previewData'
 
 const fallbackAccents = ['#b9d7e8', '#ef7f78', '#f0b84b']
+const libraryPath = '/biblioteca/videojuegos'
 
 export function VideoGameCollection() {
   const libraryQuery = useQuery(gameLibraryQueryOptions)
@@ -27,6 +28,7 @@ export function VideoGameCollection() {
       <CollectionPreview
         collection={collection}
         statusMessage="Cargando tu biblioteca…"
+        viewAllPath={libraryPath}
       />
     )
   }
@@ -37,6 +39,7 @@ export function VideoGameCollection() {
         collection={collection}
         statusMessage="No se ha podido cargar tu biblioteca."
         onRetry={() => void libraryQuery.refetch()}
+        viewAllPath={libraryPath}
       />
     )
   }
@@ -46,9 +49,16 @@ export function VideoGameCollection() {
       <CollectionPreview
         collection={collection}
         statusMessage="Aún no has añadido ningún videojuego."
+        viewAllPath={libraryPath}
       />
     )
   }
 
-  return <CollectionPreview collection={collection} coverOnly />
+  return (
+    <CollectionPreview
+      collection={collection}
+      coverOnly
+      viewAllPath={libraryPath}
+    />
+  )
 }

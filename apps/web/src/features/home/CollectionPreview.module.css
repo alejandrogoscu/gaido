@@ -30,6 +30,7 @@
   border: 0;
   border-radius: 0;
   opacity: 1;
+  text-decoration: none;
 }
 
 .viewAll svg {
@@ -40,6 +41,16 @@
 
 .viewAll:disabled {
   cursor: not-allowed;
+}
+
+.viewAll:hover,
+.viewAll:focus-visible {
+  color: var(--color-text);
+}
+
+.viewAll:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .items {

@@ -6,6 +6,7 @@ import {
   RequireGuest,
 } from '../features/auth/SessionGuards'
 import { HomePage } from '../features/home/HomePage'
+import { GameLibraryPage } from '../features/games/GameLibraryPage'
 import { AuthenticatedLayout } from '../layouts/AuthenticatedLayout/AuthenticatedLayout'
 import { PublicLayout } from '../layouts/PublicLayout/PublicLayout'
 
@@ -27,7 +28,13 @@ export const appRoutes: RouteObject[] = [
     children: [
       {
         element: <AuthenticatedLayout />,
-        children: [{ index: true, element: <HomePage /> }],
+        children: [
+          { index: true, element: <HomePage /> },
+          {
+            path: 'biblioteca/videojuegos',
+            element: <GameLibraryPage />,
+          },
+        ],
       },
     ],
   },

@@ -1,5 +1,6 @@
 import { RiArrowRightLine } from '@remixicon/react'
 import { useEffect, useRef, type CSSProperties } from 'react'
+import { Link } from 'react-router-dom'
 
 import styles from './CollectionPreview.module.css'
 import type { CollectionPreviewData } from './previewData'
@@ -9,6 +10,7 @@ type CollectionPreviewProps = {
   statusMessage?: string
   onRetry?: () => void
   coverOnly?: boolean
+  viewAllPath?: string
 }
 
 export function CollectionPreview({
@@ -16,6 +18,7 @@ export function CollectionPreview({
   statusMessage,
   onRetry,
   coverOnly = false,
+  viewAllPath,
 }: CollectionPreviewProps) {
   const itemsRef = useRef<HTMLUListElement>(null)
   const itemsKey = collection.items.map((item) => item.id).join(',')
@@ -35,15 +38,25 @@ export function CollectionPreview({
         <h2 id={`${collection.id}-title`} className={styles.title}>
           {collection.title}
         </h2>
-        <button
-          className={styles.viewAll}
-          type="button"
-          aria-label={`Ver todos: ${collection.title}`}
-          title="Disponible próximamente"
-          disabled
-        >
-          <RiArrowRightLine aria-hidden="true" />
-        </button>
+        {viewAllPath ? (
+          <Link
+            className={styles.viewAll}
+            to={viewAllPath}
+            aria-label={`Ver todos: ${collection.title}`}
+          >
+            <RiArrowRightLine aria-hidden="true" />
+          </Link>
+        ) : (
+          <button
+            className={styles.viewAll}
+            type="button"
+            aria-label={`Ver todos: ${collection.title}`}
+            title="Disponible próximamente"
+            disabled
+          >
+            <RiArrowRightLine aria-hidden="true" />
+          </button>
+        )}
       </header>
 
       {statusMessage ? (
