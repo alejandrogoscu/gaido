@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
+import { gameMonogram } from '../games/gameMonogram'
 import { gameLibraryQueryOptions } from '../games/queries'
 import { CollectionPreview } from './CollectionPreview'
 import type { CollectionPreviewData } from './previewData'
@@ -15,7 +16,7 @@ export function VideoGameCollection() {
       id: game.id.toString(),
       title: game.title,
       meta: game.platform.abbreviation ?? game.platform.name,
-      monogram: monogram(game.title),
+      monogram: gameMonogram(game.title),
       accent: fallbackAccents[index % fallbackAccents.length] ?? '#b9d7e8',
       ...(game.cover_url ? { coverUrl: game.cover_url } : {}),
     })),
@@ -50,13 +51,4 @@ export function VideoGameCollection() {
   }
 
   return <CollectionPreview collection={collection} coverOnly />
-}
-
-function monogram(title: string): string {
-  return title
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join('')
-    .toUpperCase()
 }

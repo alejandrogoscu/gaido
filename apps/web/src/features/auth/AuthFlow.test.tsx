@@ -356,9 +356,17 @@ describe('autenticación', () => {
     expect(screen.getByRole('link', { name: 'Inicio' })).toBeTruthy()
     expect(document.body.style.overflow).toBe('hidden')
 
-    await user.click(
-      screen.getByRole('button', { name: 'Cerrar panel de navegación' }),
-    )
+    const closeButton = screen.getByRole('button', {
+      name: 'Cerrar panel de navegación',
+    })
+    const logoutButton = screen.getByRole('button', { name: 'Cerrar sesión' })
+    expect(document.activeElement).toBe(closeButton)
+    await user.tab({ shift: true })
+    expect(document.activeElement).toBe(logoutButton)
+    await user.tab()
+    expect(document.activeElement).toBe(closeButton)
+
+    await user.click(closeButton)
 
     expect(
       screen.queryByRole('navigation', { name: 'Navegación principal' }),

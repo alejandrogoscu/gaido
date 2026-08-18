@@ -13,6 +13,7 @@ Ofrecer acceso mobile first a la navegación y a las acciones de sesión desde l
 - Inicio y el cierre del panel usan el turquesa al interactuar; cerrar sesión utiliza rojo para comunicar su carácter destructivo.
 - El menú se cierra con su botón, al seleccionar una ruta, al pulsar fuera o mediante la tecla Escape.
 - Mientras el panel está abierto se bloquea el desplazamiento del documento.
+- Mientras el panel está abierto, la navegación mediante Tab permanece dentro de sus controles y al cerrarlo el foco vuelve al botón que lo abrió.
 - El cierre de sesión mantiene sus estados de espera y error y solo abandona la vista autenticada cuando la API confirma la operación.
 
 ## Verificación

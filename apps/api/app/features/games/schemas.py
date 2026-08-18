@@ -21,6 +21,7 @@ class GameSearchResult(BaseModel):
     cover_url: str | None
     platforms: list[PlatformSearchResult]
     in_library: bool = False
+    owned: bool = False
 
 
 class LibraryGameCreate(BaseModel):

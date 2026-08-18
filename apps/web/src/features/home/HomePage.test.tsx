@@ -51,6 +51,7 @@ const donkeyKongSearchResult: GameSearchResult = {
   cover_url: donkeyKong.cover_url,
   platforms: [{ ...donkeyKong.platform, in_library: false }],
   in_library: false,
+  owned: false,
 }
 
 describe('inicio de colecciones', () => {
@@ -236,12 +237,13 @@ describe('inicio de colecciones', () => {
     expect(configuration.isConnected).toBe(true)
   })
 
-  it('identifica las plataformas que ya están en la biblioteca', async () => {
+  it('identifica la presencia en la biblioteca y la propiedad', async () => {
     mockedSearchGames.mockResolvedValue([
       {
         ...donkeyKongSearchResult,
         game_id: donkeyKong.game_id,
         in_library: true,
+        owned: true,
         platforms: [donkeyKong.platform],
       },
     ])
@@ -258,17 +260,21 @@ describe('inicio de colecciones', () => {
       'Donkey Kong Bananza{Enter}',
     )
 
-    expect(await screen.findByText('Lo tengo')).toBeTruthy()
+    expect(
+      await screen.findByRole('img', {
+        name: 'En tu biblioteca y lo posees',
+      }),
+    ).toBeTruthy()
+    expect(screen.getByTitle('En tu biblioteca')).toBeTruthy()
+    expect(screen.getByTitle('Lo posees')).toBeTruthy()
     expect(
       screen.getByText('Nintendo Switch 2, en tu biblioteca'),
     ).toBeTruthy()
     expect(
-      screen
-        .getByRole('button', {
-          name: 'Donkey Kong Bananza ya está en tu biblioteca',
-        })
-        .hasAttribute('disabled'),
-    ).toBe(true)
+      screen.queryByRole('button', {
+        name: 'Añadir Donkey Kong Bananza a la biblioteca',
+      }),
+    ).toBeNull()
   })
 
   it('permite añadir el mismo juego en otra plataforma', async () => {
@@ -277,6 +283,7 @@ describe('inicio de colecciones', () => {
         ...donkeyKongSearchResult,
         game_id: donkeyKong.game_id,
         in_library: true,
+        owned: true,
         platforms: [
           donkeyKong.platform,
           {
@@ -411,6 +418,31 @@ describe('inicio de colecciones', () => {
       screen.queryByRole('dialog', { name: 'Buscar videojuegos' }),
     ).toBeNull()
     expect(document.body.style.overflow).toBe('')
+  })
+
+  it('mantiene el foco dentro de la búsqueda', async () => {
+    const user = userEvent.setup()
+    renderHome()
+
+    await user.click(
+      screen.getByRole('searchbox', { name: 'Buscar videojuegos' }),
+    )
+
+    const searchDialog = await screen.findByRole('dialog', {
+      name: 'Buscar videojuegos',
+    })
+    const searchInput = within(searchDialog).getByRole('searchbox', {
+      name: 'Buscar videojuegos',
+    })
+    const closeButton = within(searchDialog).getByRole('button', {
+      name: 'Cerrar búsqueda',
+    })
+
+    expect(document.activeElement).toBe(searchInput)
+    await user.tab()
+    expect(document.activeElement).toBe(closeButton)
+    await user.tab({ shift: true })
+    expect(document.activeElement).toBe(searchInput)
   })
 })
 

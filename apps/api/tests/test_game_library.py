@@ -177,6 +177,7 @@ def test_search_marks_the_platform_already_in_the_library(client: TestClient) ->
     result = search_response.json()[0]
     assert result["game_id"] == create_response.json()["game_id"]
     assert result["in_library"] is True
+    assert result["owned"] is True
     platforms = {
         platform["igdb_id"]: platform["in_library"]
         for platform in result["platforms"]

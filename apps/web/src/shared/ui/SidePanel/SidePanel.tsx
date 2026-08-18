@@ -5,6 +5,7 @@ import {
   type RefObject,
 } from 'react'
 
+import { trapFocus } from '../focusTrap'
 import styles from './SidePanel.module.css'
 
 type SidePanelProps = {
@@ -36,10 +37,14 @@ export function SidePanel({
   }, [isOpen, returnFocusRef])
 
   function handleKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
-    if (event.key !== 'Escape') return
-    event.preventDefault()
-    event.stopPropagation()
-    onClose()
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      event.stopPropagation()
+      onClose()
+      return
+    }
+
+    trapFocus(event, event.currentTarget)
   }
 
   if (!isOpen) return null

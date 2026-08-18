@@ -86,6 +86,7 @@ def test_game_search_returns_mapped_igdb_results(client: TestClient) -> None:
                 }
             ],
             "in_library": False,
+            "owned": False,
         }
     ]
     assert second_response.status_code == 200

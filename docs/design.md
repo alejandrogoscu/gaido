@@ -31,6 +31,8 @@ Este documento recoge las decisiones visuales compartidas de la aplicación.
 - Reservar colores ajenos al turquesa para comunicar estados semánticos, como los errores.
 - Representar la fortaleza de contraseña con cinco segmentos rectos y una escala semántica centralizada en los tokens de color.
 - Mantener foco visible, contraste legible y controles táctiles cómodos desde 320 px.
+- Los diálogos modales contienen el foco durante la navegación por teclado y lo devuelven al control que los abrió al cerrarse.
+- Los controles táctiles principales mantienen un área interactiva mínima de 44 por 44 px.
 - En formularios de autenticación, usar placeholders visibles y nombres accesibles en lugar de etiquetas visuales para mantener una composición más limpia.
 - Centralizar los colores semánticos en `styles/tokens.css` para permitir un futuro tema claro sin acoplar los componentes a colores concretos.
 - Mantener en `styles/global.css` únicamente el reset y los estilos realmente globales.

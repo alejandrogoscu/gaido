@@ -2,15 +2,17 @@ import {
   RiAddLine,
   RiArrowLeftLine,
   RiCheckDoubleLine,
-  RiCheckLine,
   RiSearchLine,
+  RiShoppingBag3Line,
 } from '@remixicon/react'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { ApiError } from '../../shared/api/client'
+import { trapFocus } from '../../shared/ui/focusTrap'
 import { AddGameDrawer } from './AddGameDrawer'
 import { searchGames } from './api'
+import { gameMonogram } from './gameMonogram'
 import styles from './GameSearch.module.css'
 import { gameSearchQueryKey } from './queries'
 import type { GameSearchResult } from './types'
@@ -119,6 +121,7 @@ export function GameSearch() {
           role="dialog"
           aria-modal="true"
           aria-label="Buscar videojuegos"
+          onKeyDown={(event) => trapFocus(event, event.currentTarget)}
         >
           <header className={styles.overlayHeader}>
             <button
@@ -223,7 +226,7 @@ function GameResult({ game, onAdd }: GameResultProps) {
         <img src={game.cover_url} alt="" className={styles.cover} />
       ) : (
         <div className={styles.coverFallback} aria-hidden="true">
-          {monogram(game.title)}
+          {gameMonogram(game.title)}
         </div>
       )}
 
@@ -266,29 +269,36 @@ function GameResult({ game, onAdd }: GameResultProps) {
 
       <div className={styles.resultActions}>
         {game.in_library && (
-          <p className={styles.libraryStatus}>
-            <RiCheckDoubleLine aria-hidden="true" />
-            Lo tengo
-          </p>
+          <div
+            className={styles.libraryStatus}
+            role="img"
+            aria-label={
+              game.owned
+                ? 'En tu biblioteca y lo posees'
+                : 'En tu biblioteca'
+            }
+          >
+            <span title="En tu biblioteca">
+              <RiCheckDoubleLine aria-hidden="true" />
+            </span>
+            {game.owned && (
+              <span title="Lo posees">
+                <RiShoppingBag3Line aria-hidden="true" />
+              </span>
+            )}
+          </div>
         )}
 
-        <button
-          type="button"
-          className={styles.addButton}
-          onClick={(event) => onAdd(game, event.currentTarget)}
-          disabled={!canAddPlatform}
-          aria-label={
-            hasPlatforms && !canAddPlatform
-              ? `${game.title} ya está en tu biblioteca`
-              : `Añadir ${game.title} a la biblioteca`
-          }
-        >
-          {hasPlatforms && !canAddPlatform ? (
-            <RiCheckLine aria-hidden="true" />
-          ) : (
+        {canAddPlatform && (
+          <button
+            type="button"
+            className={styles.addButton}
+            onClick={(event) => onAdd(game, event.currentTarget)}
+            aria-label={`Añadir ${game.title} a la biblioteca`}
+          >
             <RiAddLine aria-hidden="true" />
-          )}
-        </button>
+          </button>
+        )}
       </div>
     </li>
   )
@@ -298,13 +308,4 @@ function errorMessage(error: Error): string {
   return error instanceof ApiError
     ? error.message
     : 'No se ha podido completar la solicitud'
-}
-
-function monogram(title: string): string {
-  return title
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join('')
-    .toUpperCase()
 }

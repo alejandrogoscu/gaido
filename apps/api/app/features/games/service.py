@@ -63,19 +63,26 @@ def search_catalog_games(
             select(Game.igdb_id, Game.id).where(Game.igdb_id.in_(igdb_game_ids))
         ).all()
     )
-    library_platforms = set(
-        session.execute(
-            select(Game.igdb_id, Platform.igdb_id)
-            .select_from(LibraryGame)
-            .join(GameEdition, LibraryGame.edition_id == GameEdition.id)
-            .join(Game, GameEdition.game_id == Game.id)
-            .join(Platform, GameEdition.platform_id == Platform.id)
-            .where(
-                LibraryGame.user_id == user_id,
-                Game.igdb_id.in_(igdb_game_ids),
-            )
-        ).all()
-    )
+    library_entries = session.execute(
+        select(Game.igdb_id, Platform.igdb_id, LibraryGame.owned)
+        .select_from(LibraryGame)
+        .join(GameEdition, LibraryGame.edition_id == GameEdition.id)
+        .join(Game, GameEdition.game_id == Game.id)
+        .join(Platform, GameEdition.platform_id == Platform.id)
+        .where(
+            LibraryGame.user_id == user_id,
+            Game.igdb_id.in_(igdb_game_ids),
+        )
+    ).all()
+    library_platforms = {
+        (igdb_game_id, igdb_platform_id)
+        for igdb_game_id, igdb_platform_id, _ in library_entries
+    }
+    owned_game_ids = {
+        igdb_game_id
+        for igdb_game_id, _, owned in library_entries
+        if owned
+    }
     library_game_ids = {igdb_game_id for igdb_game_id, _ in library_platforms}
 
     enriched_results = [
@@ -83,6 +90,7 @@ def search_catalog_games(
             update={
                 "game_id": local_game_ids.get(result.igdb_id),
                 "in_library": result.igdb_id in library_game_ids,
+                "owned": result.igdb_id in owned_game_ids,
                 "platforms": [
                     platform.model_copy(
                         update={

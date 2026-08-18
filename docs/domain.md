@@ -29,7 +29,7 @@ Este documento describe el comportamiento funcional vigente de Gaido. Debe evolu
 - El identificador de IGDB es una referencia externa única que permite importar y actualizar sus datos sin duplicarlo, pero no sustituye a la identidad interna.
 - El catálogo local conserva únicamente los videojuegos seleccionados por algún usuario; los resultados de búsqueda no se importan de forma masiva.
 - Una búsqueda cruza los resultados de IGDB con el catálogo local mediante el identificador externo y devuelve el identificador interno cuando el videojuego ya está importado.
-- La búsqueda identifica si el videojuego y cada una de sus plataformas ya forman parte de la biblioteca del usuario autenticado.
+- La búsqueda identifica si el videojuego y cada una de sus plataformas ya forman parte de la biblioteca del usuario autenticado, y si el usuario posee alguna de sus entradas.
 - Consultar IGDB incluso para un videojuego ya importado permite descubrir cambios posteriores como nuevas plataformas; una futura política de caché podrá evitar llamadas recientes sin cambiar el contrato.
 - Cada videojuego conserva la información necesaria para determinar cuándo se sincronizó y si IGDB dispone de una versión más reciente.
 - Cada videojuego conserva la categoría normalizada que expone IGDB (juego principal, remake, remaster, port, DLC, bundle...) para poder distinguir variantes equivalentes de una misma obra.

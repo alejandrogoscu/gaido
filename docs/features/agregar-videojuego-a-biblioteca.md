@@ -10,8 +10,10 @@ Permitir que un usuario autenticado configure y añada una edición de un videoj
 - La búsqueda muestra como máximo diez videojuegos con título, año, portada y plataformas disponibles.
 - Los resultados se ordenan priorizando el juego principal y sus remakes por año más reciente, después los DLC y por último el resto de categorías, también por año más reciente.
 - Cada resultado abre mediante `+` un panel lateral que entra desde la derecha y mantiene visible la búsqueda bajo un fondo atenuado.
+- El control `+` conserva un área táctil mínima de 44 por 44 px; mientras el panel está abierto, el foco permanece dentro y vuelve al control al cerrarlo.
 - El panel permite elegir plataforma, propiedad, formato físico o digital y estado pendiente, jugando, jugado o completado.
 - Los nombres acompañan a los logos dentro del panel para distinguir plataformas de una misma familia.
+- El control `+` se oculta cuando todas las plataformas disponibles ya están en la biblioteca; permanece accesible si todavía puede añadirse otra plataforma del mismo videojuego.
 - El alta correcta cierra únicamente el panel, mantiene abierta la búsqueda y actualiza inmediatamente el resumen de Videojuegos.
 - Una biblioteca vacía, la carga y los fallos de búsqueda, alta o listado tienen estados visibles.
 - Añadir de nuevo la misma edición devuelve un conflicto comprensible y no duplica datos.
@@ -22,7 +24,7 @@ Permitir que un usuario autenticado configure y añada una edición de un videoj
 ## Contrato HTTP
 
 - `GET /api/v1/games/search?q=<texto>` busca en IGDB, cruza el resultado con la biblioteca y no persiste nuevos resultados.
-- Cada resultado de búsqueda devuelve `game_id` cuando ya existe en Gaido, además de indicadores `in_library` para el videojuego y sus plataformas.
+- Cada resultado de búsqueda devuelve `game_id` cuando ya existe en Gaido, indicadores `in_library` para el videojuego y sus plataformas, y `owned` cuando el usuario posee alguna entrada de ese videojuego.
 - Cada resultado de búsqueda incluye `category` con la categoría normalizada de IGDB (`main_game`, `remake`, `dlc_addon`...), usada para ordenar la respuesta; puede ser `null` si IGDB no la proporciona.
 - `GET /api/v1/library/games` devuelve únicamente la biblioteca del usuario autenticado.
 - `POST /api/v1/library/games` recibe `igdb_game_id`, `igdb_platform_id`, `media_format`, `owned` y `play_status`, y devuelve la entrada creada con estado `201`.

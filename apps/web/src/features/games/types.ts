@@ -18,6 +18,7 @@ export type GameSearchResult = {
   cover_url: string | null
   platforms: GamePlatform[]
   in_library: boolean
+  owned: boolean
 }
 
 export type LibraryGame = {
