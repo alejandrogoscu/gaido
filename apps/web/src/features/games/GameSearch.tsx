@@ -98,7 +98,7 @@ export function GameSearch() {
         <input
           type="search"
           value={inputValue}
-          placeholder="Buscar videojuegos"
+          placeholder="Buscar títulos"
           aria-label="Buscar videojuegos"
           readOnly
           tabIndex={isOpen ? -1 : 0}
