@@ -1,33 +1,30 @@
-import { RiArrowLeftLine, RiFilter3Line, RiSearchLine } from '@remixicon/react'
+import { RiArrowLeftLine, RiSearchLine } from '@remixicon/react'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { gameLibraryQueryOptions } from './queries'
 import { gameMonogram } from './gameMonogram'
+import {
+  emptyGameLibraryFilters,
+  GameLibraryFilters,
+  type GameLibraryFilterValues,
+  type GameLibraryPlatformOption,
+} from './GameLibraryFilters'
 import styles from './GameLibraryPage.module.css'
-import type { LibraryGame, PlayStatus } from './types'
-
-const playStatusLabels: Record<PlayStatus, string> = {
-  pending: 'Pendiente',
-  playing: 'Jugando',
-  played: 'Jugado',
-  completed: 'Completado',
-}
-
-type OwnedFilter = 'all' | 'owned' | 'not-owned'
+import type { LibraryGame } from './types'
 
 export function GameLibraryPage() {
   const libraryQuery = useQuery(gameLibraryQueryOptions)
   const [search, setSearch] = useState('')
-  const [platformId, setPlatformId] = useState('all')
-  const [playStatus, setPlayStatus] = useState<'all' | PlayStatus>('all')
-  const [owned, setOwned] = useState<OwnedFilter>('all')
+  const [filters, setFilters] = useState<GameLibraryFilterValues>(() => ({
+    ...emptyGameLibraryFilters,
+  }))
   const games = libraryQuery.data ?? []
   const platforms = useMemo(() => uniquePlatforms(games), [games])
   const filteredGames = useMemo(
-    () => filterGames(games, search, platformId, playStatus, owned),
-    [games, owned, platformId, playStatus, search],
+    () => filterGames(games, search, filters),
+    [filters, games, search],
   )
 
   return (
@@ -39,83 +36,39 @@ export function GameLibraryPage() {
         <h1 id="game-library-title">Mis videojuegos</h1>
       </header>
 
-      <label className={styles.search}>
-        <RiSearchLine aria-hidden="true" />
-        <span className={styles.visuallyHidden}>Buscar en mis videojuegos</span>
-        <input
-          type="search"
-          value={search}
-          placeholder="Busca en tus videojuegos…"
-          onChange={(event) => setSearch(event.target.value)}
+      <div className={styles.content}>
+        <label className={styles.search}>
+          <RiSearchLine aria-hidden="true" />
+          <span className={styles.visuallyHidden}>
+            Buscar en mis videojuegos
+          </span>
+          <input
+            type="search"
+            value={search}
+            placeholder="Busca en tus videojuegos…"
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </label>
+
+        <GameLibraryFilters
+          values={filters}
+          platforms={platforms}
+          onChange={setFilters}
         />
-      </label>
 
-      <div className={styles.filters} role="group" aria-label="Filtros">
-        <div className={styles.filterHeading}>
-          <RiFilter3Line aria-hidden="true" />
-          Filtros
-        </div>
-
-        <label className={styles.filter}>
-          <span className={styles.visuallyHidden}>Filtrar por plataforma</span>
-          <select
-            value={platformId}
-            aria-label="Filtrar por plataforma"
-            onChange={(event) => setPlatformId(event.target.value)}
-          >
-            <option value="all">Plataforma</option>
-            {platforms.map((platform) => (
-              <option value={platform.igdbId.toString()} key={platform.igdbId}>
-                {platform.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className={styles.filter}>
-          <span className={styles.visuallyHidden}>Filtrar por estado</span>
-          <select
-            value={playStatus}
-            aria-label="Filtrar por estado"
-            onChange={(event) =>
-              setPlayStatus(event.target.value as 'all' | PlayStatus)
-            }
-          >
-            <option value="all">Estado</option>
-            {Object.entries(playStatusLabels).map(([value, label]) => (
-              <option value={value} key={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className={styles.filter}>
-          <span className={styles.visuallyHidden}>Filtrar por propiedad</span>
-          <select
-            value={owned}
-            aria-label="Filtrar por propiedad"
-            onChange={(event) => setOwned(event.target.value as OwnedFilter)}
-          >
-            <option value="all">Propiedad</option>
-            <option value="owned">Lo poseo</option>
-            <option value="not-owned">No lo poseo</option>
-          </select>
-        </label>
+        <LibraryContent
+          games={filteredGames}
+          hasFilters={
+            search.trim() !== '' ||
+            filters.platformId !== 'all' ||
+            filters.playStatus !== 'all' ||
+            filters.owned !== 'all'
+          }
+          isPending={libraryQuery.isPending}
+          isError={libraryQuery.isError}
+          onRetry={() => void libraryQuery.refetch()}
+        />
       </div>
-
-      <LibraryContent
-        games={filteredGames}
-        hasFilters={
-          search.trim() !== '' ||
-          platformId !== 'all' ||
-          playStatus !== 'all' ||
-          owned !== 'all'
-        }
-        isPending={libraryQuery.isPending}
-        isError={libraryQuery.isError}
-        onRetry={() => void libraryQuery.refetch()}
-      />
     </section>
   )
 }
@@ -194,11 +147,8 @@ function LibraryContent({
   )
 }
 
-function uniquePlatforms(games: LibraryGame[]) {
-  const platforms = new Map<
-    number,
-    { igdbId: number; name: string }
-  >()
+function uniquePlatforms(games: LibraryGame[]): GameLibraryPlatformOption[] {
+  const platforms = new Map<number, GameLibraryPlatformOption>()
 
   for (const game of games) {
     platforms.set(game.platform.igdb_id, {
@@ -215,9 +165,7 @@ function uniquePlatforms(games: LibraryGame[]) {
 function filterGames(
   games: LibraryGame[],
   search: string,
-  platformId: string,
-  playStatus: 'all' | PlayStatus,
-  owned: OwnedFilter,
+  filters: GameLibraryFilterValues,
 ) {
   const normalizedSearch = search.trim().toLocaleLowerCase('es')
 
@@ -226,11 +174,13 @@ function filterGames(
       .toLocaleLowerCase('es')
       .includes(normalizedSearch)
     const matchesPlatform =
-      platformId === 'all' || game.platform.igdb_id.toString() === platformId
+      filters.platformId === 'all' ||
+      game.platform.igdb_id.toString() === filters.platformId
     const matchesStatus =
-      playStatus === 'all' || game.play_status === playStatus
+      filters.playStatus === 'all' || game.play_status === filters.playStatus
     const matchesOwnership =
-      owned === 'all' || (owned === 'owned' ? game.owned : !game.owned)
+      filters.owned === 'all' ||
+      (filters.owned === 'owned' ? game.owned : !game.owned)
 
     return (
       matchesSearch && matchesPlatform && matchesStatus && matchesOwnership

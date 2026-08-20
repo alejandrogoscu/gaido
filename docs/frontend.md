@@ -18,6 +18,7 @@ El frontend se organiza por responsabilidad y funcionalidad para permitir que Ga
 - Las rutas privadas se agrupan bajo `AuthenticatedLayout` y requieren una sesión válida.
 - Los guards resuelven carga, error, redirección y acceso; las páginas no repiten estas comprobaciones.
 - TanStack Query mantiene la sesión remota y React Router decide la vista correspondiente.
+- Las rutas autenticadas de pantalla completa declaran `hideAuthenticatedHeader` en su `handle`; el layout interpreta esa capacidad sin depender de rutas concretas.
 
 ## Crecimiento por áreas
 

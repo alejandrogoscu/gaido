@@ -152,7 +152,7 @@
 
 .platformChoice input:checked + .platformControl,
 .choice input:checked + span {
-  color: var(--color-background);
+  color: var(--color-on-accent);
   background: var(--color-accent-strong);
   border-color: var(--color-accent-strong);
 }
@@ -174,7 +174,7 @@
   min-height: 3rem;
   margin-top: auto;
   padding: 0.75rem 1rem;
-  color: var(--color-background);
+  color: var(--color-on-accent);
   background: var(--color-accent-strong);
   border: 0;
   font-weight: 700;

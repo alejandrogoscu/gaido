@@ -25,3 +25,13 @@ input {
 button {
   cursor: pointer;
 }
+
+@keyframes gaido-slide-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}

@@ -31,7 +31,7 @@
   display: grid;
   padding: 0;
   place-items: center;
-  color: var(--color-background);
+  color: var(--color-on-accent);
   background: var(--color-accent-strong);
   border: 0;
   border-radius: 0;
@@ -83,7 +83,7 @@
   flex-direction: column;
   color: var(--color-text);
   background: var(--color-background);
-  animation: slide-in 220ms ease-out;
+  animation: gaido-slide-in-from-right 220ms ease-out;
 }
 
 .overlayHeader {
@@ -218,7 +218,7 @@
 .coverFallback {
   display: grid;
   place-items: center;
-  color: var(--color-background);
+  color: var(--color-on-accent);
   background: var(--color-text-muted);
   font-weight: 700;
 }
@@ -302,16 +302,6 @@
   width: 1.1rem;
   height: 1.1rem;
   fill: currentcolor;
-}
-
-@keyframes slide-in {
-  from {
-    transform: translateX(100%);
-  }
-
-  to {
-    transform: translateX(0);
-  }
 }
 
 @media (min-width: 48rem) {

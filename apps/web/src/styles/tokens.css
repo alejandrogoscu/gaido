@@ -1,6 +1,6 @@
 :root {
   color: #f4fbfa;
-  background: #080b0b;
+  background: #121918;
   font-family:
     'Space Grotesk Variable', 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   font-synthesis: none;
@@ -8,8 +8,9 @@
   text-rendering: optimizeLegibility;
   --color-text: #f4fbfa;
   --color-text-muted: #a8b9b7;
-  --color-background: #080b0b;
+  --color-background: #121918;
   --color-surface: #121918;
+  --color-on-accent: #080b0b;
   --color-line: #29413f;
   --color-line-strong: #4f8b86;
   --color-accent: #00a99d;

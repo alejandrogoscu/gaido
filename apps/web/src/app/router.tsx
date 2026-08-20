@@ -33,6 +33,7 @@ export const appRoutes: RouteObject[] = [
           {
             path: 'biblioteca/videojuegos',
             element: <GameLibraryPage />,
+            handle: { hideAuthenticatedHeader: true },
           },
         ],
       },

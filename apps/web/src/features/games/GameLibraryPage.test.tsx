@@ -82,13 +82,20 @@ describe('listado de biblioteca de videojuegos', () => {
     ).toBeTruthy()
     expect(screen.getByRole('group', { name: 'Filtros' })).toBeTruthy()
     expect(
-      screen.getByRole('combobox', { name: 'Filtrar por plataforma' }),
+      screen.getByRole('button', {
+        name: 'Filtrar por plataforma: Plataforma',
+      }),
     ).toBeTruthy()
     expect(
-      screen.getByRole('combobox', { name: 'Filtrar por estado' }),
+      screen.getByRole('button', { name: 'Filtrar por estado: Estado' }),
     ).toBeTruthy()
     expect(
-      screen.getByRole('combobox', { name: 'Filtrar por propiedad' }),
+      screen.getByRole('button', {
+        name: 'Filtrar por propiedad: Propiedad',
+      }),
+    ).toBeTruthy()
+    expect(
+      screen.getByRole('button', { name: 'Abrir todos los filtros' }),
     ).toBeTruthy()
 
     const library = await screen.findByRole('list', {
@@ -106,17 +113,23 @@ describe('listado de biblioteca de videojuegos', () => {
     renderLibrary()
     await screen.findByRole('img', { name: 'Hades' })
 
-    await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Filtrar por plataforma' }),
-      '6',
+    await chooseDirectFilter(
+      user,
+      'Filtrar por plataforma: Plataforma',
+      'Filtrar por plataforma',
+      'PC',
     )
-    await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Filtrar por estado' }),
-      'playing',
+    await chooseDirectFilter(
+      user,
+      'Filtrar por estado: Estado',
+      'Filtrar por estado',
+      'Jugando',
     )
-    await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Filtrar por propiedad' }),
-      'not-owned',
+    await chooseDirectFilter(
+      user,
+      'Filtrar por propiedad: Propiedad',
+      'Filtrar por propiedad',
+      'No lo tengo',
     )
 
     expect(screen.getByRole('article', { name: 'Hades' })).toBeTruthy()
@@ -132,6 +145,75 @@ describe('listado de biblioteca de videojuegos', () => {
     expect(
       screen.getByText('No hay videojuegos que coincidan con los filtros.'),
     ).toBeTruthy()
+  })
+
+  it('permite configurar y borrar los filtros desde el panel global', async () => {
+    const user = userEvent.setup()
+    renderLibrary()
+    await screen.findByRole('img', { name: 'Hades' })
+
+    await user.click(
+      screen.getByRole('button', { name: 'Abrir todos los filtros' }),
+    )
+    let globalPanel = screen.getByRole('dialog', {
+      name: 'Filtros de videojuegos',
+    })
+    expect(
+      within(globalPanel)
+        .getByRole('button', { name: 'Borrar' })
+        .hasAttribute('disabled'),
+    ).toBe(true)
+
+    await user.click(
+      within(globalPanel).getByRole('button', { name: 'Estado: Todos' }),
+    )
+    const statusPanel = screen.getByRole('dialog', {
+      name: 'Filtrar por estado',
+    })
+    await user.click(
+      within(statusPanel).getByRole('radio', { name: 'Completado' }),
+    )
+    await user.click(
+      within(statusPanel).getByRole('button', {
+        name: 'Cerrar filtro de estado',
+      }),
+    )
+
+    globalPanel = screen.getByRole('dialog', {
+      name: 'Filtros de videojuegos',
+    })
+    expect(
+      within(globalPanel).getByRole('button', { name: 'Estado: Completado' }),
+    ).toBeTruthy()
+    await user.click(
+      within(globalPanel).getByRole('button', { name: 'Ver resultados' }),
+    )
+
+    expect(
+      screen.getByRole('article', { name: 'Donkey Kong Bananza' }),
+    ).toBeTruthy()
+    expect(screen.queryByRole('article', { name: 'Hades' })).toBeNull()
+
+    await user.click(
+      screen.getByRole('button', { name: 'Abrir todos los filtros' }),
+    )
+    globalPanel = screen.getByRole('dialog', {
+      name: 'Filtros de videojuegos',
+    })
+    await user.click(
+      within(globalPanel).getByRole('button', { name: 'Borrar' }),
+    )
+    await user.click(
+      within(globalPanel).getByRole('button', { name: 'Ver resultados' }),
+    )
+
+    expect(
+      within(
+        screen.getByRole('list', {
+          name: 'Videojuegos de mi biblioteca',
+        }),
+      ).getAllByRole('listitem'),
+    ).toHaveLength(3)
   })
 
   it('muestra el estado vacío de la biblioteca', async () => {
@@ -176,4 +258,18 @@ function renderLibrary() {
   }
 
   return render(<GameLibraryPage />, { wrapper: Wrapper })
+}
+
+async function chooseDirectFilter(
+  user: ReturnType<typeof userEvent.setup>,
+  triggerName: string,
+  dialogName: string,
+  optionName: string,
+) {
+  await user.click(screen.getByRole('button', { name: triggerName }))
+  const panel = screen.getByRole('dialog', { name: dialogName })
+  await user.click(within(panel).getByRole('radio', { name: optionName }))
+  await user.click(
+    within(panel).getByRole('button', { name: 'Ver resultados' }),
+  )
 }

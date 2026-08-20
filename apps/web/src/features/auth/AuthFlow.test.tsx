@@ -339,6 +339,21 @@ describe('autenticación', () => {
     )
   })
 
+  it('oculta la cabecera global en la biblioteca de videojuegos', async () => {
+    fetchMock
+      .mockResolvedValueOnce(mockResponse(200, authenticatedUser))
+      .mockResolvedValueOnce(mockResponse(200, []))
+
+    renderApp('/biblioteca/videojuegos')
+
+    expect(
+      await screen.findByRole('heading', { name: 'Mis videojuegos' }),
+    ).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Volver al inicio' })).toBeTruthy()
+    expect(screen.queryByRole('img', { name: 'Gaido' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Abrir menú' })).toBeNull()
+  })
+
   it('abre y cierra el panel de navegación autenticado', async () => {
     const user = userEvent.setup()
     fetchMock

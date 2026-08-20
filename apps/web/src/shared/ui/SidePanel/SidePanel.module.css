@@ -18,17 +18,7 @@
   flex-direction: column;
   color: #ffffff;
   background: var(--color-surface);
-  animation: slide-in 220ms ease-out;
-}
-
-@keyframes slide-in {
-  from {
-    transform: translateX(100%);
-  }
-
-  to {
-    transform: translateX(0);
-  }
+  animation: gaido-slide-in-from-right 220ms ease-out;
 }
 
 @keyframes fade-in {

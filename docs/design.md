@@ -10,6 +10,8 @@ Este documento recoge las decisiones visuales compartidas de la aplicación.
 - La cabecera principal usa un fondo turquesa con el símbolo invertido en blanco y el claim «Colecciona sin límites» alineado al extremo opuesto.
 - En la cabecera autenticada, el acceso al menú usa tres líneas blancas sin borde exterior, conserva un área táctil de 48 px y al interactuar combina un fondo blanco translúcido con líneas turquesas.
 - La navegación autenticada entra desde la derecha como un panel oscuro de altura completa, con fondo atenuado sobre el contenido y separadores gruesos con margen lateral entre identidad, navegación y sesión.
+- Las vistas autenticadas inmersivas, como una biblioteca completa, entran desde la derecha y sustituyen temporalmente la cabecera global por una cabecera compacta con navegación de regreso y título.
+- Los buscadores y filtros inmersivos reutilizan esa entrada lateral, una cabecera compacta y una acción principal fija al pie cuando necesitan confirmar una selección.
 - El claim evita referencias exclusivas a videojuegos para que la identidad pueda abarcar otras colecciones en el futuro.
 
 ## Tipografía
@@ -24,7 +26,7 @@ Este documento recoge las decisiones visuales compartidas de la aplicación.
 - Usar Remix Icon como sistema común para los iconos de interfaz, priorizando sus variantes `Line` para conservar una apariencia geométrica y consistente.
 - Mantener la «G» como símbolo propio de marca; no sustituirla por un icono genérico de la librería.
 - Los iconos decorativos deben ocultarse a tecnologías de asistencia y los controles formados solo por un icono deben conservar un nombre accesible.
-- Usar de momento un fondo negro fijo y superficies oscuras para diferenciar áreas; los fondos claros quedarán para el futuro modo claro.
+- Usar de momento el gris oscuro `#121918` como fondo común de toda la aplicación; los fondos claros quedarán para el futuro modo claro.
 - Priorizar bordes, contraste y jerarquía tipográfica frente a sombras y efectos decorativos.
 - Mantener esquinas rectas en paneles, controles, botones, etiquetas y tarjetas.
 - Evitar degradados, píldoras y redondeados decorativos.
