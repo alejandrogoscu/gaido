@@ -1,6 +1,6 @@
 from datetime import UTC, date, datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
@@ -14,6 +14,9 @@ from app.features.games.models import (
     Platform,
 )
 from app.features.games.schemas import (
+    GameFormatStatistics,
+    GameLibraryStatisticsResponse,
+    GameProgressStatistics,
     GameSearchResult,
     LibraryGameCreate,
     LibraryGameResponse,
@@ -250,6 +253,49 @@ def list_library_games(session: Session, user_id: int) -> list[LibraryGameRespon
         .order_by(LibraryGame.created_at.desc(), LibraryGame.id.desc())
     ).all()
     return [_to_response(entry) for entry in entries]
+
+
+def get_library_statistics(
+    session: Session,
+    user_id: int,
+) -> GameLibraryStatisticsResponse:
+    (
+        total_games,
+        total_platforms,
+        to_play,
+        played,
+        physical,
+        digital,
+    ) = session.execute(
+        select(
+            func.count(LibraryGame.id),
+            func.count(func.distinct(GameEdition.platform_id)),
+            func.count(LibraryGame.id).filter(
+                LibraryGame.play_status.in_(("pending", "playing"))
+            ),
+            func.count(LibraryGame.id).filter(
+                LibraryGame.play_status.in_(("played", "completed"))
+            ),
+            func.count(LibraryGame.id).filter(
+                LibraryGame.owned.is_(True),
+                LibraryGame.media_format == "physical",
+            ),
+            func.count(LibraryGame.id).filter(
+                LibraryGame.owned.is_(True),
+                LibraryGame.media_format == "digital",
+            ),
+        )
+        .select_from(LibraryGame)
+        .join(GameEdition, LibraryGame.edition_id == GameEdition.id)
+        .where(LibraryGame.user_id == user_id)
+    ).one()
+
+    return GameLibraryStatisticsResponse(
+        total_games=total_games,
+        total_platforms=total_platforms,
+        progress=GameProgressStatistics(to_play=to_play, played=played),
+        formats=GameFormatStatistics(physical=physical, digital=digital),
+    )
 
 
 def _to_response(entry: LibraryGame) -> LibraryGameResponse:

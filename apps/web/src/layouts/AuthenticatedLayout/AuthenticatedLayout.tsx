@@ -89,10 +89,10 @@ export function AuthenticatedLayout() {
                   </Link>
                   <Link
                     className={styles.menuLink}
-                    to="/biblioteca/videojuegos"
+                    to="/videojuegos"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Mis videojuegos
+                    Videojuegos
                   </Link>
                 </div>
 

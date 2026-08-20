@@ -100,6 +100,10 @@ Este documento describe el comportamiento funcional vigente de Gaido. Debe evolu
 - En la primera alta desde IGDB, el usuario elige una de las plataformas devueltas por el proveedor, el formato de su entrada, su propiedad y su estado de juego.
 - Mientras no se importen versiones regionales específicas, el alta crea o reutiliza una edición estándar de región desconocida y localización inglesa.
 - Los datos recibidos del navegador no se consideran fuente del catálogo: el backend vuelve a consultar el videojuego por su identificador de IGDB antes de persistirlo.
+- El total de videojuegos de una biblioteca cuenta entradas guardadas, no obras distintas; el mismo videojuego en dos plataformas cuenta como dos videojuegos.
+- El total de plataformas cuenta plataformas distintas presentes en las entradas del usuario.
+- En el resumen de progreso, `pending` y `playing` se agrupan como videojuegos por jugar, mientras que `played` y `completed` se agrupan como jugados.
+- La distribución entre formato físico y digital solo contabiliza entradas que el usuario posee.
 
 ## Alcance actual
 

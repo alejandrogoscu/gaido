@@ -31,6 +31,17 @@ export const appRoutes: RouteObject[] = [
         children: [
           { index: true, element: <HomePage /> },
           {
+            path: 'videojuegos',
+            HydrateFallback: VideoGamesOverviewFallback,
+            lazy: async () => {
+              const { VideoGamesOverviewPage } = await import(
+                '../features/games/VideoGamesOverviewPage'
+              )
+              return { Component: VideoGamesOverviewPage }
+            },
+            handle: { hideAuthenticatedHeader: true },
+          },
+          {
             path: 'biblioteca/videojuegos',
             element: <GameLibraryPage />,
             handle: { hideAuthenticatedHeader: true },
@@ -43,3 +54,7 @@ export const appRoutes: RouteObject[] = [
 ]
 
 export const appRouter = createBrowserRouter(appRoutes)
+
+function VideoGamesOverviewFallback() {
+  return <p role="status">Cargando el resumen de videojuegos…</p>
+}

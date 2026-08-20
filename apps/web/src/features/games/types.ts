@@ -33,6 +33,19 @@ export type LibraryGame = {
   play_status: PlayStatus
 }
 
+export type GameLibraryStatistics = {
+  total_games: number
+  total_platforms: number
+  progress: {
+    to_play: number
+    played: number
+  }
+  formats: {
+    physical: number
+    digital: number
+  }
+}
+
 export type AddLibraryGameData = {
   igdb_game_id: number
   igdb_platform_id: number

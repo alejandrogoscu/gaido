@@ -19,6 +19,7 @@ El frontend se organiza por responsabilidad y funcionalidad para permitir que Ga
 - Los guards resuelven carga, error, redirección y acceso; las páginas no repiten estas comprobaciones.
 - TanStack Query mantiene la sesión remota y React Router decide la vista correspondiente.
 - Las rutas autenticadas de pantalla completa declaran `hideAuthenticatedHeader` en su `handle`; el layout interpreta esa capacidad sin depender de rutas concretas.
+- `/videojuegos` presenta el resumen del área y `/biblioteca/videojuegos` su listado completo; ambos recorridos son independientes para que el área pueda incorporar nuevas vistas sin convertir la biblioteca en su página raíz.
 
 ## Crecimiento por áreas
 
@@ -27,6 +28,8 @@ Cada nuevo tipo de colección debe incorporarse como una funcionalidad independi
 No se creará una abstracción común para colecciones hasta que existan al menos dos implementaciones con comportamiento compartido demostrado. Los elementos se moverán a `shared/` únicamente cuando sean realmente transversales.
 
 La portada reutiliza una presentación común entre resúmenes porque Videojuegos y Cómics ya constituyen dos usos reales. Videojuegos obtiene sus datos mediante su funcionalidad remota y Cómics mantiene datos visuales aislados hasta disponer de contrato propio.
+
+Los gráficos del resumen de Videojuegos usan Recharts como dependencia de presentación. Los cálculos permanecen en el backend y cada gráfico conserva texto y valores accesibles fuera del SVG, de modo que la información no depende de la librería ni del color.
 
 ## Coherencia entre vistas
 

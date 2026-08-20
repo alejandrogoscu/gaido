@@ -10,6 +10,7 @@ import { GameLibraryPage } from './GameLibraryPage'
 import type { LibraryGame } from './types'
 
 vi.mock('./api', () => ({
+  getGameLibraryStatistics: vi.fn(),
   getLibraryGames: vi.fn(),
 }))
 

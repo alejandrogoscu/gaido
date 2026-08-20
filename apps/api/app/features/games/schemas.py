@@ -42,3 +42,20 @@ class LibraryGameResponse(BaseModel):
     media_format: Literal["physical", "digital"]
     owned: bool
     play_status: Literal["pending", "playing", "played", "completed"]
+
+
+class GameProgressStatistics(BaseModel):
+    to_play: int
+    played: int
+
+
+class GameFormatStatistics(BaseModel):
+    physical: int
+    digital: int
+
+
+class GameLibraryStatisticsResponse(BaseModel):
+    total_games: int
+    total_platforms: int
+    progress: GameProgressStatistics
+    formats: GameFormatStatistics

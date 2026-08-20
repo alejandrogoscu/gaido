@@ -8,7 +8,7 @@ export function CollectionShortcuts() {
     <nav className={styles.shortcuts} aria-label="Tipos de colección">
       <Link
         className={styles.shortcut}
-        to="/biblioteca/videojuegos"
+        to="/videojuegos"
         aria-label="Videojuegos"
       >
         <RiGamepadLine aria-hidden="true" />

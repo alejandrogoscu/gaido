@@ -21,6 +21,24 @@ GAME_DATA = {
         {"id": 130, "name": "Nintendo Switch", "abbreviation": "Switch"},
     ],
 }
+HADES_DATA = {
+    "id": 113112,
+    "name": "Hades",
+    "summary": "Defy the god of the dead.",
+    "first_release_date": 1600387200,
+    "updated_at": 1752796800,
+    "cover": {"image_id": "co39vc"},
+    "platforms": [{"id": 6, "name": "PC", "abbreviation": "PC"}],
+}
+CELESTE_DATA = {
+    "id": 17000,
+    "name": "Celeste",
+    "summary": "Climb Celeste Mountain.",
+    "first_release_date": 1516838400,
+    "updated_at": 1752796800,
+    "cover": {"image_id": "co3byy"},
+    "platforms": [{"id": 6, "name": "PC", "abbreviation": "PC"}],
+}
 LIBRARY_DATA = {
     "igdb_game_id": 338106,
     "igdb_platform_id": 508,
@@ -32,13 +50,75 @@ LIBRARY_DATA = {
 
 def test_library_requires_authentication(client: TestClient) -> None:
     list_response = client.get("/api/v1/library/games")
+    statistics_response = client.get("/api/v1/library/games/statistics")
     create_response = client.post(
         "/api/v1/library/games",
         json=LIBRARY_DATA,
     )
 
     assert list_response.status_code == 401
+    assert statistics_response.status_code == 401
     assert create_response.status_code == 401
+
+
+def test_returns_empty_library_statistics(client: TestClient) -> None:
+    _authenticate(client)
+
+    response = client.get("/api/v1/library/games/statistics")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "total_games": 0,
+        "total_platforms": 0,
+        "progress": {"to_play": 0, "played": 0},
+        "formats": {"physical": 0, "digital": 0},
+    }
+
+
+def test_aggregates_library_statistics_for_current_user(client: TestClient) -> None:
+    app.dependency_overrides[get_igdb_client] = lambda: _igdb_catalog_client(
+        GAME_DATA,
+        HADES_DATA,
+        CELESTE_DATA,
+    )
+    _authenticate(client)
+    entries = [
+        LIBRARY_DATA,
+        {
+            **LIBRARY_DATA,
+            "igdb_platform_id": 130,
+            "media_format": "digital",
+            "owned": False,
+            "play_status": "playing",
+        },
+        {
+            "igdb_game_id": 113112,
+            "igdb_platform_id": 6,
+            "media_format": "digital",
+            "owned": True,
+            "play_status": "pending",
+        },
+        {
+            "igdb_game_id": 17000,
+            "igdb_platform_id": 6,
+            "media_format": "physical",
+            "owned": True,
+            "play_status": "played",
+        },
+    ]
+
+    for entry in entries:
+        assert client.post("/api/v1/library/games", json=entry).status_code == 201
+
+    response = client.get("/api/v1/library/games/statistics")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "total_games": 4,
+        "total_platforms": 3,
+        "progress": {"to_play": 2, "played": 2},
+        "formats": {"physical": 2, "digital": 1},
+    }
 
 
 def test_adds_selected_game_edition_and_lists_it(client: TestClient) -> None:
@@ -212,6 +292,30 @@ def _igdb_client(game: dict[str, object] | None) -> IgdbClient:
         assert (
             "where id = 338106;" in request_body
             or 'search "Donkey Kong Bananza";' in request_body
+        )
+        return httpx.Response(200, json=[] if game is None else [game])
+
+    return IgdbClient(
+        "client-id",
+        "client-secret",
+        transport=httpx.MockTransport(handler),
+    )
+
+
+def _igdb_catalog_client(*games: dict[str, object]) -> IgdbClient:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if str(request.url).startswith(TOKEN_URL):
+            return httpx.Response(200, json={"access_token": "token", "expires_in": 3600})
+
+        assert str(request.url) == GAMES_URL
+        request_body = request.content.decode()
+        game = next(
+            (
+                candidate
+                for candidate in games
+                if f"where id = {candidate['id']};" in request_body
+            ),
+            None,
         )
         return httpx.Response(200, json=[] if game is None else [game])
 

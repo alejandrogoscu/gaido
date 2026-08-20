@@ -18,6 +18,7 @@ import { HomePage } from './HomePage'
 
 vi.mock('../games/api', () => ({
   addLibraryGame: vi.fn(),
+  getGameLibraryStatistics: vi.fn(),
   getLibraryGames: vi.fn(),
   searchGames: vi.fn(),
 }))
@@ -80,7 +81,7 @@ describe('inicio de colecciones', () => {
     })
     const comicsShortcut = screen.getByRole('button', { name: 'Cómics' })
     expect(videoGamesShortcut.getAttribute('href')).toBe(
-      '/biblioteca/videojuegos',
+      '/videojuegos',
     )
     expect(comicsShortcut.hasAttribute('disabled')).toBe(true)
   })

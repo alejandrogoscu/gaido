@@ -43,5 +43,6 @@ Este documento recoge las decisiones visuales compartidas de la aplicación.
 - Mantener en todas las vistas equivalentes la misma jerarquía, ancho y ritmo vertical del encabezado; el contenido puede cambiar sin provocar saltos en su posición.
 - Anclar las vistas equivalentes a una distancia fija desde la cabecera; no centrarlas verticalmente en función de la altura variable de su contenido.
 - En la portada autenticada, mostrar los resúmenes de colección como recorridos horizontales en móvil y cuadrículas de tres columnas desde 768 px.
+- Los resúmenes de un tipo de colección usan tarjetas rectas, cifras destacadas y gráficos de anillo con leyenda textual; el color refuerza la información, pero nunca es su único indicador.
 - El acceso al buscador de la portada usa «Buscar títulos» para incluir tanto elementos guardados como contenido nuevo de cualquier futura colección; cada vista de resultados concreta mantiene el contexto del tipo de contenido que soporta actualmente.
 - Usar portadas provisionales de color plano y monogramas mientras no existan imágenes reales, sin degradados ni efectos decorativos.

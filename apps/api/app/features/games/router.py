@@ -11,6 +11,7 @@ from app.features.games.igdb import (
     get_igdb_client,
 )
 from app.features.games.schemas import (
+    GameLibraryStatisticsResponse,
     GameSearchResult,
     LibraryGameCreate,
     LibraryGameResponse,
@@ -20,6 +21,7 @@ from app.features.games.service import (
     LibraryGameConflictError,
     PlatformNotFoundError,
     add_game_to_library,
+    get_library_statistics,
     list_library_games,
     search_catalog_games,
 )
@@ -61,6 +63,17 @@ def get_library_games(
     current_user: CurrentUserDependency,
 ) -> list[LibraryGameResponse]:
     return list_library_games(session, current_user.id)
+
+
+@library_router.get(
+    "/statistics",
+    response_model=GameLibraryStatisticsResponse,
+)
+def get_game_library_statistics(
+    session: SessionDependency,
+    current_user: CurrentUserDependency,
+) -> GameLibraryStatisticsResponse:
+    return get_library_statistics(session, current_user.id)
 
 
 @library_router.post(

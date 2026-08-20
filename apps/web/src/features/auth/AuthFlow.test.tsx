@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -354,6 +354,29 @@ describe('autenticación', () => {
     expect(screen.queryByRole('button', { name: 'Abrir menú' })).toBeNull()
   })
 
+  it('oculta la cabecera global en el resumen de videojuegos', async () => {
+    fetchMock
+      .mockResolvedValueOnce(mockResponse(200, authenticatedUser))
+      .mockResolvedValueOnce(
+        mockResponse(200, {
+          total_games: 0,
+          total_platforms: 0,
+          progress: { to_play: 0, played: 0 },
+          formats: { physical: 0, digital: 0 },
+        }),
+      )
+      .mockResolvedValueOnce(mockResponse(200, []))
+
+    renderApp('/videojuegos')
+
+    expect(
+      await screen.findByRole('heading', { name: 'Videojuegos' }),
+    ).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Volver al inicio' })).toBeTruthy()
+    expect(screen.queryByRole('img', { name: 'Gaido' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Abrir menú' })).toBeNull()
+  })
+
   it('abre y cierra el panel de navegación autenticado', async () => {
     const user = userEvent.setup()
     fetchMock
@@ -370,7 +393,7 @@ describe('autenticación', () => {
     expect(menu.textContent).toContain('ada@example.com')
     expect(screen.getByRole('link', { name: 'Inicio' })).toBeTruthy()
     expect(
-      screen.getByRole('link', { name: 'Mis videojuegos' }),
+      within(menu).getByRole('link', { name: 'Videojuegos' }),
     ).toBeTruthy()
     expect(document.body.style.overflow).toBe('hidden')
 
