@@ -5,6 +5,7 @@ export type CollectionPreviewItem = {
   monogram: string
   accent: string
   coverUrl?: string
+  detailPath?: string
 }
 
 export type CollectionPreviewData = {

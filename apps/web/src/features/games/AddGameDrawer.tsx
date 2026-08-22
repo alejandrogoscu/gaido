@@ -10,6 +10,7 @@ import {
 import { SidePanel } from '../../shared/ui/SidePanel/SidePanel'
 import { addLibraryGame } from './api'
 import styles from './AddGameDrawer.module.css'
+import { playStatusLabels } from './gameLabels'
 import { PlatformLogo } from './PlatformLogo'
 import { gameLibraryQueryKey, gameSearchQueryKey } from './queries'
 import type {
@@ -34,10 +35,10 @@ const mediaFormats: Array<{
 ]
 
 const playStatuses: Array<{ value: PlayStatus; label: string }> = [
-  { value: 'pending', label: 'Pendiente' },
-  { value: 'playing', label: 'Jugando' },
-  { value: 'played', label: 'Jugado' },
-  { value: 'completed', label: 'Completado' },
+  { value: 'pending', label: playStatusLabels.pending },
+  { value: 'playing', label: playStatusLabels.playing },
+  { value: 'played', label: playStatusLabels.played },
+  { value: 'completed', label: playStatusLabels.completed },
 ]
 
 export function AddGameDrawer({

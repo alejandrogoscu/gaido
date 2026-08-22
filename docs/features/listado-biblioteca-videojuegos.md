@@ -17,6 +17,7 @@ Permitir que el usuario consulte y filtre todas las ediciones guardadas en su bi
 - Desde la vista global se puede entrar en cada criterio y regresar conservando temporalmente la selección; los cambios no alteran la cuadrícula hasta pulsar «Ver resultados».
 - Las plataformas disponibles en el filtro se obtienen de las entradas de la biblioteca y se ordenan alfabéticamente.
 - La cuadrícula representa una entrada por edición guardada, conserva su portada o un monograma alternativo y superpone la plataforma en una etiqueta turquesa.
+- Cada portada enlaza con el detalle del videojuego e incluye la entrada concreta como contexto para conservar correctamente su plataforma, propiedad y estado.
 - El listado comienza con dos columnas desde 320 px, utiliza tres desde 576 px y cuatro desde 768 px.
 - La carga, el error recuperable, la biblioteca vacía y la ausencia de coincidencias tienen estados explícitos.
 
@@ -27,7 +28,7 @@ Permitir que el usuario consulte y filtre todas las ediciones guardadas en su bi
 - Los controles conservan etiquetas accesibles y no dependen del color ni de la interacción mediante `hover`.
 - Las vistas de filtros reutilizan el movimiento lateral de las demás vistas inmersivas, contienen el foco, admiten cierre mediante `Escape` y lo devuelven al control de origen.
 - La ruta declara en su configuración que oculta la cabecera autenticada, de modo que futuras vistas inmersivas puedan reutilizar el comportamiento sin acoplar el layout a una URL concreta.
-- Las tarjetas no enlazan todavía a una vista de detalle porque esa funcionalidad queda fuera del alcance actual.
+- El enlace combina la referencia de IGDB del videojuego con el identificador de `library_games` seleccionado; el primero permite resolver el catálogo y el segundo aporta exclusivamente el contexto personal.
 
 ## Verificación
 

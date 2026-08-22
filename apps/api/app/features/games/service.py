@@ -1,6 +1,6 @@
 from datetime import UTC, date, datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import Select, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
@@ -14,7 +14,9 @@ from app.features.games.models import (
     Platform,
 )
 from app.features.games.schemas import (
+    GameDetailResponse,
     GameFormatStatistics,
+    GameLibraryContext,
     GameLibraryStatisticsResponse,
     GameProgressStatistics,
     GameSearchResult,
@@ -50,6 +52,10 @@ class LibraryGameConflictError(Exception):
     pass
 
 
+class LibraryGameNotFoundError(Exception):
+    pass
+
+
 def search_catalog_games(
     session: Session,
     user_id: int,
@@ -67,7 +73,7 @@ def search_catalog_games(
         ).all()
     )
     library_entries = session.execute(
-        select(Game.igdb_id, Platform.igdb_id, LibraryGame.owned)
+        select(Game.igdb_id, Platform.igdb_id, LibraryGame.id, LibraryGame.owned)
         .select_from(LibraryGame)
         .join(GameEdition, LibraryGame.edition_id == GameEdition.id)
         .join(Game, GameEdition.game_id == Game.id)
@@ -76,22 +82,27 @@ def search_catalog_games(
             LibraryGame.user_id == user_id,
             Game.igdb_id.in_(igdb_game_ids),
         )
+        .order_by(LibraryGame.created_at.desc(), LibraryGame.id.desc())
     ).all()
     library_platforms = {
         (igdb_game_id, igdb_platform_id)
-        for igdb_game_id, igdb_platform_id, _ in library_entries
+        for igdb_game_id, igdb_platform_id, _, _ in library_entries
     }
     owned_game_ids = {
         igdb_game_id
-        for igdb_game_id, _, owned in library_entries
+        for igdb_game_id, _, _, owned in library_entries
         if owned
     }
     library_game_ids = {igdb_game_id for igdb_game_id, _ in library_platforms}
+    library_entry_ids: dict[int, int] = {}
+    for igdb_game_id, _, library_game_id, _ in library_entries:
+        library_entry_ids.setdefault(igdb_game_id, library_game_id)
 
     enriched_results = [
         result.model_copy(
             update={
                 "game_id": local_game_ids.get(result.igdb_id),
+                "library_game_id": library_entry_ids.get(result.igdb_id),
                 "in_library": result.igdb_id in library_game_ids,
                 "owned": result.igdb_id in owned_game_ids,
                 "platforms": [
@@ -240,19 +251,73 @@ def add_game_to_library(
 
 def list_library_games(session: Session, user_id: int) -> list[LibraryGameResponse]:
     entries = session.scalars(
-        select(LibraryGame)
+        _library_entry_select()
         .where(LibraryGame.user_id == user_id)
-        .options(
-            joinedload(LibraryGame.edition).joinedload(GameEdition.localization),
-            joinedload(LibraryGame.edition).joinedload(GameEdition.platform),
-            joinedload(LibraryGame.edition).selectinload(GameEdition.covers),
-            joinedload(LibraryGame.edition)
-            .joinedload(GameEdition.game)
-            .selectinload(Game.covers),
-        )
         .order_by(LibraryGame.created_at.desc(), LibraryGame.id.desc())
     ).all()
     return [_to_response(entry) for entry in entries]
+
+
+def get_game_detail(
+    session: Session,
+    user_id: int,
+    igdb_game_id: int,
+    library_game_id: int | None,
+    igdb_client: IgdbClient,
+) -> GameDetailResponse:
+    source_game = igdb_client.get_game(igdb_game_id)
+    if source_game is None:
+        raise GameNotFoundError
+
+    entries = session.scalars(
+        _library_entry_select()
+        .join(GameEdition, LibraryGame.edition_id == GameEdition.id)
+        .join(Game, GameEdition.game_id == Game.id)
+        .where(
+            LibraryGame.user_id == user_id,
+            Game.igdb_id == igdb_game_id,
+        )
+        .order_by(LibraryGame.created_at.desc(), LibraryGame.id.desc())
+    ).all()
+    selected_entry = (
+        next((entry for entry in entries if entry.id == library_game_id), None)
+        if library_game_id is not None
+        else None
+    )
+    if library_game_id is not None and selected_entry is None:
+        raise LibraryGameNotFoundError
+
+    local_game_id = session.scalar(select(Game.id).where(Game.igdb_id == igdb_game_id))
+    library_platform_ids = {
+        entry.edition.platform.igdb_id
+        for entry in entries
+    }
+
+    return GameDetailResponse(
+        game_id=local_game_id,
+        igdb_id=source_game.id,
+        title=source_game.name.strip(),
+        summary=source_game.summary,
+        cover_url=(
+            build_cover_url(source_game.cover.image_id)
+            if source_game.cover is not None
+            else None
+        ),
+        platforms=[
+            PlatformSearchResult(
+                igdb_id=platform.id,
+                name=platform.name,
+                abbreviation=platform.abbreviation,
+                in_library=platform.id in library_platform_ids,
+            )
+            for platform in source_game.platforms
+        ],
+        library_entry=(
+            _to_library_context(selected_entry)
+            if selected_entry is not None
+            else None
+        ),
+    )
 
 
 def get_library_statistics(
@@ -298,6 +363,17 @@ def get_library_statistics(
     )
 
 
+def _library_entry_select() -> Select[tuple[LibraryGame]]:
+    return select(LibraryGame).options(
+        joinedload(LibraryGame.edition).joinedload(GameEdition.localization),
+        joinedload(LibraryGame.edition).joinedload(GameEdition.platform),
+        joinedload(LibraryGame.edition).selectinload(GameEdition.covers),
+        joinedload(LibraryGame.edition)
+        .joinedload(GameEdition.game)
+        .selectinload(Game.covers),
+    )
+
+
 def _to_response(entry: LibraryGame) -> LibraryGameResponse:
     edition = entry.edition
     primary_cover = next(
@@ -328,6 +404,22 @@ def _to_response(entry: LibraryGame) -> LibraryGameResponse:
             igdb_id=edition.platform.igdb_id,
             name=edition.platform.name,
             abbreviation=edition.platform.abbreviation,
+            in_library=True,
+        ),
+        media_format=entry.media_format,
+        owned=entry.owned,
+        play_status=entry.play_status,
+    )
+
+
+def _to_library_context(entry: LibraryGame) -> GameLibraryContext:
+    platform = entry.edition.platform
+    return GameLibraryContext(
+        id=entry.id,
+        platform=PlatformSearchResult(
+            igdb_id=platform.igdb_id,
+            name=platform.name,
+            abbreviation=platform.abbreviation,
             in_library=True,
         ),
         media_format=entry.media_format,

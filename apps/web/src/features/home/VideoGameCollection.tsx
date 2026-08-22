@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
+import { gameDetailPath } from '../games/gameDetailPath'
 import { gameMonogram } from '../games/gameMonogram'
 import { gameLibraryQueryOptions } from '../games/queries'
 import { CollectionPreview } from './CollectionPreview'
@@ -19,6 +20,7 @@ export function VideoGameCollection() {
       meta: game.platform.abbreviation ?? game.platform.name,
       monogram: gameMonogram(game.title),
       accent: fallbackAccents[index % fallbackAccents.length] ?? '#b9d7e8',
+      detailPath: gameDetailPath(game.igdb_game_id, game.id),
       ...(game.cover_url ? { coverUrl: game.cover_url } : {}),
     })),
   }

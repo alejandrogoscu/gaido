@@ -10,6 +10,7 @@ export type PlayStatus = 'pending' | 'playing' | 'played' | 'completed'
 
 export type GameSearchResult = {
   game_id: number | null
+  library_game_id: number | null
   igdb_id: number
   title: string
   summary: string | null
@@ -31,6 +32,24 @@ export type LibraryGame = {
   media_format: MediaFormat
   owned: boolean
   play_status: PlayStatus
+}
+
+export type GameLibraryContext = {
+  id: number
+  platform: GamePlatform
+  media_format: MediaFormat
+  owned: boolean
+  play_status: PlayStatus
+}
+
+export type GameDetail = {
+  game_id: number | null
+  igdb_id: number
+  title: string
+  summary: string | null
+  cover_url: string | null
+  platforms: GamePlatform[]
+  library_entry: GameLibraryContext | null
 }
 
 export type GameLibraryStatistics = {

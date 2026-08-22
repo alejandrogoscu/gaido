@@ -3,8 +3,9 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { gameLibraryQueryOptions } from './queries'
+import { gameDetailPath } from './gameDetailPath'
 import { gameMonogram } from './gameMonogram'
+import { gameLibraryQueryOptions } from './queries'
 import {
   emptyGameLibraryFilters,
   GameLibraryFilters,
@@ -122,24 +123,30 @@ function LibraryContent({
       {games.map((game) => (
         <li key={game.id}>
           <article className={styles.game} aria-label={game.title}>
-            {game.cover_url ? (
-              <img src={game.cover_url} alt={game.title} />
-            ) : (
-              <div
-                className={styles.coverFallback}
-                role="img"
-                aria-label={game.title}
-              >
-                {gameMonogram(game.title)}
-              </div>
-            )}
-            <span
-              className={styles.platform}
-              aria-label={`Plataforma: ${game.platform.name}`}
-              title={game.platform.name}
+            <Link
+              className={styles.gameLink}
+              to={gameDetailPath(game.igdb_game_id, game.id)}
+              aria-label={`Ver detalle de ${game.title} para ${game.platform.name}`}
             >
-              {game.platform.abbreviation ?? game.platform.name}
-            </span>
+              {game.cover_url ? (
+                <img src={game.cover_url} alt={game.title} />
+              ) : (
+                <div
+                  className={styles.coverFallback}
+                  role="img"
+                  aria-label={game.title}
+                >
+                  {gameMonogram(game.title)}
+                </div>
+              )}
+              <span
+                className={styles.platform}
+                aria-label={`Plataforma: ${game.platform.name}`}
+                title={game.platform.name}
+              >
+                {game.platform.abbreviation ?? game.platform.name}
+              </span>
+            </Link>
           </article>
         </li>
       ))}

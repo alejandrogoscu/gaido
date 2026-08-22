@@ -8,15 +8,9 @@ import {
 import { useRef, useState, type KeyboardEvent } from 'react'
 
 import { trapFocus } from '../../shared/ui/focusTrap'
+import { playStatusLabels } from './gameLabels'
 import styles from './GameLibraryFilters.module.css'
 import type { PlayStatus } from './types'
-
-const playStatusLabels: Record<PlayStatus, string> = {
-  pending: 'Pendiente',
-  playing: 'Jugando',
-  played: 'Jugado',
-  completed: 'Completado',
-}
 
 const ownershipLabels = {
   owned: 'Lo tengo',

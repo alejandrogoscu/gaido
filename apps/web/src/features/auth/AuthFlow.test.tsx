@@ -354,18 +354,66 @@ describe('autenticación', () => {
     expect(screen.queryByRole('button', { name: 'Abrir menú' })).toBeNull()
   })
 
-  it('oculta la cabecera global en el resumen de videojuegos', async () => {
+  it('abre el detalle de biblioteca sin la cabecera global', async () => {
     fetchMock
       .mockResolvedValueOnce(mockResponse(200, authenticatedUser))
       .mockResolvedValueOnce(
         mockResponse(200, {
+          game_id: 1,
+          igdb_id: 338106,
+          title: 'Donkey Kong Bananza',
+          summary: 'Explora un enorme mundo subterráneo.',
+          cover_url: null,
+          platforms: [],
+          library_entry: {
+            id: 1,
+            platform: {
+              igdb_id: 508,
+              name: 'Nintendo Switch 2',
+              abbreviation: 'Switch 2',
+              in_library: true,
+            },
+            media_format: 'physical',
+            owned: true,
+            play_status: 'completed',
+          },
+        }),
+      )
+
+    renderApp('/videojuegos/338106?entrada=1')
+
+    expect(
+      await screen.findByRole('heading', { name: 'Donkey Kong Bananza' }),
+    ).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Volver' })).toBeTruthy()
+    expect(screen.queryByRole('img', { name: 'Gaido' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Abrir menú' })).toBeNull()
+  })
+
+  it('oculta la cabecera global en el resumen de videojuegos', async () => {
+    fetchMock.mockImplementation(async (input) => {
+      const url =
+        typeof input === 'string'
+          ? input
+          : 'url' in input
+            ? input.url
+            : input.toString()
+
+      if (url === '/api/v1/auth/me') {
+        return mockResponse(200, authenticatedUser)
+      }
+
+      if (url === '/api/v1/library/games/statistics') {
+        return mockResponse(200, {
           total_games: 0,
           total_platforms: 0,
           progress: { to_play: 0, played: 0 },
           formats: { physical: 0, digital: 0 },
-        }),
-      )
-      .mockResolvedValueOnce(mockResponse(200, []))
+        })
+      }
+
+      return mockResponse(200, [])
+    })
 
     renderApp('/videojuegos')
 

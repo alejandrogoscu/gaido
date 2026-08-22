@@ -30,6 +30,8 @@ Este documento describe el comportamiento funcional vigente de Gaido. Debe evolu
 - El catálogo local conserva únicamente los videojuegos seleccionados por algún usuario; los resultados de búsqueda no se importan de forma masiva.
 - Una búsqueda cruza los resultados de IGDB con el catálogo local mediante el identificador externo y devuelve el identificador interno cuando el videojuego ya está importado.
 - La búsqueda identifica si el videojuego y cada una de sus plataformas ya forman parte de la biblioteca del usuario autenticado, y si el usuario posee alguna de sus entradas.
+- El detalle puede consultar por la referencia de IGDB un videojuego todavía no importado sin incorporarlo al catálogo local.
+- El contexto personal del detalle se identifica por una entrada de biblioteca seleccionada y nunca permite consultar datos de otro usuario.
 - Consultar IGDB incluso para un videojuego ya importado permite descubrir cambios posteriores como nuevas plataformas; una futura política de caché podrá evitar llamadas recientes sin cambiar el contrato.
 - Cada videojuego conserva la información necesaria para determinar cuándo se sincronizó y si IGDB dispone de una versión más reciente.
 - Cada videojuego conserva la categoría normalizada que expone IGDB (juego principal, remake, remaster, port, DLC, bundle...) para poder distinguir variantes equivalentes de una misma obra.
@@ -96,6 +98,8 @@ Este documento describe el comportamiento funcional vigente de Gaido. Debe evolu
 - `played` significa que se ha jugado, no necesariamente que se haya completado.
 - `completed` significa que el usuario considera completado el videojuego.
 - La propiedad de la edición y su estado de juego son conceptos independientes.
+- Sin una entrada personal seleccionada, el detalle muestra todas las plataformas disponibles del catálogo y no presenta propiedad ni estado.
+- Con una entrada personal seleccionada, el detalle muestra únicamente su plataforma y estado. Muestra «Lo tengo» cuando `owned` es verdadero; muestra «No lo tengo» cuando no se posee y el estado es `playing`, `played` o `completed`; para una entrada `pending` no poseída no muestra indicación de propiedad.
 - La gestión de varias copias idénticas de una misma edición queda fuera del alcance inicial.
 - En la primera alta desde IGDB, el usuario elige una de las plataformas devueltas por el proveedor, el formato de su entrada, su propiedad y su estado de juego.
 - Mientras no se importen versiones regionales específicas, el alta crea o reutiliza una edición estándar de región desconocida y localización inglesa.

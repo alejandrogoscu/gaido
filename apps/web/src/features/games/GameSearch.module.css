@@ -208,6 +208,17 @@
   border-bottom: 0;
 }
 
+.detailLink {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+}
+
+.detailLink:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -3px;
+}
+
 .cover,
 .coverFallback {
   width: 4.25rem;
@@ -279,6 +290,8 @@
 }
 
 .resultActions {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: flex-end;

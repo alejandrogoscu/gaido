@@ -51,6 +51,7 @@ LIBRARY_DATA = {
 def test_library_requires_authentication(client: TestClient) -> None:
     list_response = client.get("/api/v1/library/games")
     statistics_response = client.get("/api/v1/library/games/statistics")
+    detail_response = client.get("/api/v1/games/338106")
     create_response = client.post(
         "/api/v1/library/games",
         json=LIBRARY_DATA,
@@ -58,6 +59,7 @@ def test_library_requires_authentication(client: TestClient) -> None:
 
     assert list_response.status_code == 401
     assert statistics_response.status_code == 401
+    assert detail_response.status_code == 401
     assert create_response.status_code == 401
 
 
@@ -152,6 +154,109 @@ def test_adds_selected_game_edition_and_lists_it(client: TestClient) -> None:
 
     assert list_response.status_code == 200
     assert list_response.json() == [create_response.json()]
+
+
+def test_returns_game_detail_with_selected_library_entry(client: TestClient) -> None:
+    app.dependency_overrides[get_igdb_client] = lambda: _igdb_client(GAME_DATA)
+    _authenticate(client)
+    create_response = client.post(
+        "/api/v1/library/games",
+        json=LIBRARY_DATA,
+    )
+
+    response = client.get(
+        "/api/v1/games/338106",
+        params={"library_game_id": create_response.json()["id"]},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "game_id": 1,
+        "igdb_id": 338106,
+        "title": "Donkey Kong Bananza",
+        "summary": "Explore a vast underground world.",
+        "cover_url": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobd1q.jpg",
+        "platforms": [
+            {
+                "igdb_id": 508,
+                "name": "Nintendo Switch 2",
+                "abbreviation": "Switch 2",
+                "in_library": True,
+            },
+            {
+                "igdb_id": 130,
+                "name": "Nintendo Switch",
+                "abbreviation": "Switch",
+                "in_library": False,
+            },
+        ],
+        "library_entry": {
+            "id": 1,
+            "platform": {
+                "igdb_id": 508,
+                "name": "Nintendo Switch 2",
+                "abbreviation": "Switch 2",
+                "in_library": True,
+            },
+            "media_format": "physical",
+            "owned": True,
+            "play_status": "completed",
+        },
+    }
+
+
+def test_returns_catalog_detail_without_a_library_entry(client: TestClient) -> None:
+    app.dependency_overrides[get_igdb_client] = lambda: _igdb_client(GAME_DATA)
+    _authenticate(client)
+
+    response = client.get("/api/v1/games/338106")
+
+    assert response.status_code == 200
+    assert response.json()["game_id"] is None
+    assert response.json()["library_entry"] is None
+    assert [platform["name"] for platform in response.json()["platforms"]] == [
+        "Nintendo Switch 2",
+        "Nintendo Switch",
+    ]
+
+
+def test_reports_game_detail_missing_from_igdb(client: TestClient) -> None:
+    app.dependency_overrides[get_igdb_client] = lambda: _igdb_client(None)
+    _authenticate(client)
+
+    response = client.get("/api/v1/games/338106")
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "El videojuego no existe en IGDB"}
+
+
+def test_hides_selected_library_entry_from_other_users(client: TestClient) -> None:
+    app.dependency_overrides[get_igdb_client] = lambda: _igdb_client(GAME_DATA)
+    _authenticate(client)
+    create_response = client.post(
+        "/api/v1/library/games",
+        json=LIBRARY_DATA,
+    )
+    assert create_response.status_code == 201
+    assert client.post("/api/v1/auth/logout").status_code == 204
+    assert client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "other@example.com",
+            "username": "OtherPlayer",
+            "password": "otra contraseña segura",
+        },
+    ).status_code == 201
+
+    response = client.get(
+        "/api/v1/games/338106",
+        params={"library_game_id": create_response.json()["id"]},
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "detail": "La entrada de biblioteca no corresponde al videojuego"
+    }
 
 
 def test_rejects_duplicate_edition(client: TestClient) -> None:
@@ -256,6 +361,7 @@ def test_search_marks_the_platform_already_in_the_library(client: TestClient) ->
     assert search_response.status_code == 200
     result = search_response.json()[0]
     assert result["game_id"] == create_response.json()["game_id"]
+    assert result["library_game_id"] == create_response.json()["id"]
     assert result["in_library"] is True
     assert result["owned"] is True
     platforms = {

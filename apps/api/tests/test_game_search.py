@@ -71,6 +71,7 @@ def test_game_search_returns_mapped_igdb_results(client: TestClient) -> None:
     assert first_response.json() == [
         {
             "game_id": None,
+            "library_game_id": None,
             "igdb_id": 113112,
             "title": "Hades",
             "summary": "Battle out of hell.",

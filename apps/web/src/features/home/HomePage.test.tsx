@@ -18,6 +18,7 @@ import { HomePage } from './HomePage'
 
 vi.mock('../games/api', () => ({
   addLibraryGame: vi.fn(),
+  getGameDetail: vi.fn(),
   getGameLibraryStatistics: vi.fn(),
   getLibraryGames: vi.fn(),
   searchGames: vi.fn(),
@@ -45,6 +46,7 @@ const donkeyKong: LibraryGame = {
 }
 const donkeyKongSearchResult: GameSearchResult = {
   game_id: null,
+  library_game_id: null,
   igdb_id: 338106,
   title: 'Donkey Kong Bananza',
   summary: 'Explore a vast underground world.',
@@ -86,6 +88,20 @@ describe('inicio de colecciones', () => {
     expect(comicsShortcut.hasAttribute('disabled')).toBe(true)
   })
 
+  it('abre el detalle desde una portada de la biblioteca', async () => {
+    mockedGetLibraryGames.mockResolvedValue([donkeyKong])
+
+    renderHome()
+
+    expect(
+      (
+        await screen.findByRole('link', {
+          name: 'Ver detalle de Donkey Kong Bananza',
+        })
+      ).getAttribute('href'),
+    ).toBe('/videojuegos/338106?entrada=1')
+  })
+
   it('configura y añade una edición a la biblioteca', async () => {
     let library: LibraryGame[] = []
     mockedGetLibraryGames.mockImplementation(() => Promise.resolve(library))
@@ -112,6 +128,11 @@ describe('inicio de colecciones', () => {
 
     expect(await screen.findByText('2025')).toBeTruthy()
     expect(screen.getByText('Switch 2')).toBeTruthy()
+    expect(
+      screen
+        .getByRole('link', { name: 'Ver detalle de Donkey Kong Bananza' })
+        .getAttribute('href'),
+    ).toBe('/videojuegos/338106')
 
     await user.click(
       screen.getByRole('button', {
@@ -246,6 +267,7 @@ describe('inicio de colecciones', () => {
       {
         ...donkeyKongSearchResult,
         game_id: donkeyKong.game_id,
+        library_game_id: donkeyKong.id,
         in_library: true,
         owned: true,
         platforms: [donkeyKong.platform],
@@ -275,6 +297,11 @@ describe('inicio de colecciones', () => {
       screen.getByText('Nintendo Switch 2, en tu biblioteca'),
     ).toBeTruthy()
     expect(
+      screen
+        .getByRole('link', { name: 'Ver detalle de Donkey Kong Bananza' })
+        .getAttribute('href'),
+    ).toBe('/videojuegos/338106?entrada=1')
+    expect(
       screen.queryByRole('button', {
         name: 'Añadir Donkey Kong Bananza a la biblioteca',
       }),
@@ -286,6 +313,7 @@ describe('inicio de colecciones', () => {
       {
         ...donkeyKongSearchResult,
         game_id: donkeyKong.game_id,
+        library_game_id: donkeyKong.id,
         in_library: true,
         owned: true,
         platforms: [

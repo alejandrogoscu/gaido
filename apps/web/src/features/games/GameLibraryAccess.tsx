@@ -1,6 +1,7 @@
 import { RiArrowRightLine } from '@remixicon/react'
 import { Link } from 'react-router-dom'
 
+import { gameDetailPath } from './gameDetailPath'
 import { gameMonogram } from './gameMonogram'
 import styles from './GameLibraryAccess.module.css'
 import type { LibraryGame } from './types'
@@ -27,17 +28,19 @@ export function GameLibraryAccess({ games }: { games: LibraryGame[] }) {
         <ul className={styles.covers} aria-label="Últimos videojuegos añadidos">
           {previewGames.map((game) => (
             <li key={game.id}>
-              {game.cover_url ? (
-                <img src={game.cover_url} alt={game.title} />
-              ) : (
-                <div
-                  className={styles.coverFallback}
-                  role="img"
-                  aria-label={game.title}
-                >
-                  {gameMonogram(game.title)}
-                </div>
-              )}
+              <Link
+                className={styles.coverLink}
+                to={gameDetailPath(game.igdb_game_id, game.id)}
+                aria-label={`Ver detalle de ${game.title}`}
+              >
+                {game.cover_url ? (
+                  <img src={game.cover_url} alt="" />
+                ) : (
+                  <div className={styles.coverFallback} aria-hidden="true">
+                    {gameMonogram(game.title)}
+                  </div>
+                )}
+              </Link>
             </li>
           ))}
         </ul>

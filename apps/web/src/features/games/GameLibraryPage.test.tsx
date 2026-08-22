@@ -10,6 +10,7 @@ import { GameLibraryPage } from './GameLibraryPage'
 import type { LibraryGame } from './types'
 
 vi.mock('./api', () => ({
+  getGameDetail: vi.fn(),
   getGameLibraryStatistics: vi.fn(),
   getLibraryGames: vi.fn(),
 }))
@@ -107,6 +108,13 @@ describe('listado de biblioteca de videojuegos', () => {
       within(library).getByLabelText('Plataforma: Nintendo Switch 2'),
     ).toBeTruthy()
     expect(within(library).getByRole('img', { name: 'Celeste' })).toBeTruthy()
+    expect(
+      within(library)
+        .getByRole('link', {
+          name: 'Ver detalle de Donkey Kong Bananza para Nintendo Switch 2',
+        })
+        .getAttribute('href'),
+    ).toBe('/videojuegos/338106?entrada=1')
   })
 
   it('combina la búsqueda con los filtros de plataforma, estado y propiedad', async () => {

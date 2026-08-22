@@ -44,5 +44,6 @@ Este documento recoge las decisiones visuales compartidas de la aplicación.
 - Anclar las vistas equivalentes a una distancia fija desde la cabecera; no centrarlas verticalmente en función de la altura variable de su contenido.
 - En la portada autenticada, mostrar los resúmenes de colección como recorridos horizontales en móvil y cuadrículas de tres columnas desde 768 px.
 - Los resúmenes de un tipo de colección usan tarjetas rectas, cifras destacadas y gráficos de anillo con leyenda textual; el color refuerza la información, pero nunca es su único indicador.
+- El detalle de un videojuego conserva la cabecera compacta de las vistas inmersivas y presenta el título y su contexto junto a la portada, seguido del contenido descriptivo, valoraciones y acciones. El contexto puede ser general o corresponder a una entrada personal seleccionada.
 - El acceso al buscador de la portada usa «Buscar títulos» para incluir tanto elementos guardados como contenido nuevo de cualquier futura colección; cada vista de resultados concreta mantiene el contexto del tipo de contenido que soporta actualmente.
 - Usar portadas provisionales de color plano y monogramas mientras no existan imágenes reales, sin degradados ni efectos decorativos.

@@ -11,6 +11,7 @@ from app.features.games.igdb import (
     get_igdb_client,
 )
 from app.features.games.schemas import (
+    GameDetailResponse,
     GameLibraryStatisticsResponse,
     GameSearchResult,
     LibraryGameCreate,
@@ -19,8 +20,10 @@ from app.features.games.schemas import (
 from app.features.games.service import (
     GameNotFoundError,
     LibraryGameConflictError,
+    LibraryGameNotFoundError,
     PlatformNotFoundError,
     add_game_to_library,
+    get_game_detail,
     get_library_statistics,
     list_library_games,
     search_catalog_games,
@@ -53,6 +56,36 @@ def search_games(
             normalized_query,
             igdb_client,
         )
+    except IgdbError as error:
+        _raise_igdb_http_error(error)
+
+
+@router.get("/{igdb_game_id}", response_model=GameDetailResponse)
+def get_game(
+    igdb_game_id: int,
+    session: SessionDependency,
+    current_user: CurrentUserDependency,
+    igdb_client: IgdbClientDependency,
+    library_game_id: Annotated[int | None, Query(gt=0)] = None,
+) -> GameDetailResponse:
+    try:
+        return get_game_detail(
+            session,
+            current_user.id,
+            igdb_game_id,
+            library_game_id,
+            igdb_client,
+        )
+    except GameNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El videojuego no existe en IGDB",
+        ) from error
+    except LibraryGameNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="La entrada de biblioteca no corresponde al videojuego",
+        ) from error
     except IgdbError as error:
         _raise_igdb_http_error(error)
 

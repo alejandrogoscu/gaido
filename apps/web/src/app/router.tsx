@@ -6,6 +6,7 @@ import {
   RequireGuest,
 } from '../features/auth/SessionGuards'
 import { HomePage } from '../features/home/HomePage'
+import { GameDetailPage } from '../features/games/GameDetailPage'
 import { GameLibraryPage } from '../features/games/GameLibraryPage'
 import { AuthenticatedLayout } from '../layouts/AuthenticatedLayout/AuthenticatedLayout'
 import { PublicLayout } from '../layouts/PublicLayout/PublicLayout'
@@ -44,6 +45,11 @@ export const appRoutes: RouteObject[] = [
           {
             path: 'biblioteca/videojuegos',
             element: <GameLibraryPage />,
+            handle: { hideAuthenticatedHeader: true },
+          },
+          {
+            path: 'videojuegos/:igdbGameId',
+            element: <GameDetailPage />,
             handle: { hideAuthenticatedHeader: true },
           },
         ],

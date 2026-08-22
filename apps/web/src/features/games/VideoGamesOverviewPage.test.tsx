@@ -10,6 +10,7 @@ import type { GameLibraryStatistics, LibraryGame } from './types'
 import { VideoGamesOverviewPage } from './VideoGamesOverviewPage'
 
 vi.mock('./api', () => ({
+  getGameDetail: vi.fn(),
   getGameLibraryStatistics: vi.fn(),
   getLibraryGames: vi.fn(),
 }))
@@ -91,6 +92,11 @@ describe('resumen de videojuegos', () => {
     expect(
       screen.getByRole('list', { name: 'Últimos videojuegos añadidos' }),
     ).toBeTruthy()
+    expect(
+      screen
+        .getByRole('link', { name: 'Ver detalle de Donkey Kong Bananza' })
+        .getAttribute('href'),
+    ).toBe('/videojuegos/338106?entrada=1')
     expect(
       screen.getByRole('figure', {
         name: 'Progreso: Jugados, 2; Por jugar, 2',

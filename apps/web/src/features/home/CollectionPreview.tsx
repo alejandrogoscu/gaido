@@ -73,33 +73,47 @@ export function CollectionPreview({
           ref={itemsRef}
           className={`${styles.items} ${coverOnly ? styles.compactItems : ''}`}
         >
-          {collection.items.map((item) => (
-            <li className={styles.item} key={item.id}>
-              {item.coverUrl ? (
-                <img
-                  className={styles.coverImage}
-                  src={item.coverUrl}
-                  alt={coverOnly ? item.title : ''}
-                />
-              ) : (
-                <div
-                  className={styles.cover}
-                  style={{ '--item-accent': item.accent } as CSSProperties}
-                  aria-label={coverOnly ? item.title : undefined}
-                  aria-hidden={coverOnly ? undefined : 'true'}
-                  role={coverOnly ? 'img' : undefined}
-                >
-                  <span>{item.monogram}</span>
-                </div>
-              )}
-              {!coverOnly && (
-                <>
-                  <h3 className={styles.itemTitle}>{item.title}</h3>
-                  <p className={styles.itemMeta}>{item.meta}</p>
-                </>
-              )}
-            </li>
-          ))}
+          {collection.items.map((item) => {
+            const cover = item.coverUrl ? (
+              <img
+                className={styles.coverImage}
+                src={item.coverUrl}
+                alt={coverOnly ? item.title : ''}
+              />
+            ) : (
+              <div
+                className={styles.cover}
+                style={{ '--item-accent': item.accent } as CSSProperties}
+                aria-label={coverOnly ? item.title : undefined}
+                aria-hidden={coverOnly ? undefined : 'true'}
+                role={coverOnly ? 'img' : undefined}
+              >
+                <span>{item.monogram}</span>
+              </div>
+            )
+
+            return (
+              <li className={styles.item} key={item.id}>
+                {item.detailPath ? (
+                  <Link
+                    className={styles.coverLink}
+                    to={item.detailPath}
+                    aria-label={`Ver detalle de ${item.title}`}
+                  >
+                    {cover}
+                  </Link>
+                ) : (
+                  cover
+                )}
+                {!coverOnly && (
+                  <>
+                    <h3 className={styles.itemTitle}>{item.title}</h3>
+                    <p className={styles.itemMeta}>{item.meta}</p>
+                  </>
+                )}
+              </li>
+            )
+          })}
         </ul>
       )}
     </section>

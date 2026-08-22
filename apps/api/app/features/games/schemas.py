@@ -13,6 +13,7 @@ class PlatformSearchResult(BaseModel):
 
 class GameSearchResult(BaseModel):
     game_id: int | None = None
+    library_game_id: int | None = None
     igdb_id: int
     title: str
     summary: str | None
@@ -42,6 +43,24 @@ class LibraryGameResponse(BaseModel):
     media_format: Literal["physical", "digital"]
     owned: bool
     play_status: Literal["pending", "playing", "played", "completed"]
+
+
+class GameLibraryContext(BaseModel):
+    id: int
+    platform: PlatformSearchResult
+    media_format: Literal["physical", "digital"]
+    owned: bool
+    play_status: Literal["pending", "playing", "played", "completed"]
+
+
+class GameDetailResponse(BaseModel):
+    game_id: int | None
+    igdb_id: int
+    title: str
+    summary: str | None
+    cover_url: str | None
+    platforms: list[PlatformSearchResult]
+    library_entry: GameLibraryContext | None
 
 
 class GameProgressStatistics(BaseModel):

@@ -7,11 +7,13 @@ import {
 } from '@remixicon/react'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 
 import { ApiError } from '../../shared/api/client'
 import { trapFocus } from '../../shared/ui/focusTrap'
 import { AddGameDrawer } from './AddGameDrawer'
 import { searchGames } from './api'
+import { gameDetailPath } from './gameDetailPath'
 import { gameMonogram } from './gameMonogram'
 import styles from './GameSearch.module.css'
 import { gameSearchQueryKey } from './queries'
@@ -222,6 +224,11 @@ function GameResult({ game, onAdd }: GameResultProps) {
 
   return (
     <li className={styles.result}>
+      <Link
+        className={styles.detailLink}
+        to={gameDetailPath(game.igdb_id, game.library_game_id)}
+        aria-label={`Ver detalle de ${game.title}`}
+      />
       {game.cover_url ? (
         <img src={game.cover_url} alt="" className={styles.cover} />
       ) : (

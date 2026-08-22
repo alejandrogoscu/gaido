@@ -19,7 +19,7 @@ El frontend se organiza por responsabilidad y funcionalidad para permitir que Ga
 - Los guards resuelven carga, error, redirección y acceso; las páginas no repiten estas comprobaciones.
 - TanStack Query mantiene la sesión remota y React Router decide la vista correspondiente.
 - Las rutas autenticadas de pantalla completa declaran `hideAuthenticatedHeader` en su `handle`; el layout interpreta esa capacidad sin depender de rutas concretas.
-- `/videojuegos` presenta el resumen del área y `/biblioteca/videojuegos` su listado completo; ambos recorridos son independientes para que el área pueda incorporar nuevas vistas sin convertir la biblioteca en su página raíz.
+- `/videojuegos` presenta el resumen del área, `/biblioteca/videojuegos` su listado completo y `/videojuegos/:igdbGameId` el detalle de catálogo. El parámetro opcional `entrada` selecciona el contexto de una entrada personal sin crear una segunda vista de detalle.
 
 ## Crecimiento por áreas
 

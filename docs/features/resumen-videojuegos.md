@@ -9,7 +9,7 @@ Ofrecer al usuario una entrada al área de Videojuegos con una visión rápida d
 - La ruta autenticada `/videojuegos` entra desde la derecha como una vista de pantalla completa y sustituye la cabecera global por una cabecera compacta con regreso a Inicio.
 - El acceso de Videojuegos de la portada y el menú principal abren este resumen.
 - La parte superior muestra el número total de entradas de biblioteca y el número de plataformas distintas.
-- La tarjeta «Mis videojuegos» enlaza con `/biblioteca/videojuegos` y muestra las cinco entradas más recientes mediante sus portadas o un monograma alternativo.
+- La tarjeta «Mis videojuegos» enlaza con `/biblioteca/videojuegos` y muestra las cinco entradas más recientes mediante sus portadas o un monograma alternativo; cada portada abre el detalle con esa entrada seleccionada.
 - El gráfico de progreso agrupa `pending` y `playing` como «Por jugar», y `played` y `completed` como «Jugados».
 - El gráfico de formato compara entradas físicas y digitales únicamente entre los videojuegos que el usuario posee.
 - Una biblioteca vacía, una colección sin juegos en propiedad, la carga y los errores recuperables tienen estados explícitos.
