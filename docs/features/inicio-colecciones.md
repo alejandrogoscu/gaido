@@ -15,7 +15,7 @@ Ofrecer una portada autenticada que permita buscar elementos y resumir las disti
 - Tras enviar la consulta, la cabecera muestra el término buscado y permite volver a editarlo; los resultados se presentan como una lista vertical compacta.
 - Cada resultado muestra la abreviatura oficial de cada plataforma disponible, en turquesa y mayúsculas, sin bordes ni estado de selección, y conserva el nombre completo de cada plataforma de forma accesible.
 - Los resultados distinguen el videojuego y las plataformas que ya pertenecen a la biblioteca; solo las plataformas todavía ausentes pueden abrirse para configurar el alta.
-- Los resultados identifican de forma compacta la presencia en la biblioteca con un doble check y la propiedad con una bolsa de compra adicional, manteniendo ambos conceptos separados y accesibles por texto alternativo.
+- Los resultados muestran junto a la base de la portada un doble check y «Lo tengo» cuando existe propiedad, acompañado de su estado. Una entrada no poseída muestra únicamente «Jugado» o «Completado» cuando corresponda.
 - Cada resultado abre el detalle del catálogo; cuando la búsqueda reconoce una entrada personal, la conserva como contexto del enlace.
 - Entre el buscador y los resúmenes aparecen accesos visuales centrados para Videojuegos y Cómics, con fondo turquesa, símbolos blancos y nombres accesibles sin texto visible; Videojuegos abre el resumen de su área y Cómics permanece deshabilitado.
 - Los accesos y demás acciones de la portada utilizan Remix Icon para compartir el mismo lenguaje visual que el resto de la aplicación.

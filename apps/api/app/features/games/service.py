@@ -73,7 +73,13 @@ def search_catalog_games(
         ).all()
     )
     library_entries = session.execute(
-        select(Game.igdb_id, Platform.igdb_id, LibraryGame.id, LibraryGame.owned)
+        select(
+            Game.igdb_id,
+            Platform.igdb_id,
+            LibraryGame.id,
+            LibraryGame.owned,
+            LibraryGame.play_status,
+        )
         .select_from(LibraryGame)
         .join(GameEdition, LibraryGame.edition_id == GameEdition.id)
         .join(Game, GameEdition.game_id == Game.id)
@@ -86,41 +92,51 @@ def search_catalog_games(
     ).all()
     library_platforms = {
         (igdb_game_id, igdb_platform_id)
-        for igdb_game_id, igdb_platform_id, _, _ in library_entries
+        for igdb_game_id, igdb_platform_id, _, _, _ in library_entries
     }
     owned_game_ids = {
         igdb_game_id
-        for igdb_game_id, _, _, owned in library_entries
+        for igdb_game_id, _, _, owned, _ in library_entries
         if owned
     }
     library_game_ids = {igdb_game_id for igdb_game_id, _ in library_platforms}
-    library_entry_ids: dict[int, int] = {}
-    for igdb_game_id, _, library_game_id, _ in library_entries:
-        library_entry_ids.setdefault(igdb_game_id, library_game_id)
-
-    enriched_results = [
-        result.model_copy(
-            update={
-                "game_id": local_game_ids.get(result.igdb_id),
-                "library_game_id": library_entry_ids.get(result.igdb_id),
-                "in_library": result.igdb_id in library_game_ids,
-                "owned": result.igdb_id in owned_game_ids,
-                "platforms": [
-                    platform.model_copy(
-                        update={
-                            "in_library": (
-                                result.igdb_id,
-                                platform.igdb_id,
-                            )
-                            in library_platforms
-                        }
-                    )
-                    for platform in result.platforms
-                ],
-            }
+    library_entry_contexts: dict[int, tuple[int, str]] = {}
+    for igdb_game_id, _, library_game_id, _, play_status in library_entries:
+        library_entry_contexts.setdefault(
+            igdb_game_id,
+            (library_game_id, play_status),
         )
-        for result in results
-    ]
+
+    enriched_results: list[GameSearchResult] = []
+    for result in results:
+        library_entry_context = library_entry_contexts.get(result.igdb_id)
+        enriched_results.append(
+            result.model_copy(
+                update={
+                    "game_id": local_game_ids.get(result.igdb_id),
+                    "library_game_id": (
+                        library_entry_context[0] if library_entry_context else None
+                    ),
+                    "in_library": result.igdb_id in library_game_ids,
+                    "owned": result.igdb_id in owned_game_ids,
+                    "play_status": (
+                        library_entry_context[1] if library_entry_context else None
+                    ),
+                    "platforms": [
+                        platform.model_copy(
+                            update={
+                                "in_library": (
+                                    result.igdb_id,
+                                    platform.igdb_id,
+                                )
+                                in library_platforms
+                            }
+                        )
+                        for platform in result.platforms
+                    ],
+                }
+            )
+        )
     return sorted(enriched_results, key=_search_result_sort_key)[:SEARCH_RESULT_LIMIT]
 
 

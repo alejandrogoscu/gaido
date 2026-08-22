@@ -73,6 +73,7 @@
 }
 
 .overlay {
+  composes: gaido-slide-in-from-right from global;
   position: fixed;
   z-index: 30;
   inset: 0;
@@ -83,7 +84,6 @@
   flex-direction: column;
   color: var(--color-text);
   background: var(--color-background);
-  animation: gaido-slide-in-from-right 220ms ease-out;
 }
 
 .overlayHeader {
@@ -198,7 +198,7 @@
   display: grid;
   min-width: 0;
   padding: 1.1rem 1rem;
-  grid-template-columns: 4.25rem minmax(0, 1fr) 3rem;
+  grid-template-columns: var(--game-cover-compact-width) minmax(0, 1fr) 3rem;
   align-items: start;
   gap: 0.75rem;
   border-bottom: 1px solid var(--color-line);
@@ -206,6 +206,10 @@
 
 .result:last-child {
   border-bottom: 0;
+}
+
+.resultWithoutAction {
+  grid-template-columns: var(--game-cover-compact-width) minmax(0, 1fr);
 }
 
 .detailLink {
@@ -221,9 +225,9 @@
 
 .cover,
 .coverFallback {
-  width: 4.25rem;
-  aspect-ratio: 3 / 4;
-  object-fit: cover;
+  width: var(--game-cover-compact-width);
+  aspect-ratio: var(--game-cover-aspect-ratio);
+  object-fit: contain;
 }
 
 .coverFallback {
@@ -235,7 +239,10 @@
 }
 
 .resultContent {
+  display: flex;
   min-width: 0;
+  align-self: stretch;
+  flex-direction: column;
 }
 
 .resultContent h2,
@@ -266,7 +273,7 @@
 }
 
 .platformTag {
-  color: var(--color-accent-strong);
+  color: var(--color-text-muted);
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -274,7 +281,7 @@
 }
 
 .platformTagAdded {
-  color: var(--color-text-muted);
+  color: var(--color-accent-strong);
 }
 
 .visuallyHidden {
@@ -298,22 +305,34 @@
   align-self: stretch;
 }
 
-.libraryStatus {
+.personalStatus {
+  display: flex;
+  min-height: 1.5rem;
+  margin-top: auto;
+  padding-top: 0.65rem;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+}
+
+.ownedStatus {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 0.35rem;
+  gap: 0.3rem;
   color: var(--color-accent-strong);
+  font-weight: 700;
 }
 
-.libraryStatus span {
-  display: grid;
-  place-items: center;
+.playStatus {
+  color: var(--color-text-muted);
+  font-weight: 700;
 }
 
-.libraryStatus svg {
+.ownedStatus svg {
   width: 1.1rem;
   height: 1.1rem;
+  flex: 0 0 auto;
   fill: currentcolor;
 }
 
@@ -322,14 +341,6 @@
     padding-inline: max(1.25rem, calc((100% - 48rem) / 2));
   }
 
-  .result {
-    grid-template-columns: 4.75rem minmax(0, 1fr) 3rem;
-  }
-
-  .cover,
-  .coverFallback {
-    width: 4.75rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

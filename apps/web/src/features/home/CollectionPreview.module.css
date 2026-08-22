@@ -75,7 +75,7 @@
 }
 
 .compactItems {
-  grid-auto-columns: minmax(7.5rem, 42%);
+  grid-auto-columns: var(--game-cover-width);
 }
 
 .item {
@@ -98,6 +98,11 @@
 .coverImage {
   width: 100%;
   aspect-ratio: 4 / 5;
+}
+
+.compactItems .cover,
+.compactItems .coverImage {
+  aspect-ratio: var(--game-cover-aspect-ratio);
 }
 
 .cover {
@@ -175,6 +180,6 @@
   }
 
   .compactItems {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, var(--game-cover-width));
   }
 }

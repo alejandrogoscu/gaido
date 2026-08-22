@@ -23,4 +23,20 @@
   --color-strength-normal: #e7c94d;
   --color-strength-strong: #4bd6aa;
   --color-strength-very-strong: #18bdb1;
+  --game-cover-aspect-ratio: 3 / 4;
+  --game-cover-compact-width: clamp(6rem, 30vw, 8rem);
+  --game-cover-width: calc(50vw - 1.5rem);
+}
+
+@media (min-width: 36rem) {
+  :root {
+    --game-cover-width: calc(33.333vw - 1.5rem);
+  }
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --game-cover-compact-width: clamp(7rem, 14vw, 10rem);
+    --game-cover-width: min(calc(25vw - 2.375rem), 15.625rem);
+  }
 }

@@ -26,6 +26,10 @@ button {
   cursor: pointer;
 }
 
+.gaido-slide-in-from-right {
+  animation: gaido-slide-in-from-right 220ms ease-out;
+}
+
 @keyframes gaido-slide-in-from-right {
   from {
     transform: translateX(100%);
@@ -33,5 +37,11 @@ button {
 
   to {
     transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gaido-slide-in-from-right {
+    animation: none;
   }
 }

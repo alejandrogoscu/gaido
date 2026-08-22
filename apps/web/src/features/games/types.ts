@@ -20,6 +20,7 @@ export type GameSearchResult = {
   platforms: GamePlatform[]
   in_library: boolean
   owned: boolean
+  play_status: PlayStatus | null
 }
 
 export type LibraryGame = {

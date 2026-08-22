@@ -24,7 +24,7 @@ Permitir que un usuario autenticado configure y añada una edición de un videoj
 ## Contrato HTTP
 
 - `GET /api/v1/games/search?q=<texto>` busca en IGDB, cruza el resultado con la biblioteca y no persiste nuevos resultados.
-- Cada resultado de búsqueda devuelve `game_id` cuando ya existe en Gaido, indicadores `in_library` para el videojuego y sus plataformas, y `owned` cuando el usuario posee alguna entrada de ese videojuego.
+- Cada resultado de búsqueda devuelve `game_id` cuando ya existe en Gaido, indicadores `in_library` para el videojuego y sus plataformas, `owned` cuando el usuario posee alguna entrada y `play_status` para la entrada personal seleccionada.
 - Cada resultado de búsqueda incluye `category` con la categoría normalizada de IGDB (`main_game`, `remake`, `dlc_addon`...), usada para ordenar la respuesta; puede ser `null` si IGDB no la proporciona.
 - `GET /api/v1/library/games` devuelve únicamente la biblioteca del usuario autenticado.
 - `POST /api/v1/library/games` recibe `igdb_game_id`, `igdb_platform_id`, `media_format`, `owned` y `play_status`, y devuelve la entrada creada con estado `201`.

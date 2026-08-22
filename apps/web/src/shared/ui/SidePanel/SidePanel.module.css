@@ -7,6 +7,7 @@
 }
 
 .panel {
+  composes: gaido-slide-in-from-right from global;
   position: fixed;
   z-index: 41;
   top: 0;
@@ -18,7 +19,6 @@
   flex-direction: column;
   color: #ffffff;
   background: var(--color-surface);
-  animation: gaido-slide-in-from-right 220ms ease-out;
 }
 
 @keyframes fade-in {

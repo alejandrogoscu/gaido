@@ -23,6 +23,7 @@ class GameSearchResult(BaseModel):
     platforms: list[PlatformSearchResult]
     in_library: bool = False
     owned: bool = False
+    play_status: Literal["pending", "playing", "played", "completed"] | None = None
 
 
 class LibraryGameCreate(BaseModel):

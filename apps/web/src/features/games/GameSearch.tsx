@@ -3,7 +3,6 @@ import {
   RiArrowLeftLine,
   RiCheckDoubleLine,
   RiSearchLine,
-  RiShoppingBag3Line,
 } from '@remixicon/react'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
@@ -14,6 +13,7 @@ import { trapFocus } from '../../shared/ui/focusTrap'
 import { AddGameDrawer } from './AddGameDrawer'
 import { searchGames } from './api'
 import { gameDetailPath } from './gameDetailPath'
+import { playStatusLabels } from './gameLabels'
 import { gameMonogram } from './gameMonogram'
 import styles from './GameSearch.module.css'
 import { gameSearchQueryKey } from './queries'
@@ -223,7 +223,11 @@ function GameResult({ game, onAdd }: GameResultProps) {
   const canAddPlatform = game.platforms.some((platform) => !platform.in_library)
 
   return (
-    <li className={styles.result}>
+    <li
+      className={`${styles.result} ${
+        canAddPlatform ? '' : styles.resultWithoutAction
+      }`}
+    >
       <Link
         className={styles.detailLink}
         to={gameDetailPath(game.igdb_id, game.library_game_id)}
@@ -272,31 +276,12 @@ function GameResult({ game, onAdd }: GameResultProps) {
         ) : (
           <p>Sin plataformas disponibles</p>
         )}
+
+        <GameResultStatus game={game} />
       </div>
 
-      <div className={styles.resultActions}>
-        {game.in_library && (
-          <div
-            className={styles.libraryStatus}
-            role="img"
-            aria-label={
-              game.owned
-                ? 'En tu biblioteca y lo posees'
-                : 'En tu biblioteca'
-            }
-          >
-            <span title="En tu biblioteca">
-              <RiCheckDoubleLine aria-hidden="true" />
-            </span>
-            {game.owned && (
-              <span title="Lo posees">
-                <RiShoppingBag3Line aria-hidden="true" />
-              </span>
-            )}
-          </div>
-        )}
-
-        {canAddPlatform && (
+      {canAddPlatform && (
+        <div className={styles.resultActions}>
           <button
             type="button"
             className={styles.addButton}
@@ -305,9 +290,48 @@ function GameResult({ game, onAdd }: GameResultProps) {
           >
             <RiAddLine aria-hidden="true" />
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </li>
+  )
+}
+
+function GameResultStatus({ game }: { game: GameSearchResult }) {
+  const showsPlayStatus =
+    game.play_status !== null &&
+    (game.owned ||
+      game.play_status === 'played' ||
+      game.play_status === 'completed')
+
+  if (!game.owned && !showsPlayStatus) return null
+
+  const accessibleStatus = [
+    game.owned ? 'Lo tengo' : null,
+    showsPlayStatus && game.play_status
+      ? `Estado: ${playStatusLabels[game.play_status]}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join('. ')
+
+  return (
+    <div
+      className={styles.personalStatus}
+      role="status"
+      aria-label={accessibleStatus}
+    >
+      {game.owned && (
+        <span className={styles.ownedStatus}>
+          <RiCheckDoubleLine aria-hidden="true" />
+          Lo tengo
+        </span>
+      )}
+      {showsPlayStatus && game.play_status && (
+        <span className={styles.playStatus}>
+          {playStatusLabels[game.play_status]}
+        </span>
+      )}
+    </div>
   )
 }
 

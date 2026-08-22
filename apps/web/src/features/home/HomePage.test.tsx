@@ -56,6 +56,7 @@ const donkeyKongSearchResult: GameSearchResult = {
   platforms: [{ ...donkeyKong.platform, in_library: false }],
   in_library: false,
   owned: false,
+  play_status: null,
 }
 
 describe('inicio de colecciones', () => {
@@ -270,6 +271,7 @@ describe('inicio de colecciones', () => {
         library_game_id: donkeyKong.id,
         in_library: true,
         owned: true,
+        play_status: 'completed',
         platforms: [donkeyKong.platform],
       },
     ])
@@ -287,12 +289,10 @@ describe('inicio de colecciones', () => {
     )
 
     expect(
-      await screen.findByRole('img', {
-        name: 'En tu biblioteca y lo posees',
+      await screen.findByRole('status', {
+        name: 'Lo tengo. Estado: Completado',
       }),
     ).toBeTruthy()
-    expect(screen.getByTitle('En tu biblioteca')).toBeTruthy()
-    expect(screen.getByTitle('Lo posees')).toBeTruthy()
     expect(
       screen.getByText('Nintendo Switch 2, en tu biblioteca'),
     ).toBeTruthy()
@@ -306,6 +306,37 @@ describe('inicio de colecciones', () => {
         name: 'Añadir Donkey Kong Bananza a la biblioteca',
       }),
     ).toBeNull()
+  })
+
+  it('muestra solo el estado de un videojuego jugado que no posee', async () => {
+    mockedSearchGames.mockResolvedValue([
+      {
+        ...donkeyKongSearchResult,
+        game_id: donkeyKong.game_id,
+        library_game_id: donkeyKong.id,
+        in_library: true,
+        owned: false,
+        play_status: 'played',
+        platforms: [donkeyKong.platform],
+      },
+    ])
+    const user = userEvent.setup()
+    renderHome()
+
+    await user.click(
+      screen.getByRole('searchbox', { name: 'Buscar videojuegos' }),
+    )
+    await user.type(
+      within(
+        await screen.findByRole('dialog', { name: 'Buscar videojuegos' }),
+      ).getByRole('searchbox', { name: 'Buscar videojuegos' }),
+      'Donkey Kong Bananza{Enter}',
+    )
+
+    expect(
+      await screen.findByRole('status', { name: 'Estado: Jugado' }),
+    ).toBeTruthy()
+    expect(screen.queryByText('Lo tengo')).toBeNull()
   })
 
   it('permite añadir el mismo juego en otra plataforma', async () => {
